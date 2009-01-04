@@ -21,12 +21,12 @@
 // -------------------------------------------------------------------------- //
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
 #  define ARX_WIN32
-#else
+#elif defined(__linux__)
 #  define ARX_LINUX
 #endif
 
 #if defined(__INTEL_COMPILER) || defined(__ICL) || defined(__ICC) || defined(__ECC)
-#  define ARX_INTELCC
+#  define ARX_ICC
 #elif defined __GNUC__
 #  define ARX_GCC
 #elif defined _MSC_VER

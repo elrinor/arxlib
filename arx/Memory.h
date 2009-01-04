@@ -45,9 +45,9 @@ namespace arx {
     return _aligned_malloc(size, align);
 #else
     /* generic version built on top of malloc */
-    if (align & (align - 1) != 0)
+    if ((align & (align - 1)) != 0)
       return NULL; /* not a power of 2 */
-    if (align & (sizeof(void*) - 1) != 0)
+    if ((align & (sizeof(void*) - 1)) != 0)
       return NULL; /* not multiple of sizeof(void*) */
 
     char* ptr = static_cast<char*>(malloc(size + align + sizeof(char*) - 1));
@@ -63,7 +63,8 @@ namespace arx {
 
   /** 
    * Frees memory allocated with aligned_malloc. Using this function for releasing memory 
-   * not allocated by aligned_malloc may result in undefined behaviour.
+   * not allocated by aligned_malloc may result in undefined behavior. Calling this function
+   * for NULL pointer results in no action.
    *
    * @param ptr pointer to a memory block to free
    */
@@ -73,6 +74,8 @@ namespace arx {
 #elif defined(ARX_WIN32)
     _aligned_free(ptr);
 #else
+    if(ptr == NULL)
+      return;
     free(*(static_cast<char **>(ptr) - 1));
 #endif
   }
@@ -87,8 +90,8 @@ namespace arx {
    */
   template<int align>
   struct WithAlignedOperatorNew {
-    STATIC_ASSERT((align & (align - 1) == 0)); /* is a power of 2 */
-    STATIC_ASSERT((align & (sizeof(void*) - 1) == 0)); /* is a multiple of sizeof(void*) */
+    STATIC_ASSERT(((align & (align - 1)) == 0)); /* is a power of 2 */
+    STATIC_ASSERT(((align & (sizeof(void*) - 1)) == 0)); /* is a multiple of sizeof(void*) */
 
     void* operator new(std::size_t size) throw() {
       return aligned_malloc(size, align);

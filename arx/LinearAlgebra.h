@@ -11,6 +11,7 @@
 #include "Preprocessor.h"
 #include "Mpl.h"
 #include "Utility.h"
+#include "Memory.h"
 
 #ifdef min
 #  undef min
@@ -83,6 +84,15 @@ namespace arx {
 #define ARX_STATIC_ASSERT_SAME_VALUETYPE(L, R)                                  \
   STATIC_ASSERT((is_same<typename Traits<L>::value_type, typename Traits<R>::value_type>::value))
 
+  /** This definition determines the alignment for all Matrix types. It is needed for SSE vectorization 
+   * (which is not yet implemented) */
+#define ARX_VEC_ALIGNMENT 16
+
+#define ARX_VEC_ALIGNED ARX_ALIGN(ARX_VEC_ALIGNMENT)
+
+#define ARX_VEC_ALIGNED_MALLOC(size) aligned_malloc((size), ARX_VEC_ALIGNMENT)
+
+#define ARX_VEC_ALIGNED_FREE(ptr) aligned_free(ptr)
 
   /*
    * Derived:
@@ -283,20 +293,27 @@ namespace arx {
 // MatrixFlags
 // -------------------------------------------------------------------------- //
   enum MatrixFlags {
-    /** Store matrix in a row-major order. In case we're working on an expression, this bit
+    /** Store matrix in a row-major order. In case we're working on an expression, this flag
      * determines the storage order of the matrix created by evaluation of expression. */
     RowMajorBit = 0x1,
 
-    /** This bit determines whether the expression should be evaluated and stored into 
+    /** This flag determines whether the expression should be evaluated and stored into 
      * temporary before nesting. */
     EvalBeforeNestingBit = 0x2,
 
-    /** This bit determines whether the expression should be evaluated and stored into 
+    /** This flag determines whether the expression should be evaluated and stored into 
      * temporary before assignment. Used to solve aliasing problems in matrix product. */
     EvalBeforeAssigningBit = 0x4,
-    
-    /** This bit means the expression's elements could be accessed only once. Therefore,
-     * if one needs to access them several times, like in matrix product, one should
+
+    /** This flag determines whether the expression can be seen as 1D vector, i.e. whether it 
+     * supports coeff(int) method without any overhead. */
+    LinearAccessBit = 0x10,
+
+    /** This flag determines whether the first coefficient of matrix is aligned. */
+    AlignedBit = 0x40,
+
+    /** This flag means the expression's elements could be accessed only once. Therefore,
+     * if one needs to access them several times, like in matrix product, he should
      * evaluate it into temporary first. */
     PerishableBit = 0x10000000
   };
@@ -327,33 +344,34 @@ namespace arx {
    *   expression, which M is being nested into
    * @param PlainMatrixType type to use in case it was decided to evaluate M before nesting
    */
-  template<class M, int elemAccessCount = 1, class PlainMatrixType = void> class Nested {
+  template<class M, int elemAccessCount = 1, class PlainMatrixType = void> struct Nested {
     enum {
       EvalCost   = 
-        (elemAccessCount + 1) * NumTraits<typename Traits<T>::value_type>::ReadCost + 
-        Traits<T>::CoeffReadCost,
+        (elemAccessCount + 1) * NumTraits<typename Traits<M>::value_type>::ReadCost + 
+        Traits<M>::CoeffReadCost,
       NoEvalCost = 
-        elemAccessCount * Traits<T>::CoeffReadCost,
+        elemAccessCount * Traits<M>::CoeffReadCost,
 
-      PerformEval = Traits<M>::EvalBeforeNesting || (Traits<M>::Perishable && elemAccessCount > 1) || 
+      PerformEval = (Traits<M>::Flags & EvalBeforeNestingBit) || 
+        ((Traits<M>::Flags & PerishableBit) && elemAccessCount > 1) || 
         (EvalCost < NoEvalCost)
     };
     typedef 
-      if_c<PerformEval, PlainMatrixType, const M&> type;
+      typename if_c<PerformEval, PlainMatrixType, const M&>::type type;
   };
 
 
   /**
-   * Default flag inheritance implementation.
+   * Flag inheritance implementation for nesting related flags.
    *
    * @see class Nested
    */
   template<class M, int elemAccessCount = 1>
-  struct InheritFlags {
+  struct InheritNestingFlags {
     enum {
       value = (TraitsBase<M>::Flags & RowMajorBit) | 
         (Nested<M, elemAccessCount>::PerformEval ? 0 : 
-         TraitsBase<M>::Flags & (EvalBeforeAssigningBit | PerishableBit))
+         (TraitsBase<M>::Flags & (EvalBeforeAssigningBit | PerishableBit)))
     };
   };
 
@@ -376,7 +394,7 @@ namespace arx {
       RowsAtCompileTime = R,
       ColsAtCompileTime = C,
       CoeffReadCost = NumTraits<value_type>::ReadCost,
-      Flags = (StorageOrder == RowMajor ? RowMajorBit : 0)
+      Flags = (StorageOrder == RowMajor ? RowMajorBit : 0) | AlignedBit | LinearAccessBit
     };
   };
 
@@ -391,7 +409,7 @@ namespace arx {
       RowsAtCompileTime = 1,
       ColsAtCompileTime = TraitsBase<M>::ColsAtCompileTime,
       CoeffReadCost = TraitsBase<M>::ReadCost,
-      Flags = InheritFlags<M>::value
+      Flags = InheritNestingFlags<M>::value | LinearAccessBit /* & !AlignedBit */
     };
     typedef typename Nested<M>::type MNested;
   };
@@ -406,7 +424,7 @@ namespace arx {
       RowsAtCompileTime = TraitsBase<M>::RowsAtCompileTime,
       ColsAtCompileTime = 1,
       CoeffReadCost = TraitsBase<M>::ReadCost,
-      Flags = InheritFlags<M>::value
+      Flags = InheritNestingFlags<M>::value | LinearAccessBit /* & !AlignedBit */
     };
     typedef typename Nested<M>::type MNested;
   };
@@ -424,7 +442,8 @@ namespace arx {
       RowsAtCompileTime = Traits<L>::HasDynamicRows ? Traits<R>::RowsAtCompileTime : Traits<L>::RowsAtCompileTime,
       ColsAtCompileTime = Traits<L>::HasDynamicCols ? Traits<R>::ColsAtCompileTime : Traits<L>::ColsAtCompileTime,
       CoeffReadCost = TraitsBase<L>::CoeffReadCost + TraitsBase<R>::CoeffReadCost + FunctorTraits<O>::Cost,
-      Flags = InheritFlags<L>::value | InheritFlags<R>::value;
+      Flags = (InheritNestingFlags<L>::value | InheritNestingFlags<R>::value) | 
+        (Traits<L>::Flags & Traits<R>::Flags & (LinearAccessBit | AlignedBit));
     };
     typedef typename Nested<L>::type LNested;
     typedef typename Nested<R>::type RNested;
@@ -440,7 +459,8 @@ namespace arx {
       RowsAtCompileTime = Traits<M>::RowsAtCompileTime,
       ColsAtCompileTime = Traits<M>::ColsAtCompileTime,
       CoeffReadCost = TraitsBase<M>::CoeffReadCost + FunctorTraits<O>::Cost,
-      Flags = InheritFlags<M>::value
+      Flags = InheritNestingFlags<M>::value | 
+        (Traits<M>::Flags & (LinearAccessBit | AlignedBit))
     };
     typedef typename Nested<M>::type MNested;
   };
@@ -463,8 +483,10 @@ namespace arx {
         InnerSize * (NumTraits<value_type>::MulCost + TraitsBase<L>::CoeffReadCost + TraitsBase<R>::CoeffReadCost) +
         (InnerSize - 1) * NumTraits<value_type>::AddCost,
 
-      Flags = (InheritFlags<L, ColsAtCompileTime>::value | InheritFlags<R, RowsAtCompileTime>::value | 
-        EvalBeforeAssigningBit)
+      Flags = 
+        (InheritNestingFlags<L, ColsAtCompileTime>::value | InheritNestingFlags<R, RowsAtCompileTime>::value) |
+        (Traits<L>::Flags & Traits<R>::Flags & AlignedBit) | /* We don't have LinearAccessBit here */
+        EvalBeforeAssigningBit
     };
     typedef typename Nested<L, ColsAtCompileTime>::type LNested;
     typedef typename Nested<R, RowsAtCompileTime>::type RNested;
@@ -480,7 +502,8 @@ namespace arx {
       RowsAtCompileTime = Traits<M>::ColsAtCompileTime,
       ColsAtCompileTime = Traits<M>::RowsAtCompileTime,
       CoeffReadCost = TraitsBase<M>::CoeffReadCost,
-      Flags = InheritFlags<M>::value
+      Flags = (InheritNestingFlags<M>::value ^ RowMajorBit) | 
+        (Traits<M>::Flags & (LinearAccessBit | AlignedBit))
     };
     typedef typename Nested<M>::type MNested;
   };
@@ -753,7 +776,7 @@ namespace arx {
       assert(this->rows() == that.rows() && this->cols() == that.cols());
       for(int r = 0; r < this->rows(); r++)
         for(int c = 0; c < this->cols(); c++)
-          *this(r, c) = that(r, c);
+          (*this)(r, c) = that(r, c);
       return this->derived();
     }
 
@@ -791,7 +814,7 @@ namespace arx {
       STATIC_ASSERT((NumTraits<value_type>::HasFloatingPoint));
       assert(this->rows() == this->cols());
       assert(this->rows() == result.rows() && this->cols() == result.cols());
-      Inverser<RowsAtCompileTime, ColsAtCompileTime>()(*this, result);
+      Inverser<RowsAtCompileTime>()(*this, result);
     }
 
     const PlainMatrixType inverse() const {
@@ -838,7 +861,7 @@ namespace arx {
     template<class T, int R, int C>
     class apply: public SizedBase<R, C> {
     public:
-      T storedData[R * C];
+      ARX_VEC_ALIGNED T storedData[R * C];
 
       apply() {}
 
@@ -856,7 +879,12 @@ namespace arx {
       apply(): storedData(NULL) {}
 
       apply(int rows, int cols): SizedBase(rows, cols) {
-        this->storedData = new T[this->rowsStorage.getValue() * this->colsStorage.getValue()];
+        this->storedData = static_cast<T*>
+          (ARX_VEC_ALIGNED_MALLOC(this->rowsStorage.getValue() * this->colsStorage.getValue() * sizeof(T)));
+      }
+
+      ~apply() {
+        ARX_VEC_ALIGNED_FREE(this->storedData);
       }
     };
   };
@@ -927,6 +955,16 @@ namespace arx {
       assert(r < this->rows() && c < this->cols() && r >= 0 && c >= 0);
       return this->data()[this->dataOffset(r, c)]; 
     }
+
+    T& coeff(int index) {
+      assert(index < this->rows() * this->cols() && index >= 0);
+      return this->data()[index];
+    }
+
+    const T coeff(int index) const {
+      assert(index < this->rows() * this->cols() && index >= 0);
+      return this->data()[index];
+    }
   };
 
 
@@ -954,11 +992,11 @@ namespace arx {
     ARX_INHERIT_ASSIGNMENT_OPERATORS();
 
     template<class OtherDerived>
-    Matrix(const MatrixBase<OtherDerived>& that): MatrixStorage(that.rows(), that.cols()) {
+    Matrix(const MatrixBase<OtherDerived>& that): storage(that.rows(), that.cols()) {
       *this = that;
     }
 
-    Matrix(const Matrix& that): MatrixStorage(that.rows(), that.cols()) {
+    Matrix(const Matrix& that): storage(that.rows(), that.cols()) {
       *this = that;
     }
 
@@ -976,6 +1014,14 @@ namespace arx {
 
     const value_type coeff(int r, int c) const { 
       return this->storage.coeff(r, c);
+    }
+
+    value_type& coeff(int index) {
+      return this->storage.coeff(index);
+    }
+
+    const value_type coeff(int index) const { 
+      return this->storage.coeff(index);
     }
 
     T* data() {
@@ -1016,12 +1062,20 @@ namespace arx {
 
     value_type& coeff(int r, int c) {
       assert(r == 0);
-      return const_cast<M&>(this->m)(this->row, c);
+      return this->m.const_cast_derived()(this->row, c);
     }
 
     const value_type coeff(int r, int c) const { 
       assert(r == 0);
       return this->m(this->row, c);
+    }
+
+    value_type& coeff(int index) {
+      return this->m.const_cast_derived()(this->row, index);
+    }
+
+    const value_type coeff(int index) const { 
+      return this->m(this->row, index);
     }
 
     ARX_INHERIT_ASSIGNMENT_OPERATORS();
@@ -1056,12 +1110,20 @@ namespace arx {
 
     value_type& coeff(int r, int c) {
       assert(c == 0);
-      return const_cast<M&>(this->m)(r, this->col);
+      return this->m.const_cast_derived()(r, this->col);
     }
 
     const value_type coeff(int r, int c) const { 
       assert(c == 0);
       return this->m(r, this->col);
+    }
+
+    value_type& coeff(int index) {
+      return this->m.const_cast_derived()(index, this->col);
+    }
+
+    const value_type coeff(int index) const { 
+      return this->m(index, this->col);
     }
 
     ARX_INHERIT_ASSIGNMENT_OPERATORS();
@@ -1097,6 +1159,10 @@ namespace arx {
 
     const value_type coeff(int r, int c) const { 
       return this->o(this->l(r, c), this->r(r, c));
+    }
+
+    const value_type coeff(int index) const { 
+      return this->o(this->l(index), this->r(index));
     }
   };
 
@@ -1138,6 +1204,10 @@ namespace arx {
     const value_type coeff(int r, int c) const { 
       return this->o(this->m(r, c));
     }
+
+    const value_type coeff(int index) const {
+      return this->o(this->m(index));
+    }
   };
 
   template<class M>
@@ -1150,18 +1220,18 @@ namespace arx {
     return CwiseUnaryOp<M, Peq<typename Traits<M>::value_type> >(m.derived());
   }
 
-  template<class T, class M>
-  const CwiseUnaryOp<M, MulC<typename Traits<M>::value_type> > operator* (const MatrixBase<M>& l, const T& r) {
+  template<class M>
+  const CwiseUnaryOp<M, MulC<typename Traits<M>::value_type> > operator* (const MatrixBase<M>& l, const typename Traits<M>::value_type& r) {
     return CwiseUnaryOp<M, MulC<typename Traits<M>::value_type> >(l.derived(), MulC<typename Traits<M>::value_type>(r));
   }
 
-  template<class T, class M>
-  const CwiseUnaryOp<M, PreMulC<typename Traits<M>::value_type> > operator* (const T& l, const MatrixBase<M>& r) {
+  template<class M>
+  const CwiseUnaryOp<M, PreMulC<typename Traits<M>::value_type> > operator* (const typename Traits<M>::value_type& l, const MatrixBase<M>& r) {
     return CwiseUnaryOp<M, PreMulC<typename Traits<M>::value_type> >(r.derived(), PreMulC<typename Traits<M>::value_type>(l));
   }
 
-  template<class T, class M>
-  const CwiseUnaryOp<M, DivC<typename Traits<M>::value_type> > operator/ (const MatrixBase<M>& l, const T& r) {
+  template<class M>
+  const CwiseUnaryOp<M, DivC<typename Traits<M>::value_type> > operator/ (const MatrixBase<M>& l, const typename Traits<M>::value_type& r) {
     return CwiseUnaryOp<M, DivC<typename Traits<M>::value_type> >(l.derived(), DivC<typename Traits<M>::value_type>(r));
   }
 
@@ -1234,7 +1304,15 @@ namespace arx {
     }
 
     value_type& coeff(int r, int c) {
-      return const_cast<M&>(this->m)(c, r);
+      return this->m.const_cast_derived()(c, r);
+    }
+
+    const value_type coeff(int index) const {
+      return this->m(index);
+    }
+
+    value_type& coeff(int index) {
+      return this->m.const_cast_derived()(index);
     }
 
     ARX_INHERIT_ASSIGNMENT_OPERATORS();
@@ -1414,5 +1492,10 @@ namespace arx {
 #undef ARX_STATIC_ASSERT_SAME_VECTOR_SIZE
 #undef ARX_STATIC_ASSERT_VECTOR_ONLY
 #undef ARX_STATIC_ASSERT_SAME_VALUETYPE
+
+#undef ARX_VEC_ALIGNMENT
+#undef ARX_VEC_ALIGNED
+#undef ARX_VEC_ALIGNED_MALLOC
+#undef ARX_VEC_ALIGNED_FREE
 
 #endif
