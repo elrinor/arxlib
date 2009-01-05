@@ -343,7 +343,7 @@ namespace arx {
    *   expression, which M is being nested into
    * @param PlainMatrixType type to use in case it was decided to evaluate M before nesting
    */
-  template<class M, int elemAccessCount = 1, class PlainMatrixType = void> struct Nested {
+  template<class M, int elemAccessCount = 1, class PlainMatrixType = typename Traits<M>::EvalType> struct Nested {
     enum {
       EvalCost   = 
         (elemAccessCount + 1) * NumTraits<typename Traits<M>::value_type>::ReadCost + 
@@ -385,17 +385,21 @@ namespace arx {
   /**
    * TraitsBase for Matrix.
    */
-  template<class T, int R, int C, int StorageOrder> struct TraitsBase<Matrix<T, R, C, StorageOrder> > {
-    STATIC_ASSERT((StorageOrder == RowMajor || StorageOrder == ColMajor));
+  template<class T, int R, int C, int storageOrder> struct TraitsBase<Matrix<T, R, C, storageOrder> > {
+    STATIC_ASSERT((storageOrder == RowMajor || storageOrder == ColMajor));
     STATIC_ASSERT((R > 0 && C > 0));
 
     typedef T value_type;
     enum {
       RowsAtCompileTime = R,
       ColsAtCompileTime = C,
+      StorageOrder = storageOrder,
       CoeffReadCost = NumTraits<value_type>::ReadCost,
       Flags = (StorageOrder == RowMajor ? RowMajorBit : 0) | AlignedBit | LinearAccessBit
     };
+
+    typedef Matrix<T, R, C, StorageOrder> PlainMatrixType;
+    typedef const PlainMatrixType& EvalType;
   };
 
 
@@ -412,10 +416,14 @@ namespace arx {
       ColsAtCompileTime = Traits<L>::HasDynamicCols ? Traits<R>::ColsAtCompileTime : Traits<L>::ColsAtCompileTime,
       CoeffReadCost = TraitsBase<L>::CoeffReadCost + TraitsBase<R>::CoeffReadCost + FunctorTraits<O>::Cost,
       Flags = (InheritNestingFlags<L>::value | InheritNestingFlags<R>::value) | 
-        (Traits<L>::Flags & Traits<R>::Flags & (LinearAccessBit | AlignedBit))
+        (Traits<L>::Flags & Traits<R>::Flags & (LinearAccessBit | AlignedBit)),
+      StorageOrder = Flags & RowMajorBit ? RowMajor : ColMajor
     };
     typedef typename Nested<L>::type LNested;
     typedef typename Nested<R>::type RNested;
+
+    typedef Matrix<value_type, RowsAtCompileTime, ColsAtCompileTime, StorageOrder> PlainMatrixType;
+    typedef PlainMatrixType EvalType;
   };
 
 
@@ -429,9 +437,13 @@ namespace arx {
       ColsAtCompileTime = Traits<M>::ColsAtCompileTime,
       CoeffReadCost = TraitsBase<M>::CoeffReadCost + FunctorTraits<O>::Cost,
       Flags = InheritNestingFlags<M>::value | 
-        (Traits<M>::Flags & (LinearAccessBit | AlignedBit))
+        (Traits<M>::Flags & (LinearAccessBit | AlignedBit)),
+      StorageOrder = Flags & RowMajorBit ? RowMajor : ColMajor
     };
     typedef typename Nested<M>::type MNested;
+
+    typedef Matrix<value_type, RowsAtCompileTime, ColsAtCompileTime, StorageOrder> PlainMatrixType;
+    typedef PlainMatrixType EvalType;
   };
 
 
@@ -455,10 +467,15 @@ namespace arx {
       Flags = 
         (InheritNestingFlags<L, ColsAtCompileTime>::value | InheritNestingFlags<R, RowsAtCompileTime>::value) |
         (Traits<L>::Flags & Traits<R>::Flags & AlignedBit) | /* We don't have LinearAccessBit here */
-        EvalBeforeAssigningBit
+        EvalBeforeAssigningBit,
+
+      StorageOrder = Flags & RowMajorBit ? RowMajor : ColMajor
     };
     typedef typename Nested<L, ColsAtCompileTime>::type LNested;
     typedef typename Nested<R, RowsAtCompileTime>::type RNested;
+
+    typedef Matrix<value_type, RowsAtCompileTime, ColsAtCompileTime, StorageOrder> PlainMatrixType;
+    typedef PlainMatrixType EvalType;
   };
 
 
@@ -472,9 +489,14 @@ namespace arx {
       ColsAtCompileTime = Traits<M>::RowsAtCompileTime,
       CoeffReadCost = TraitsBase<M>::CoeffReadCost,
       Flags = (InheritNestingFlags<M>::value ^ RowMajorBit) | 
-        (Traits<M>::Flags & (LinearAccessBit | AlignedBit))
+        (Traits<M>::Flags & (LinearAccessBit | AlignedBit)),
+
+      StorageOrder = Flags & RowMajorBit ? RowMajor : ColMajor
     };
     typedef typename Nested<M>::type MNested;
+
+    typedef Matrix<value_type, RowsAtCompileTime, ColsAtCompileTime, StorageOrder> PlainMatrixType;
+    typedef PlainMatrixType EvalType;
   };
 
 
@@ -489,8 +511,12 @@ namespace arx {
       RowsAtCompileTime = R,
       ColsAtCompileTime = C,
       CoeffReadCost = 1, /* "if" is a costy operation... */
-      Flags = 0
+      Flags = 0,
+      StorageOrder = ColMajor
     };
+
+    typedef Matrix<value_type, RowsAtCompileTime, ColsAtCompileTime, StorageOrder> PlainMatrixType;
+    typedef PlainMatrixType EvalType;
   };
 
 
@@ -506,9 +532,13 @@ namespace arx {
       ColsAtCompileTime = C,
       CoeffReadCost = 1, 
       Flags = (InheritNestingFlags<M>::value) | 
-        (Traits<M>::IsVectorAtCompileTime ? LinearAccessBit : LinearAccessBit)
+        (Traits<M>::IsVectorAtCompileTime ? LinearAccessBit : LinearAccessBit),
+      StorageOrder = Flags & RowMajorBit ? RowMajor : ColMajor
     };
     typedef typename Nested<M>::type MNested;
+
+    typedef Matrix<value_type, RowsAtCompileTime, ColsAtCompileTime, StorageOrder> PlainMatrixType;
+    typedef PlainMatrixType EvalType;
   };
 
 
@@ -653,7 +683,7 @@ namespace arx {
       return *this;
     }
 
-    M& finished() { 
+    M& finished() {
       return m; 
     }
 
@@ -696,7 +726,7 @@ namespace arx {
     };
 
     typedef Identity<value_type, RowsAtCompileTime, ColsAtCompileTime> IdentityReturnType;
-    typedef Matrix<value_type, RowsAtCompileTime, ColsAtCompileTime, StorageOrder> PlainMatrixType;
+    typedef typename Traits<Derived>::PlainMatrixType PlainMatrixType;
 
   public:
     typedef MatrixBase base_type;
@@ -766,6 +796,21 @@ namespace arx {
     void normalize() {
       *this /= norm();
     }
+
+    template<typename OtherDerived>
+    PlainMatrixType cross(const MatrixBase<OtherDerived>& other) const {
+      STATIC_ASSERT((Traits<Derived>::SizeAtCompileTime == 3));
+      STATIC_ASSERT((Traits<OtherDerived>::SizeAtCompileTime == 3));
+
+      /* There is no real need for expression here - compiler will do all the optimizations */
+      const typename Nested<Derived, 2>::type l(derived());
+      const typename Nested<OtherDerived, 2>::type r(other.derived());
+      return (PlainMatrixType() << 
+        l[1] * r[2] - l[2] * r[1], 
+        l[2] * r[0] - l[0] * r[2], 
+        l[0] * r[1] - l[1] * r[0]).finished();
+    }
+
 
     void fill(const value_type& value) {
       for(int r = 0; r < rows(); r++)
