@@ -109,13 +109,12 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   template<class Derived> class MatrixBase;
   template<class T, int R, int C, int StorageOrder> class Matrix;
-  template<class M> class RowReference;
-  template<class M> class ColReference;
   template<class L, class R, class O> class CwiseBinaryOp;
   template<class M, class O> class CwiseUnaryOp;
   template<class L, class R> class MatrixMul;
   template<class M> class Transpose;
   template<class T, int R, int C> class Identity;
+  template<class M, int R, int C> class Block;
 
 
 // -------------------------------------------------------------------------- //
@@ -185,7 +184,7 @@ namespace arx {
       return a + b;
     }
     enum {
-      Cost = NumTraits<T>::AddCost;
+      Cost = NumTraits<T>::AddCost
     };
   };
 
@@ -195,7 +194,7 @@ namespace arx {
       return a - b;
     }
     enum {
-      Cost = NumTraits<T>::AddCost;
+      Cost = NumTraits<T>::AddCost
     };
   };
 
@@ -205,7 +204,7 @@ namespace arx {
       return a * b;
     }
     enum {
-      Cost = NumTraits<T>::MulCost;
+      Cost = NumTraits<T>::MulCost
     };
   };
 
@@ -215,7 +214,7 @@ namespace arx {
       return a / b;
     }
     enum {
-      Cost = NumTraits<T>::MulCost;
+      Cost = NumTraits<T>::MulCost
     };
   };
 
@@ -225,7 +224,7 @@ namespace arx {
       return -a;
     }
     enum {
-      Cost = NumTraits<T>::AddCost;
+      Cost = NumTraits<T>::AddCost
     };
   };
 
@@ -235,7 +234,7 @@ namespace arx {
       return +a;
     }
     enum {
-      Cost = 0;
+      Cost = 0
     };
   };
 
@@ -246,7 +245,7 @@ namespace arx {
       return a * this->scalar;
     }
     enum {
-      Cost = NumTraits<T>::MulCost;
+      Cost = NumTraits<T>::MulCost
     };
   private:
     T scalar;
@@ -259,7 +258,7 @@ namespace arx {
       return this->scalar * a;
     }
     enum {
-      Cost = NumTraits<T>::MulCost;
+      Cost = NumTraits<T>::MulCost
     };
   private:
     T scalar;
@@ -272,7 +271,7 @@ namespace arx {
       return a / this->scalar;
     }
     enum {
-      Cost = NumTraits<T>::MulCost;
+      Cost = NumTraits<T>::MulCost
     };
   private:
     T scalar;
@@ -282,7 +281,7 @@ namespace arx {
 // -------------------------------------------------------------------------- //
 // FunctorTraits
 // -------------------------------------------------------------------------- //
-  template<class T> class FunctorTraits {
+  template<class T> struct FunctorTraits {
     enum {
       Cost = T::Cost
     };
@@ -388,6 +387,7 @@ namespace arx {
    */
   template<class T, int R, int C, int StorageOrder> struct TraitsBase<Matrix<T, R, C, StorageOrder> > {
     STATIC_ASSERT((StorageOrder == RowMajor || StorageOrder == ColMajor));
+    STATIC_ASSERT((R > 0 && C > 0));
 
     typedef T value_type;
     enum {
@@ -396,37 +396,6 @@ namespace arx {
       CoeffReadCost = NumTraits<value_type>::ReadCost,
       Flags = (StorageOrder == RowMajor ? RowMajorBit : 0) | AlignedBit | LinearAccessBit
     };
-  };
-
-
-
-  /**
-   * TraitsBase for RowReference.
-   */
-  template<class M> struct TraitsBase<RowReference<M> > {
-    typedef typename TraitsBase<M>::value_type value_type;
-    enum {
-      RowsAtCompileTime = 1,
-      ColsAtCompileTime = TraitsBase<M>::ColsAtCompileTime,
-      CoeffReadCost = TraitsBase<M>::ReadCost,
-      Flags = InheritNestingFlags<M>::value | LinearAccessBit /* & !AlignedBit */
-    };
-    typedef typename Nested<M>::type MNested;
-  };
-
-
-  /**
-   * TraitsBase for ColReference.
-   */
-  template<class M> struct TraitsBase<ColReference<M> > {
-    typedef typename TraitsBase<M>::value_type value_type;
-    enum {
-      RowsAtCompileTime = TraitsBase<M>::RowsAtCompileTime,
-      ColsAtCompileTime = 1,
-      CoeffReadCost = TraitsBase<M>::ReadCost,
-      Flags = InheritNestingFlags<M>::value | LinearAccessBit /* & !AlignedBit */
-    };
-    typedef typename Nested<M>::type MNested;
   };
 
 
@@ -443,7 +412,7 @@ namespace arx {
       ColsAtCompileTime = Traits<L>::HasDynamicCols ? Traits<R>::ColsAtCompileTime : Traits<L>::ColsAtCompileTime,
       CoeffReadCost = TraitsBase<L>::CoeffReadCost + TraitsBase<R>::CoeffReadCost + FunctorTraits<O>::Cost,
       Flags = (InheritNestingFlags<L>::value | InheritNestingFlags<R>::value) | 
-        (Traits<L>::Flags & Traits<R>::Flags & (LinearAccessBit | AlignedBit));
+        (Traits<L>::Flags & Traits<R>::Flags & (LinearAccessBit | AlignedBit))
     };
     typedef typename Nested<L>::type LNested;
     typedef typename Nested<R>::type RNested;
@@ -513,6 +482,8 @@ namespace arx {
    * TraitsBase for Identity.
    */
   template<class T, int R, int C> struct TraitsBase<Identity<T, R, C> > {
+    STATIC_ASSERT((R > 0 && C > 0));
+    
     typedef T value_type;
     enum {
       RowsAtCompileTime = R,
@@ -520,6 +491,24 @@ namespace arx {
       CoeffReadCost = 1, /* "if" is a costy operation... */
       Flags = 0
     };
+  };
+
+
+  /**
+   * Traits for Block
+   */
+  template<class M, int R, int C> struct TraitsBase<Block<M, R, C> > {
+    STATIC_ASSERT((R > 0 && C > 0));
+    
+    typedef typename TraitsBase<M>::value_type value_type;
+    enum {
+      RowsAtCompileTime = R,
+      ColsAtCompileTime = C,
+      CoeffReadCost = 1, 
+      Flags = (InheritNestingFlags<M>::value) | 
+        (Traits<M>::IsVectorAtCompileTime ? LinearAccessBit : LinearAccessBit)
+    };
+    typedef typename Nested<M>::type MNested;
   };
 
 
@@ -544,13 +533,13 @@ namespace arx {
 
 
 // -------------------------------------------------------------------------- //
-// Inverser
+// Inverter
 // -------------------------------------------------------------------------- //
-  template<int R> struct Inverser {
+  template<int R> struct Inverter {
     /* Not implemented */
   };
 
-  template<> struct Inverser<1> {
+  template<> struct Inverter<1> {
     template<class SrcDerived, class DstDerived>
     void operator()(const MatrixBase<SrcDerived>& src, MatrixBase<DstDerived>& dst) {
       typedef Traits<SrcDerived>::value_type value_type;
@@ -559,7 +548,7 @@ namespace arx {
     }
   };
 
-  template<> struct Inverser<2> {
+  template<> struct Inverter<2> {
     template<class SrcDerived, class DstDerived>
     void operator()(const MatrixBase<SrcDerived>& src, MatrixBase<DstDerived>& dst) {
       typedef Traits<SrcDerived>::value_type value_type;
@@ -572,7 +561,7 @@ namespace arx {
     }
   };
 
-  template<> struct Inverser<3> {
+  template<> struct Inverter<3> {
     template<class SrcDerived, class DstDerived>
     void operator()(const MatrixBase<SrcDerived>& src, MatrixBase<DstDerived>& dst) {
       typedef Traits<SrcDerived>::value_type value_type;
@@ -601,7 +590,7 @@ namespace arx {
     }
   };
 
-  template<> struct Inverser<4> {
+  template<> struct Inverter<4> {
     template<class SrcDerived, class DstDerived>
     void operator()(const MatrixBase<SrcDerived>& src, MatrixBase<DstDerived>& dst) {
       typedef Traits<SrcDerived>::value_type value_type;
@@ -639,6 +628,54 @@ namespace arx {
       dst(3, 3) = ( + src(2, 0) * a3 - src(2, 1) * a1 + src(2, 2) * a0) * invdet; 
     }
   };
+
+
+// -------------------------------------------------------------------------- //
+// CommaInitializer
+// -------------------------------------------------------------------------- //
+  template<class M>
+  class CommaInitializer {
+  public:
+    typedef typename Traits<M>::value_type value_type;
+
+    CommaInitializer(M& m, const value_type& s): m(m), r(0), c(1) {
+      this->m(0, 0) = s;
+    }
+
+    CommaInitializer& operator,(const value_type& s) {
+      if (this->c == this->m.cols()) {
+        this->r += 1;
+        this->c = 0;
+        assert(this->r < this->m.rows());
+      }
+      assert(this->c < this->m.cols());
+      this->m(this->r, this->c++) = s;
+      return *this;
+    }
+
+    M& finished() { 
+      return m; 
+    }
+
+    ~CommaInitializer() {
+      assert(this->r + 1 == this->m.rows() && this->c == this->m.cols());
+    }
+
+  private:
+    M& m;
+    int r, c;
+  };
+
+  template<class Derived>
+  inline CommaInitializer<Derived> operator<< (MatrixBase<Derived>& m, const typename Traits<Derived>::value_type& s) {
+    return CommaInitializer<Derived>(m.derived(), s);
+  }
+
+  template<class Derived, class OtherDerived>
+  inline CommaInitializer<Derived> operator<<(MatrixBase<Derived>& m, const MatrixBase<OtherDerived>& that) {
+    return CommaInitializer<Derived>(m.derived(), that);
+  }
+
 
 // -------------------------------------------------------------------------- //
 // MatrixBase
@@ -736,20 +773,38 @@ namespace arx {
           (*this)(r, c) = value;
     }
 
-    ColReference<Derived> col(int c) {
-      return ColReference<Derived>(this->derived(), c);
+    Block<Derived, RowsAtCompileTime, 1> col(int c) {
+      return Block<Derived, RowsAtCompileTime, 1>(this->derived(), 0, c);
     }
 
-    const ColReference<Derived> col(int c) const {
-      return ColReference<Derived>(this->derived(), c);
+    const Block<Derived, RowsAtCompileTime, 1> col(int c) const {
+      return Block<Derived, RowsAtCompileTime, 1>(this->derived(), 0, c);
     }
 
-    RowReference<Derived> row(int r) {
-      return RowReference<Derived>(this->derived(), r);
+    Block<Derived, 1, ColsAtCompileTime> row(int r) {
+      return Block<Derived, 1, ColsAtCompileTime>(this->derived(), r, 0);
     }
 
-    const RowReference<Derived> row(int c) const {
-      return RowReference<Derived>(this->derived(), r);
+    const Block<Derived, 1, ColsAtCompileTime> row(int r) const {
+      return Block<Derived, 1, ColsAtCompileTime>(this->derived(), r, 0);
+    }
+
+    template<int blockRows, int blockCols>
+    Block<Derived, blockRows, blockCols> block(int startRow, int startCol) {
+      return Block<Derived, blockRows, blockCols>(this->derived(), startRow, startCol);
+    }
+
+    template<int blockRows, int blockCols>
+    const Block<Derived, blockRows, blockCols> block(int startRow, int startCol) const {
+      return Block<Derived, blockRows, blockCols>(this->derived(), startRow, startCol);
+    }
+
+    Block<Derived, DYNAMIC_SIZE, DYNAMIC_SIZE> block(int startRow, int startCol, int blockRows, int blockCols) {
+      return Block<Derived, DYNAMIC_SIZE, DYNAMIC_SIZE>(this->derived(), startRow, startCol, blockRows, blockCols);
+    }
+
+    const Block<Derived, DYNAMIC_SIZE, DYNAMIC_SIZE> block(int startRow, int startCol, int blockRows, int blockCols) const {
+      return Block<Derived, DYNAMIC_SIZE, DYNAMIC_SIZE>(this->derived(), startRow, startCol, blockRows, blockCols);
     }
 
     Transpose<Derived> transpose() {
@@ -814,7 +869,7 @@ namespace arx {
       STATIC_ASSERT((NumTraits<value_type>::HasFloatingPoint));
       assert(this->rows() == this->cols());
       assert(this->rows() == result.rows() && this->cols() == result.cols());
-      Inverser<RowsAtCompileTime>()(*this, result);
+      Inverter<RowsAtCompileTime>()(*this, result);
     }
 
     const PlainMatrixType inverse() const {
@@ -1033,103 +1088,6 @@ namespace arx {
     }
   };
 
-
-// -------------------------------------------------------------------------- //
-// RowReference
-// -------------------------------------------------------------------------- //
-  template<class M>
-  class RowReference: public MatrixBase<RowReference<M> > {
-  private:
-    typedef RowReference this_type;
-
-    typename Traits<this_type>::MNested m;
-    int row;
-
-  public:
-    RowReference(const M& m, int row): m(m), row(row) {
-      assert(row < m.rows());
-    }
-
-    // default copy constructor is OK
-
-    int rows() const {
-      return 1; 
-    }
-
-    int cols() const {
-      return this->m.cols(); 
-    }
-
-    value_type& coeff(int r, int c) {
-      assert(r == 0);
-      return this->m.const_cast_derived()(this->row, c);
-    }
-
-    const value_type coeff(int r, int c) const { 
-      assert(r == 0);
-      return this->m(this->row, c);
-    }
-
-    value_type& coeff(int index) {
-      return this->m.const_cast_derived()(this->row, index);
-    }
-
-    const value_type coeff(int index) const { 
-      return this->m(this->row, index);
-    }
-
-    ARX_INHERIT_ASSIGNMENT_OPERATORS();
-  };
-
-
-// -------------------------------------------------------------------------- //
-// ColReference
-// -------------------------------------------------------------------------- //
-  template<class M>
-  class ColReference: public MatrixBase<ColReference<M> > {
-  private:
-    typedef ColReference this_type;
-
-    typename Traits<this_type>::MNested m;
-    int col;
-
-  public:
-    ColReference(const M& m, int col): m(m), col(col) {
-      assert(col < m.cols());
-    }
-
-    // default copy constructor is OK
-
-    int rows() const {
-      return this->m.rows(); 
-    }
-
-    int cols() const {
-      return 1;
-    }
-
-    value_type& coeff(int r, int c) {
-      assert(c == 0);
-      return this->m.const_cast_derived()(r, this->col);
-    }
-
-    const value_type coeff(int r, int c) const { 
-      assert(c == 0);
-      return this->m(r, this->col);
-    }
-
-    value_type& coeff(int index) {
-      return this->m.const_cast_derived()(index, this->col);
-    }
-
-    const value_type coeff(int index) const { 
-      return this->m(index, this->col);
-    }
-
-    ARX_INHERIT_ASSIGNMENT_OPERATORS();
-  };
-
-
 // -------------------------------------------------------------------------- //
 // CwiseBinaryOp
 // -------------------------------------------------------------------------- //
@@ -1167,12 +1125,12 @@ namespace arx {
   };
 
   template<class L, class R>
-  const CwiseBinaryOp<L, R, Add<typename Traits<L>::value_type> > operator+ (const MatrixBase<L>& l, const MatrixBase<R>& r) {
+  inline const CwiseBinaryOp<L, R, Add<typename Traits<L>::value_type> > operator+ (const MatrixBase<L>& l, const MatrixBase<R>& r) {
     return CwiseBinaryOp<L, R, Add<typename Traits<L>::value_type> >(l.derived(), r.derived());
   }
 
   template<class L, class R>
-  const CwiseBinaryOp<L, R, Sub<typename Traits<L>::value_type> > operator- (const MatrixBase<L>& l, const MatrixBase<R>& r) {
+  inline const CwiseBinaryOp<L, R, Sub<typename Traits<L>::value_type> > operator- (const MatrixBase<L>& l, const MatrixBase<R>& r) {
     return CwiseBinaryOp<L, R, Sub<typename Traits<L>::value_type> >(l.derived(), r.derived());
   }
 
@@ -1211,27 +1169,27 @@ namespace arx {
   };
 
   template<class M>
-  const CwiseUnaryOp<M, Neg<typename Traits<M>::value_type> > operator- (const MatrixBase<M>& m) {
+  inline const CwiseUnaryOp<M, Neg<typename Traits<M>::value_type> > operator- (const MatrixBase<M>& m) {
     return CwiseUnaryOp<M, Neg<typename Traits<M>::value_type> >(m.derived());
   }
 
   template<class M>
-  const CwiseUnaryOp<M, Peq<typename Traits<M>::value_type> > operator+ (const MatrixBase<M>& m) {
+  inline const CwiseUnaryOp<M, Peq<typename Traits<M>::value_type> > operator+ (const MatrixBase<M>& m) {
     return CwiseUnaryOp<M, Peq<typename Traits<M>::value_type> >(m.derived());
   }
 
   template<class M>
-  const CwiseUnaryOp<M, MulC<typename Traits<M>::value_type> > operator* (const MatrixBase<M>& l, const typename Traits<M>::value_type& r) {
+  inline const CwiseUnaryOp<M, MulC<typename Traits<M>::value_type> > operator* (const MatrixBase<M>& l, const typename Traits<M>::value_type& r) {
     return CwiseUnaryOp<M, MulC<typename Traits<M>::value_type> >(l.derived(), MulC<typename Traits<M>::value_type>(r));
   }
 
   template<class M>
-  const CwiseUnaryOp<M, PreMulC<typename Traits<M>::value_type> > operator* (const typename Traits<M>::value_type& l, const MatrixBase<M>& r) {
+  inline const CwiseUnaryOp<M, PreMulC<typename Traits<M>::value_type> > operator* (const typename Traits<M>::value_type& l, const MatrixBase<M>& r) {
     return CwiseUnaryOp<M, PreMulC<typename Traits<M>::value_type> >(r.derived(), PreMulC<typename Traits<M>::value_type>(l));
   }
 
   template<class M>
-  const CwiseUnaryOp<M, DivC<typename Traits<M>::value_type> > operator/ (const MatrixBase<M>& l, const typename Traits<M>::value_type& r) {
+  inline const CwiseUnaryOp<M, DivC<typename Traits<M>::value_type> > operator/ (const MatrixBase<M>& l, const typename Traits<M>::value_type& r) {
     return CwiseUnaryOp<M, DivC<typename Traits<M>::value_type> >(l.derived(), DivC<typename Traits<M>::value_type>(r));
   }
 
@@ -1282,9 +1240,9 @@ namespace arx {
   template<class M>
   class Transpose: public MatrixBase<Transpose<M> > {
   private:
-    const M& m;
-
     typedef Transpose this_type;
+
+    typename Traits<this_type>::MNested m;
 
   public:
     Transpose(const M& m): m(m) {}
@@ -1344,6 +1302,64 @@ namespace arx {
     const value_type coeff(int r, int c) const {
       assert(r < this->rows() && c < this->cols() && r >= 0 && c >= 0);
       return (r == c) ? static_cast<value_type>(1) : static_cast<value_type>(0);
+    }
+  };
+
+
+// -------------------------------------------------------------------------- //
+// Block
+// -------------------------------------------------------------------------- //
+  template<class M, int R, int C> 
+  class Block: public MatrixBase<Block<M, R, C> > {
+  private:
+    typedef Block this_type;
+
+    int_if_dynamic<R> rowsStorage;
+    int_if_dynamic<C> colsStorage;
+    
+    typename Traits<this_type>::MNested m;
+
+    int_if_dynamic<Traits<M>::RowsAtCompileTime == 1 ? 0 : DYNAMIC_SIZE> startRow;
+    int_if_dynamic<Traits<M>::ColsAtCompileTime == 1 ? 0 : DYNAMIC_SIZE> startCol;
+
+  public:
+    /** Constructor for fixed size */
+    Block(const M& m, int startRow, int startCol): m(m), rowsStorage(R), colsStorage(C), startRow(startRow), startCol(startCol) {
+      STATIC_ASSERT((R != DYNAMIC_SIZE && C != DYNAMIC_SIZE));
+      assert(startRow >= 0 && startRow + R <= m.rows() && startCol >= 0 && startCol + C <= m.cols());
+    }
+
+    /** Constructor for dynamic size */
+    Block(const M& m, int startRow, int startCol, int blockRows, int blockCols): m(m), rowsStorage(blockRows), colsStorage(blockCols), startRow(startRow), startCol(startCol) {
+      assert((R == DYNAMIC_SIZE || R == blockRows) && (C == DYNAMIC_SIZE || C == blockCols));
+      assert(startRow >= 0 && blockRows >= 1 && startRow + blockRows <= m.rows() && 
+        startCol >= 0 && blockCols >= 1 && startCol + blockCols <= m.cols());
+    }
+
+    int rows() const {
+      return this->rowsStorage.getValue();
+    }
+
+    int cols() const {
+      return this->colsStorage.getValue();
+    }
+
+    const value_type coeff(int r, int c) const {
+      return this->m(this->startRow.getValue() + r, this->startCol.getValue() + c);
+    }
+
+    value_type& coeff(int r, int c) {
+      return this->m.const_cast_derived()(this->startRow.getValue() + r, this->startCol.getValue() + c);
+    }
+
+    const value_type coeff(int index) const {
+      STATIC_ASSERT((Traits<this_type>::IsVectorAtCompileTime));
+      return this->m(startRow.getValue() + (R == 1 ? 0 : index), startCol.getValue() + (C == 1 ? 0 : index));
+    }
+
+    value_type& coeff(int index) {
+      STATIC_ASSERT((Traits<this_type>::IsVectorAtCompileTime));
+      return this->m.const_cast_derived()(startRow.getValue() + (R == 1 ? 0 : index), startCol.getValue() + (C == 1 ? 0 : index));
     }
   };
 
