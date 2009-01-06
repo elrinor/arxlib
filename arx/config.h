@@ -12,6 +12,11 @@
  * indirectly, by means of a permutation vector */
 #define ARX_LINEAR_SOLVER_PERMUTATION_VERTOR_USAGE_THRESH 5
 
+/**
+ * Cost limit for templated cycle unrolling in LinearAlgebra module.
+ */
+#define ARX_UNROLL_COST_LIMIT 100
+
 /** Multithreading on? */
 // #define ARX_DISABLE_THREADS
 
@@ -41,6 +46,16 @@
 #  ifdef ARX_DISABLE_THREADS
 #    define BOOST_DISABLE_THREADS
 #  endif
+#endif
+
+
+// -------------------------------------------------------------------------- //
+// Some useful defines
+// -------------------------------------------------------------------------- //
+#ifdef ARX_MSVC
+#  define ARX_FORCEINLINE __forceinline
+# else
+#  define ARX_FORCEINLINE inline
 #endif
 
 #endif

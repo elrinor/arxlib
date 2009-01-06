@@ -4,23 +4,18 @@
 #include "config.h"
 #include <functional>
 
-#ifdef ARX_USE_BOOST
-#  include <boost/noncopyable.hpp>
-namespace arx {
-  using boost::noncopyable;
-}
-
-#else // ARX_USE_BOOST
-
 namespace arx {
   namespace noncopyable_adl_protected { // protection from unintended ADL
     /**
-     * noncopyable class
+     * noncopyable class. Subclass to hide your copy constructor and operator=.
+     *
+     * Note that original implementation included empty constructor & destructor, which for some strange
+     * reason were getting in the way of MSVC 8.0 optimizer, making it unable to inline and eliminate the
+     * child class's constructor. Same goes for nonassignable class. That's why even if ARX_USE_BOOST is
+     * defined, we don't use noncopyable from boost - boost implementation includes these empty constructor
+     * and destructor. It took me almost a whole day of digging into assembly to find this bug (?).
      */
     class noncopyable {
-    protected:
-      noncopyable() {}
-      ~noncopyable() {}
     private:
       noncopyable( const noncopyable& );
       const noncopyable& operator=( const noncopyable& );
@@ -28,19 +23,16 @@ namespace arx {
   }
 
   typedef noncopyable_adl_protected::noncopyable noncopyable;
-} // namespace arx
 
-#endif // ARX_USE_BOOST
-
-namespace arx {
   namespace nonassignable_adl_protected { // protection from unintended ADL
     /**
-     * nonassignable class
+     * nonassignable class. Subclass to hide your operator=.
+     *
+     * Also see note on noncopyable class.
+     *
+     * @see noncopyable
      */
     class nonassignable {
-    protected:
-      nonassignable() {}
-      ~nonassignable() {}
     private:
       const nonassignable& operator=( const nonassignable& );
     };
