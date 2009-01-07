@@ -3,7 +3,8 @@
 
 #include "config.h"
 #include <malloc.h>
-#include <stdlib.h>
+#include <cstdlib>
+#include <cstddef>
 #include "static_assert.h"
 
 /**

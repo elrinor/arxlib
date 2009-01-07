@@ -9,13 +9,17 @@ namespace arx {
     /**
      * noncopyable class. Subclass to hide your copy constructor and operator=.
      *
-     * Note that original implementation included empty constructor & destructor, which for some strange
-     * reason were getting in the way of MSVC 8.0 optimizer, making it unable to inline and eliminate the
-     * child class's constructor. Same goes for nonassignable class. That's why even if ARX_USE_BOOST is
-     * defined, we don't use noncopyable from boost - boost implementation includes these empty constructor
-     * and destructor. It took me almost a whole day of digging into assembly to find this bug (?).
+     * Note that original implementation included empty destructor, which for 
+     * some strange reason was getting in the way of MSVC 8.0 optimizer, making 
+     * it unable to inline and eliminate the child class's constructor. Same 
+     * goes for nonassignable class. That's why even if ARX_USE_BOOST is 
+     * defined, I don't use noncopyable from boost - boost implementation 
+     * includes this empty destructor. It took me a lot of digging into 
+     * assembly to find this bug (?).
      */
     class noncopyable {
+    public:
+      noncopyable();
     private:
       noncopyable( const noncopyable& );
       const noncopyable& operator=( const noncopyable& );

@@ -40,8 +40,8 @@
 #  define ARX_MSVC
 #endif
 
-#if defined(_DEBUG) && !defined(DEBUG)
-#  define DEBUG
+#if defined(_DEBUG) || !defined(NDEBUG)
+#  define ARX_DEBUG
 #endif
 
 #ifdef ARX_USE_BOOST
