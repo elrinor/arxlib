@@ -2,23 +2,25 @@
 #define __ARX_CONFIG_H__
 
 // -------------------------------------------------------------------------- //
-// General settings - feel free to change
+// Config settings
 // -------------------------------------------------------------------------- //
-/** Use boost? */
-// #define ARX_USE_BOOST
+/** @def ARX_USE_BOOST
+ * Define to use implementation of some features from boost library instead of hand-coded one.
+ * Normally boost classes offer wider functionality and sometimes produce faster code. */
 
-/** For statically sized matrices with cols >= ARX_LINEAR_SOLVER_PERMUTATION_VERTOR_USAGE_THRESH
- * we use linear solver that doesn't swap matrix rows directly in memory, but performs all operations
- * indirectly, by means of a permutation vector */
-#define ARX_LINEAR_SOLVER_PERMUTATION_VERTOR_USAGE_THRESH 5
+/** @def ARX_USE_EIGEN
+ * Define to use Eigen library in place of ArX LinearAlgebra module. Eigen is a highly-optimized
+ * library with a rich set of features, which generally produces better code that ArX LinearAlgebra. */
 
-/**
- * Cost limit for templated cycle unrolling in LinearAlgebra module.
- */
-#define ARX_UNROLL_COST_LIMIT 100
+/** @def ARX_DISABLE_THREADS
+ * Define to disable thread support and thread safety in ArX library. May result in
+ * faster code for single-threaded applications. */
 
-/** Multithreading on? */
-// #define ARX_DISABLE_THREADS
+/** @def ARX_UNROLL_COST_LIMIT
+ * Cost limit for templated cycle unrolling in LinearAlgebra module. Default value is 100. */
+#ifndef ARX_UNROLL_COST_LIMIT
+#  define ARX_UNROLL_COST_LIMIT 100
+#endif
 
 
 // -------------------------------------------------------------------------- //
@@ -53,9 +55,11 @@
 // Some useful defines
 // -------------------------------------------------------------------------- //
 #ifdef ARX_MSVC
-#  define ARX_FORCEINLINE __forceinline
+#  define FORCEINLINE __forceinline
 # else
-#  define ARX_FORCEINLINE inline
+#  define FORCEINLINE inline
 #endif
+
+
 
 #endif

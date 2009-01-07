@@ -2,6 +2,18 @@
 #define __ARX_LINEARALGEBRA_H__
 
 #include "config.h"
+
+#ifdef ARX_USE_EIGEN
+
+#include <Eigen/Core>
+#include <Eigen/Array>
+
+namespace arx {
+  using namespace Eigen;
+}
+
+#else // ARX_USE_EIGEN
+
 #include <cassert>
 #include <iostream>
 #include <algorithm>
@@ -94,7 +106,7 @@ namespace arx {
    * (which is not yet implemented) */
 #define ARX_VEC_ALIGNMENT 16
 
-#define ARX_VEC_ALIGNED ARX_ALIGN(ARX_VEC_ALIGNMENT)
+#define ARX_VEC_ALIGNED ALIGN(ARX_VEC_ALIGNMENT)
 
 #define ARX_VEC_ALIGNED_MALLOC(size) aligned_malloc((size), ARX_VEC_ALIGNMENT)
 
@@ -769,7 +781,7 @@ namespace arx {
       this->m(0, 0) = s;
     }
 
-    ARX_FORCEINLINE CommaInitializer& operator,(const value_type& s) {
+    FORCEINLINE CommaInitializer& operator,(const value_type& s) {
       if (this->c == this->m.cols()) {
         this->r += 1;
         this->c = 0;
@@ -827,7 +839,7 @@ namespace arx {
   private:
     template<int index, int maxIndex> 
     struct unrollIteration {
-      ARX_FORCEINLINE void operator()(LParam l, RParam r, OParam o) {
+      FORCEINLINE void operator()(LParam l, RParam r, OParam o) {
         o(l[index], r[index]);
         unrollIteration<index + 1, maxIndex>()(l, r, o);
       }
@@ -835,11 +847,11 @@ namespace arx {
 
     template<int end> 
     struct unrollIteration<end, end> {
-      ARX_FORCEINLINE void operator()(LParam l, RParam r, OParam o) {}
+      FORCEINLINE void operator()(LParam l, RParam r, OParam o) {}
     };
 
   public:
-    ARX_FORCEINLINE void operator()(LParam l, RParam r, OParam o) {
+    FORCEINLINE void operator()(LParam l, RParam r, OParam o) {
       assert(l.rows() == r.rows() && l.cols() == r.cols());
       unrollIteration<0, 
         Traits<L>::IsStaticallySized ? Traits<L>::SizeAtCompileTime : Traits<R>::SizeAtCompileTime>()(l, r, o);
@@ -851,7 +863,7 @@ namespace arx {
   private:
     template<int col, int row, int maxCol, int maxRow, int size = 0, int maxSize = maxCol * maxRow> 
     struct unrollIteration {
-      ARX_FORCEINLINE void operator()(LParam l, RParam r, OParam o) {
+      FORCEINLINE void operator()(LParam l, RParam r, OParam o) {
         o(l(col, row), r(col, row));
         if(Traits<L>::Flags & Traits<R>::Flags & RowMajorBit)
           unrollIteration<(col + 1 == maxCol) ? 0 : col + 1, (col + 1 == maxCol) ? row + 1 : row, 
@@ -864,11 +876,11 @@ namespace arx {
 
     template<int col, int row, int maxCol, int maxRow, int end>
     struct unrollIteration<col, row, maxCol, maxRow, end, end> {
-      ARX_FORCEINLINE void operator()(LParam l, RParam r, OParam o) {}
+      FORCEINLINE void operator()(LParam l, RParam r, OParam o) {}
     };
 
   public:
-    ARX_FORCEINLINE void operator()(LParam l, RParam r, OParam o) {
+    FORCEINLINE void operator()(LParam l, RParam r, OParam o) {
       assert(l.rows() == r.rows() && l.cols() == r.cols());
       unrollIteration<0, 0,
         Traits<L>::IsStaticallySized ? Traits<L>::ColsAtCompileTime : Traits<R>::ColsAtCompileTime,
@@ -888,6 +900,7 @@ namespace arx {
     enum {
       RowsAtCompileTime = Traits<Derived>::RowsAtCompileTime,
       ColsAtCompileTime = Traits<Derived>::ColsAtCompileTime,
+      SizeAtCompileTime = Traits<Derived>::SizeAtCompileTime,
       IsStaticallySized = Traits<Derived>::IsStaticallySized,
       IsDynamicallySized = Traits<Derived>::IsDynamicallySized,
       Flags = Traits<Derived>::Flags
@@ -1285,8 +1298,21 @@ namespace arx {
 
     Matrix(int r, int c): storage(r, c) {}
 
-    Matrix(int r, int c, value_type value): storage(r, c) {
-      this->fill(value);
+    Matrix(const value_type& x, const value_type& y, const value_type& z): storage(RowsAtCompileTime, ColsAtCompileTime) {
+      ARX_STATIC_ASSERT_VECTOR_ONLY(this_type);
+      STATIC_ASSERT((SizeAtCompileTime == 3));
+      this->coeff(0) = x;
+      this->coeff(1) = y;
+      this->coeff(2) = z;
+    }
+
+    Matrix(const value_type& x, const value_type& y, const value_type& z, const value_type& w): storage(RowsAtCompileTime, ColsAtCompileTime) {
+      ARX_STATIC_ASSERT_VECTOR_ONLY(this_type);
+      STATIC_ASSERT((SizeAtCompileTime == 4));
+      this->coeff(0) = x;
+      this->coeff(1) = y;
+      this->coeff(2) = z;
+      this->coeff(3) = w;
     }
 
     ARX_INHERIT_ASSIGNMENT_OPERATORS();
@@ -1370,12 +1396,12 @@ namespace arx {
   };
 
   template<class L, class R>
-  ARX_FORCEINLINE const CwiseBinaryOp<L, R, Add<typename Traits<L>::value_type> > operator+ (const MatrixBase<L>& l, const MatrixBase<R>& r) {
+  FORCEINLINE const CwiseBinaryOp<L, R, Add<typename Traits<L>::value_type> > operator+ (const MatrixBase<L>& l, const MatrixBase<R>& r) {
     return CwiseBinaryOp<L, R, Add<typename Traits<L>::value_type> >(l.derived(), r.derived());
   }
 
   template<class L, class R>
-  ARX_FORCEINLINE const CwiseBinaryOp<L, R, Sub<typename Traits<L>::value_type> > operator- (const MatrixBase<L>& l, const MatrixBase<R>& r) {
+  FORCEINLINE const CwiseBinaryOp<L, R, Sub<typename Traits<L>::value_type> > operator- (const MatrixBase<L>& l, const MatrixBase<R>& r) {
     return CwiseBinaryOp<L, R, Sub<typename Traits<L>::value_type> >(l.derived(), r.derived());
   }
 
@@ -1414,27 +1440,27 @@ namespace arx {
   };
 
   template<class M>
-  ARX_FORCEINLINE const CwiseUnaryOp<M, Neg<typename Traits<M>::value_type> > operator- (const MatrixBase<M>& m) {
+  FORCEINLINE const CwiseUnaryOp<M, Neg<typename Traits<M>::value_type> > operator- (const MatrixBase<M>& m) {
     return CwiseUnaryOp<M, Neg<typename Traits<M>::value_type> >(m.derived());
   }
 
   template<class M>
-  ARX_FORCEINLINE const CwiseUnaryOp<M, Peq<typename Traits<M>::value_type> > operator+ (const MatrixBase<M>& m) {
+  FORCEINLINE const CwiseUnaryOp<M, Peq<typename Traits<M>::value_type> > operator+ (const MatrixBase<M>& m) {
     return CwiseUnaryOp<M, Peq<typename Traits<M>::value_type> >(m.derived());
   }
 
   template<class M>
-  ARX_FORCEINLINE const CwiseUnaryOp<M, MulC<typename Traits<M>::value_type> > operator* (const MatrixBase<M>& l, const typename Traits<M>::value_type& r) {
+  FORCEINLINE const CwiseUnaryOp<M, MulC<typename Traits<M>::value_type> > operator* (const MatrixBase<M>& l, const typename Traits<M>::value_type& r) {
     return CwiseUnaryOp<M, MulC<typename Traits<M>::value_type> >(l.derived(), MulC<typename Traits<M>::value_type>(r));
   }
 
   template<class M>
-  ARX_FORCEINLINE const CwiseUnaryOp<M, PreMulC<typename Traits<M>::value_type> > operator* (const typename Traits<M>::value_type& l, const MatrixBase<M>& r) {
+  FORCEINLINE const CwiseUnaryOp<M, PreMulC<typename Traits<M>::value_type> > operator* (const typename Traits<M>::value_type& l, const MatrixBase<M>& r) {
     return CwiseUnaryOp<M, PreMulC<typename Traits<M>::value_type> >(r.derived(), PreMulC<typename Traits<M>::value_type>(l));
   }
 
   template<class M>
-  ARX_FORCEINLINE const CwiseUnaryOp<M, DivC<typename Traits<M>::value_type> > operator/ (const MatrixBase<M>& l, const typename Traits<M>::value_type& r) {
+  FORCEINLINE const CwiseUnaryOp<M, DivC<typename Traits<M>::value_type> > operator/ (const MatrixBase<M>& l, const typename Traits<M>::value_type& r) {
     return CwiseUnaryOp<M, DivC<typename Traits<M>::value_type> >(l.derived(), DivC<typename Traits<M>::value_type>(r));
   }
 
@@ -1525,7 +1551,7 @@ namespace arx {
   };
 
   template<class L, class R>
-  ARX_FORCEINLINE const MatrixMul<L, R> operator* (const MatrixBase<L>& l, const MatrixBase<R>& r) {
+  FORCEINLINE const MatrixMul<L, R> operator* (const MatrixBase<L>& l, const MatrixBase<R>& r) {
     return MatrixMul<L, R>(l.derived(), r.derived());
   }
 
@@ -1762,7 +1788,7 @@ namespace arx {
     ARX_STATIC_ASSERT_DYNAMIC_NUMBERS_EQ(Traits<A>::RowsAtCompileTime, Traits<B>::SizeAtCompileTime);
     assert(a.rows() == b.size());
     LinearSystemSolver<A, B, Traits<A>::IsStaticallySized && 
-      Traits<B>::IsStaticallySized && Traits<A>::ColsAtCompileTime < ARX_LINEAR_SOLVER_PERMUTATION_VERTOR_USAGE_THRESH>()(a, b);
+      Traits<B>::IsStaticallySized && Traits<A>::ColsAtCompileTime < 5>()(a, b);
   }
 
 
@@ -1810,4 +1836,6 @@ namespace arx {
 #undef ARX_VEC_ALIGNED_MALLOC
 #undef ARX_VEC_ALIGNED_FREE
 
-#endif
+#endif // ARX_USE_EIGEN
+
+#endif // __ARX_LINEARALGEBRA_H__

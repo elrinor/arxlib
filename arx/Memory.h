@@ -7,15 +7,15 @@
 #include "static_assert.h"
 
 /**
- * @def ARX_ALIGN
+ * @def ALIGN
  * This attribyte forces the data to be aligned.
  *
  * @param BYTES alignment.
  */
 #if defined(ARX_GCC)
-#  define ARX_ALIGN(BYTES) __attribute__((aligned(BYTES)))
+#  define ALIGN(BYTES) __attribute__((aligned(BYTES)))
 #elif defined(ARX_MSVC) || defined(ARX_ICC)
-#  define ARX_ALIGN(BYTES) __declspec(align(BYTES))
+#  define ALIGN(BYTES) __declspec(align(BYTES))
 #else
 #  /* Not supported */
 #endif
