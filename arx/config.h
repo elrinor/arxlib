@@ -41,7 +41,7 @@
 #endif
 
 #if defined(_DEBUG) || !defined(NDEBUG)
-#  define ARX_DEBUG
+#  define DEBUG
 #endif
 
 #ifdef ARX_USE_BOOST

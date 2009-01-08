@@ -999,10 +999,10 @@ namespace arx {
       STATIC_ASSERT((Traits<OtherDerived>::SizeAtCompileTime == 3));
 
       /* There is no real need for expression here - compiler will do all the optimizations */
-      const typename Nested<Derived, 2>::type l(derived());
-      const typename Nested<OtherDerived, 2>::type r(other.derived());
+      typename Nested<Derived, 2>::type l(derived());
+      typename Nested<OtherDerived, 2>::type r(other.derived());
       
-      PlainMatrixType result();
+      PlainMatrixType result;
       result[0] = l[1] * r[2] - l[2] * r[1];
       result[1] = l[2] * r[0] - l[0] * r[2];
       result[2] = l[0] * r[1] - l[1] * r[0];
