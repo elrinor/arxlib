@@ -18,7 +18,18 @@
 #elif defined(ARX_MSVC) || defined(ARX_ICC)
 #  define ALIGN(BYTES) __declspec(align(BYTES))
 #else
-#  /* Not supported */
+#  /* Not supported. */
+#endif
+
+/**
+ * @def ALIGNOF
+ *
+ * @returns alignment in bytes of the given type.
+ */
+#if defined(ARX_MSVC) || defined(ARX_ICC) || defined(ARX_GCC)
+#  define ALIGNOF(TYPE) __alignof(TYPE)
+#else
+#  /* Not supported. */
 #endif
 
 #ifdef ARX_LINUX
