@@ -392,6 +392,43 @@ namespace arx {
     T scalar;
   };
 
+  template<class T>
+  struct Min {
+    Min() {}
+    const T operator()(const T& l, const T& r) const {
+      return std::min(l, r);
+    }
+    enum {
+      Cost = NumTraits<T>::AddCost, /* This one isn't that obvious. */
+      Flags = 0
+    };
+  };
+
+  template<class T>
+  struct Max {
+    Max() {}
+    const T operator()(const T& l, const T& r) const {
+      return std::max(l, r);
+    }
+    enum {
+      Cost = NumTraits<T>::AddCost, /* This one isn't that obvious. */
+      Flags = 0
+    };
+  };
+
+  template<class T>
+  struct Abs {
+    Abs() {}
+    const T operator()(const T& a) const {
+      return std::abs(a);
+    }
+    enum {
+      Cost = NumTraits<T>::AddCost, /* This one isn't that obvious. */
+      Flags = 0
+    };
+  };
+
+
 // -------------------------------------------------------------------------- //
 // FunctorTraits
 // -------------------------------------------------------------------------- //
@@ -399,6 +436,48 @@ namespace arx {
     enum {
       Cost = T::Cost,
       Flags = T::Flags
+    };
+  };
+
+  template<class T> struct FunctorTraits<std::less<T> > {
+    enum {
+      Cost = NumTraits<T>::AddCost, /* This one isn't that obvious. */
+      Flags = 0
+    };
+  };
+
+  template<class T> struct FunctorTraits<std::less_equal<T> > {
+    enum {
+      Cost = NumTraits<T>::AddCost, /* This one isn't that obvious. */
+      Flags = 0
+    };
+  };
+
+  template<class T> struct FunctorTraits<std::greater<T> > {
+    enum {
+      Cost = NumTraits<T>::AddCost, /* This one isn't that obvious. */
+      Flags = 0
+    };
+  };
+
+  template<class T> struct FunctorTraits<std::greater_equal<T> > {
+    enum {
+      Cost = NumTraits<T>::AddCost, /* This one isn't that obvious. */
+      Flags = 0
+    };
+  };
+
+  template<class T> struct FunctorTraits<std::equal_to<T> > {
+    enum {
+      Cost = NumTraits<T>::AddCost, /* This one isn't that obvious. */
+      Flags = 0
+    };
+  };
+
+  template<class T> struct FunctorTraits<std::not_equal_to<T> > {
+    enum {
+      Cost = NumTraits<T>::AddCost, /* This one isn't that obvious. */
+      Flags = 0
     };
   };
 
@@ -890,6 +969,45 @@ namespace arx {
 
 
 // -------------------------------------------------------------------------- //
+// Cwise
+// -------------------------------------------------------------------------- //
+  template<class M>
+  class Cwise {
+  private:
+    const M& m; /* TODO: may nest by value... */
+
+  public:
+    typedef typename Traits<M>::value_type value_type;
+
+    Cwise(const M& m) : m(m) {}
+
+#define ARX_CWISE_DEFINE_UNOP(NAME, FUNCTOR)                                    \
+    const CwiseUnaryOp<M, FUNCTOR<value_type> >                                 \
+    NAME() const {                                                              \
+      return CwiseUnaryOp<M, FUNCTOR<value_type> >(this->m);                    \
+    }
+
+#define ARX_CWISE_DEFINE_BINOP(NAME, FUNCTOR)                                   \
+    template<typename OtherDerived>                                             \
+    const CwiseBinaryOp<M, OtherDerived, FUNCTOR<value_type> >                  \
+    NAME(const MatrixBase<OtherDerived> &that) const {                          \
+      return CwiseBinaryOp<M, OtherDerived, FUNCTOR<value_type> >(this->m, that.derived()); \
+    }
+
+    ARX_CWISE_DEFINE_UNOP(abs, Abs)
+    ARX_CWISE_DEFINE_BINOP(min, Min)
+    ARX_CWISE_DEFINE_BINOP(max, Max)
+    ARX_CWISE_DEFINE_BINOP(operator<, std::less)
+    ARX_CWISE_DEFINE_BINOP(operator<=, std::less_equal)
+    ARX_CWISE_DEFINE_BINOP(operator>, std::greater)
+    ARX_CWISE_DEFINE_BINOP(operator>=, std::greater_equal)
+    ARX_CWISE_DEFINE_BINOP(operator==, std::equal_to)
+    ARX_CWISE_DEFINE_BINOP(operator!=, std::not_equal_to)
+#undef ARX_CWISE_DEFINE_BINOP
+  };
+
+
+// -------------------------------------------------------------------------- //
 // MatrixBase
 // -------------------------------------------------------------------------- //
   template<class Derived>
@@ -1081,6 +1199,28 @@ namespace arx {
 
     static const RandomReturnType random(int r, int c) {
       return RandomReturnType(r, c);
+    }
+
+    const Cwise<Derived> cwise() const {
+      return Cwise<Derived>(this->derived());
+    }
+
+    Cwise<Derived> cwise() {
+      return Cwise<Derived>(this->derived());
+    }
+
+    bool all() const {
+      for(int j = 0; j < cols(); ++j)
+        for(int i = 0; i < rows(); ++i)
+          if (!this->derived().coeff(i, j)) return false;
+      return true;
+    }
+
+    bool any() const {
+      for(int j = 0; j < this->cols(); ++j)
+        for(int i = 0; i < this->rows(); ++i)
+          if (this->derived().coeff(i, j)) return true;
+      return false;
     }
 
     template<typename OtherDerived>
