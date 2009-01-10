@@ -378,21 +378,6 @@ namespace arx {
   };
 
   template<class T>
-  struct Dot {
-    Dot(): scalar(static_cast<T>(0)) {}
-    const T get() { return this->scalar; }
-    void operator()(const T& l, const T& r) {
-      this->scalar += l * r;
-    }
-    enum {
-      Cost = NumTraits<T>::AddCost + NumTraits<T>::MulCost,
-      Flags = 0
-    };
-  private:
-    T scalar;
-  };
-
-  template<class T>
   struct Min {
     Min() {}
     const T operator()(const T& l, const T& r) const {
@@ -426,6 +411,21 @@ namespace arx {
       Cost = NumTraits<T>::AddCost, /* This one isn't that obvious. */
       Flags = 0
     };
+  };
+
+  template<class T>
+  struct Dot {
+    Dot(): scalar(static_cast<T>(0)) {}
+    const T get() { return this->scalar; }
+    void operator()(const T& l, const T& r) {
+      this->scalar += l * r;
+    }
+    enum {
+      Cost = NumTraits<T>::AddCost + NumTraits<T>::MulCost,
+      Flags = 0
+    };
+  private:
+    T scalar;
   };
 
 
