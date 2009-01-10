@@ -4,6 +4,34 @@
 #include "config.h"
 #include <functional>
 
+#ifdef ARX_USE_BOOST
+#  include <boost/utility.hpp>
+namespace arx {
+  using boost::addressof;
+}
+#else
+namespace arx {
+  namespace detail {
+    template<class T> struct addressof_impl {
+      static inline T* f(T& v, long) {
+        return reinterpret_cast<T*>
+          (&const_cast<char&>(reinterpret_cast<const volatile char &>(v)));
+      }
+
+      /* This magic was copied directly from boost implementation...
+       * And I should admit that I don't understand, what is it for. */
+      static inline T* f(T* v, int) {
+        return v;
+      }
+    };
+  } // namespace detail
+
+  template<class T> T* addressof(T& v) {
+    return detail::addressof_impl<T>::f(v, 0);
+  }
+} // namespace arx
+#endif
+
 namespace arx {
   namespace noncopyable_adl_protected { // protection from unintended ADL
     /**
@@ -19,12 +47,12 @@ namespace arx {
      */
     class noncopyable {
     public:
-      noncopyable();
+      noncopyable() {};
     private:
       noncopyable( const noncopyable& );
       const noncopyable& operator=( const noncopyable& );
     };
-  }
+  } // namespace noncopyable_adl_protected
 
   typedef noncopyable_adl_protected::noncopyable noncopyable;
 
@@ -40,7 +68,7 @@ namespace arx {
     private:
       const nonassignable& operator=( const nonassignable& );
     };
-  }
+  } // namespace nonassignable_adl_protected
 
   typedef nonassignable_adl_protected::nonassignable nonassignable;
 

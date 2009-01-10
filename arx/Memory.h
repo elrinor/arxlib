@@ -1,11 +1,33 @@
 #ifndef __ARX_MEMORY_H__
 #define __ARX_MEMORY_H__
 
+#include <memory>
+
 #include "config.h"
 #include <malloc.h>
 #include <cstdlib>
 #include <cstddef>
 #include "static_assert.h"
+#include "TypeTraits.h"
+
+/** 
+ * @def ALIGNOF
+ *
+ * @returns alignment in bytes of the given type. 
+ */
+#ifdef ARX_USE_BOOST
+#  include <boost/type_traits/alignment_of.hpp>
+#  define ALIGNOF(TYPE) (boost::alignment_of<TYPE>::value)
+#else
+#  if defined(ARX_MSVC) || defined(ARX_ICC)
+#    define ALIGNOF(TYPE) __alignof(TYPE)
+#  elif defined(ARX_GCC)
+#    define ALIGNOF(TYPE) __alignof__(TYPE)
+#  else
+#    /* Not supported. */
+#  endif
+#endif
+
 
 /**
  * @def ALIGN
@@ -21,24 +43,14 @@
 #  /* Not supported. */
 #endif
 
-/**
- * @def ALIGNOF
- *
- * @returns alignment in bytes of the given type.
- */
-#if defined(ARX_MSVC) || defined(ARX_ICC) || defined(ARX_GCC)
-#  define ALIGNOF(TYPE) __alignof(TYPE)
-#else
-#  /* Not supported. */
-#endif
 
 #ifdef ARX_LINUX
 /* posix_memalign isn't always defined in the stdlib header */
 extern "C" int posix_memalign(void**, size_t, size_t) throw ();
 #endif
 
-namespace arx {
 
+namespace arx {
   /**
    * Allocates an aligned chunk of memory.
    *
@@ -96,7 +108,7 @@ namespace arx {
   /**
    * This class is provided for those who want to use aligned allocation with operator new.
    * If you want your class Foo to use aligned heap allocation, then just include WithAlignedOperatorNew in
-   * the list of it's parents. Private inheritance is OK.
+   * the list of it's parents. Use public inheritance.
    *
    * @param align desired alignment, in bytes.
    */
@@ -109,7 +121,7 @@ namespace arx {
       return aligned_malloc(size, align);
     }
 
-    void *operator new[](std::size_t size) throw() {
+    void* operator new[](std::size_t size) throw() {
       return aligned_malloc(size, align);
     }
 
@@ -118,8 +130,92 @@ namespace arx {
     }
 
     void operator delete[](void* ptr) { 
-      aligned_free(ptr); 
+      aligned_free(ptr);
     }
+  };
+
+
+  /** Replacement for std::allocator, which calls overloaded operator new if one
+   * is present. */
+  template<class T> class classnew_allocator {
+  public:
+    typedef T         value_type;
+    typedef T*        pointer;
+    typedef const T*  const_pointer;
+    typedef T&        reference;
+    typedef const T&  const_reference;
+
+    template<typename OtherType>
+    struct rebind { 
+      typedef classnew_allocator<OtherType> other; 
+    };
+
+    T* address(T& ref) const { 
+      return addressof(ref); 
+    }
+
+    const T* address(const T& ref) const { 
+      return addressof(ref); 
+    }
+
+    T* allocate(size_t size, const void* hint = 0) { 
+      return impl_type::allocate(size, hint);
+    }
+
+    void deallocate(T* ptr, size_t size) { 
+      impl_type::deallocate(ptr, size);
+    }
+    
+    size_t max_size() const { 
+      return size_t(-1) / sizeof(T); 
+    }
+
+    void construct(T* ptr, const T& refObj) { 
+      ::new(ptr) T(refObj); 
+    }
+    
+    void destroy(T* ptr) { 
+      ptr->~T(); 
+    }
+
+  private:
+    /* This one is probably buggy. */
+    template<class T> struct has_operator_bracket_new {
+      class yes_type { int member[128]; };
+      class no_type {};
+      template<void* (*func)(std::size_t)> struct nothing {};
+      template<class Y> struct wrap { typedef Y type; };
+
+      template<class Y>
+      static no_type test(const wrap<Y>&, float);
+
+      template<class Y>
+      static yes_type test(const wrap<Y>&, int, nothing<&Y::operator new[]>* = 0);
+
+      enum { value = sizeof(test(wrap<T>(), 0)) == sizeof(yes_type) };
+    };
+
+    template<bool has_new> struct allocator_impl {
+      static T* allocate(size_t size, const void* = 0) { 
+        return static_cast<T*>(T::operator new(size * sizeof(T)));
+      }
+
+      static void deallocate(T* ptr, size_t) { 
+        T::operator delete[](ptr); 
+      }
+    };
+
+    template<> struct allocator_impl<false> {
+      static T* allocate(size_t size, const void* = 0) { 
+        return static_cast<T*>(::operator new(size * sizeof(T))); 
+      }
+
+      static void deallocate(T* ptr, size_t) { 
+        ::operator delete(ptr);
+      }
+    };
+
+    typedef allocator_impl<has_operator_bracket_new<T>::value> impl_type;
   };
 
 } // namespace arx

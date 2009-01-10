@@ -22,6 +22,7 @@ namespace arx {
 #include "static_assert.h"
 #include "Preprocessor.h"
 #include "Mpl.h"
+#include "TypeTraits.h"
 #include "Utility.h"
 #include "Memory.h"
 
