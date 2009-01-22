@@ -2,24 +2,52 @@
 #define __ARX_CONFIG_H__
 
 // -------------------------------------------------------------------------- //
-// Config settings
+// Config: General & Global
 // -------------------------------------------------------------------------- //
 /** @def ARX_USE_BOOST
  * Define to use implementation of some features from boost library instead of hand-coded one.
  * Normally boost classes offer wider functionality and sometimes produce faster code. */
 
-/** @def ARX_USE_EIGEN
- * Define to use Eigen library in place of ArX LinearAlgebra module. Eigen is a highly-optimized
- * library with a rich set of features, which generally produces better code that ArX LinearAlgebra. */
-
 /** @def ARX_DISABLE_THREADS
  * Define to disable thread support and thread safety in ArX library. May result in
  * faster code for single-threaded applications. */
+
+
+// -------------------------------------------------------------------------- //
+// Config: LinearAlgebra module
+// -------------------------------------------------------------------------- //
+/** @def ARX_USE_EIGEN
+ * Define to use Eigen library in place of ArX LinearAlgebra module. Eigen is a highly-optimized
+ * library with a rich set of features, which generally produces better code that ArX LinearAlgebra. */
 
 /** @def ARX_UNROLL_COST_LIMIT
  * Cost limit for templated cycle unrolling in LinearAlgebra module. Default value is 100. */
 #ifndef ARX_UNROLL_COST_LIMIT
 #  define ARX_UNROLL_COST_LIMIT 100
+#endif
+
+
+// -------------------------------------------------------------------------- //
+// Config: Image module
+// -------------------------------------------------------------------------- //
+/** @def ARX_USE_OPENCV
+ * Define to use OpenCV routines for image saving / loading in ArX Image Processing library. 
+ * If not defined, only 24-bit bmp files will be supported. */
+
+/** @def ARX_USE_IPPI
+ * Use ippi for image processing? If not defined, hand-coded routines will be used
+ * instead of ippi ones. This may lead to a significant slowdown in some cases. */
+
+/** @def ARX_USE_CIPPIMAGE
+ * Define CIppImage-compatible interfaces? */
+
+/** @def ARX_USE_IPPIMALLOC 
+ * Use ippiMalloc for image allocation? */
+
+/** @def ARX_GAUSS_TRUNCATE
+ * Truncate gaussian kernel at <tt>sigma * ARX_GAUSS_TRUNCATE</tt> pixels away from center */
+#ifndef ARX_GAUSS_TRUNCATE
+#  define ARX_GAUSS_TRUNCATE 4.0f
 #endif
 
 
@@ -48,6 +76,10 @@
 #  ifdef ARX_DISABLE_THREADS
 #    define BOOST_DISABLE_THREADS
 #  endif
+#endif
+
+#if defined(ARX_USE_CIPPIMAGE) || defined(ARX_USE_IPPIMALLOC)
+#  define ARX_USE_IPPI
 #endif
 
 
