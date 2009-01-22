@@ -86,20 +86,27 @@ namespace arx {
 #define ARX_DYNAMIC_NUMBERS_EQ(A, B)                                            \
   ((A) == DYNAMIC_SIZE || (B) == DYNAMIC_SIZE || (A) == (B))
 
+#define ARX_SAME_MATRIX_SIZE(L, R)                                              \
+  (ARX_DYNAMIC_NUMBERS_EQ(Traits<L>::ColsAtCompileTime, Traits<R>::ColsAtCompileTime) && \
+   ARX_DYNAMIC_NUMBERS_EQ(Traits<L>::RowsAtCompileTime, Traits<R>::RowsAtCompileTime))
+
+#define ARX_SAME_VECTOR_SIZE(L, R)                                              \
+  ARX_DYNAMIC_NUMBERS_EQ(Traits<L>::SizeAtCompileTime, Traits<R>::SizeAtCompileTime)
+
+#define ARX_VECTOR_ONLY(M)                                                      \
+  (Traits<M>::IsVectorAtCompileTime)
+
 #define ARX_STATIC_ASSERT_DYNAMIC_NUMBERS_EQ(A, B)                              \
   STATIC_ASSERT((ARX_DYNAMIC_NUMBERS_EQ(A, B)))
 
 #define ARX_STATIC_ASSERT_SAME_MATRIX_SIZE(L, R)                                \
-  STATIC_ASSERT((                                                               \
-    ARX_DYNAMIC_NUMBERS_EQ(Traits<L>::ColsAtCompileTime, Traits<R>::ColsAtCompileTime) && \
-    ARX_DYNAMIC_NUMBERS_EQ(Traits<L>::RowsAtCompileTime, Traits<R>::RowsAtCompileTime) \
-  ))
+  STATIC_ASSERT((ARX_SAME_MATRIX_SIZE(L, R)))
 
 #define ARX_STATIC_ASSERT_SAME_VECTOR_SIZE(L, R)                                \
-  ARX_STATIC_ASSERT_DYNAMIC_NUMBERS_EQ(Traits<L>::SizeAtCompileTime, Traits<R>::SizeAtCompileTime)
+  STATIC_ASSERT((ARX_SAME_VECTOR_SIZE(L, R)))
 
 #define ARX_STATIC_ASSERT_VECTOR_ONLY(M)                                        \
-  STATIC_ASSERT((Traits<M>::IsVectorAtCompileTime))
+  STATIC_ASSERT((ARX_VECTOR_ONLY(M)))
 
 #define ARX_STATIC_ASSERT_SAME_VALUETYPE(L, R)                                  \
   STATIC_ASSERT((is_same<typename Traits<L>::value_type, typename Traits<R>::value_type>::value))
@@ -937,7 +944,8 @@ namespace arx {
 
   public:
     FORCEINLINE void operator()(LParam l, RParam r, OParam o) {
-      assert(l.rows() == r.rows() && l.cols() == r.cols());
+      assert((l.rows() == r.rows() && l.cols() == r.cols()) || 
+        (Traits<L>::IsVectorAtCompileTime && Traits<R>::IsVectorAtCompileTime && l.size() == r.size()));
       unrollIteration<0, SizeAtCompileTime>()(l, r, o);
     }
   };
@@ -959,7 +967,7 @@ namespace arx {
       };
 
       FORCEINLINE void operator()(LParam l, RParam r, OParam o) {
-        o(l(col, row), r(col, row));
+        o(l(row, col), r(row, col));
         unrollIteration<index + 1, maxIndex>()(l, r, o);
       }
     };
@@ -1239,7 +1247,8 @@ namespace arx {
     template<typename OtherDerived>
     Derived& operator= (const MatrixBase<OtherDerived>& that) {
       ARX_STATIC_ASSERT_SAME_VALUETYPE(Derived, OtherDerived);
-      ARX_STATIC_ASSERT_SAME_MATRIX_SIZE(Derived, OtherDerived);
+      STATIC_ASSERT((ARX_SAME_MATRIX_SIZE(Derived, OtherDerived) || 
+        (ARX_VECTOR_ONLY(Derived) && ARX_VECTOR_ONLY(OtherDerived) && ARX_SAME_VECTOR_SIZE(Derived, OtherDerived))));
       assert(this->rows() == that.rows() && this->cols() == that.cols());
       Unroller<Derived, OtherDerived, Assign<value_type>, Derived&, const OtherDerived&, const Assign<value_type>&>
         ()(this->derived(), that.derived(), Assign<value_type>());
@@ -1694,12 +1703,6 @@ namespace arx {
 
     const value_type coeff(int r, int c) const {
       return this->l.row(r).transpose().dot(this->r.col(c));
-      /*
-      value_type result = value_type();
-      for(int i = 0; i < l.cols(); i++)
-        result += this->l(r, i) * this->r(i, c);
-      return result;
-      */
     }
   };
 
@@ -1961,6 +1964,7 @@ namespace arx {
 
 } // namespace arx
 
+/* Clean up. */
 #ifdef MIN_UNDEFFED
 #  define min(x, y) ((x > y)?(y):(x))
 #  undef MIN_UNDEFFED
@@ -1978,6 +1982,9 @@ namespace arx {
 #undef ARX_BEFRIEND_MATRIXBASE
 
 #undef ARX_DYNAMIC_NUMBERS_EQ
+#undef ARX_SAME_MATRIX_SIZE
+#undef ARX_SAME_VECTOR_SIZE
+#undef ARX_VECTOR_ONLY
 #undef ARX_STATIC_ASSERT_DYNAMIC_NUMBERS_EQ
 #undef ARX_STATIC_ASSERT_SAME_MATRIX_SIZE
 #undef ARX_STATIC_ASSERT_SAME_VECTOR_SIZE
