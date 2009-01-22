@@ -7,6 +7,7 @@
 
 #include <Eigen/Core>
 #include <Eigen/Array>
+#include <Eigen/Geometry>
 
 namespace arx {
   using namespace Eigen;
@@ -917,6 +918,10 @@ namespace arx {
   template<class L, class R, class O, class LParam, class RParam, class OParam>
   struct Unroller<L, R, O, LParam, RParam, OParam, true, true> {
   private:
+    enum {
+      SizeAtCompileTime = Traits<L>::IsStaticallySized ? Traits<L>::SizeAtCompileTime : Traits<R>::SizeAtCompileTime
+    };
+
     template<int index, int maxIndex> 
     struct unrollIteration {
       FORCEINLINE void operator()(LParam l, RParam r, OParam o) {
@@ -933,38 +938,41 @@ namespace arx {
   public:
     FORCEINLINE void operator()(LParam l, RParam r, OParam o) {
       assert(l.rows() == r.rows() && l.cols() == r.cols());
-      unrollIteration<0, 
-        Traits<L>::IsStaticallySized ? Traits<L>::SizeAtCompileTime : Traits<R>::SizeAtCompileTime>()(l, r, o);
+      unrollIteration<0, SizeAtCompileTime>()(l, r, o);
     }
   };
 
   template<class L, class R, class O, class LParam, class RParam, class OParam>
   struct Unroller<L, R, O, LParam, RParam, OParam, true, false> {
   private:
-    template<int col, int row, int maxCol, int maxRow, int size = 0, int maxSize = maxCol * maxRow> 
+    enum {
+      ColsAtCompileTime = Traits<L>::IsStaticallySized ? Traits<L>::ColsAtCompileTime : Traits<R>::ColsAtCompileTime,
+      RowsAtCompileTime = Traits<L>::IsStaticallySized ? Traits<L>::RowsAtCompileTime : Traits<R>::RowsAtCompileTime,
+      SizeAtCompileTime = ColsAtCompileTime * RowsAtCompileTime
+    };
+
+    template<int index, int maxIndex> 
     struct unrollIteration {
+      enum {
+        row = (Traits<L>::Flags & RowMajorBit) ? index / ColsAtCompileTime : index % RowsAtCompileTime,
+        col = (Traits<L>::Flags & RowMajorBit) ? index % ColsAtCompileTime : index / RowsAtCompileTime
+      };
+
       FORCEINLINE void operator()(LParam l, RParam r, OParam o) {
         o(l(col, row), r(col, row));
-        if(Traits<L>::Flags & Traits<R>::Flags & RowMajorBit)
-          unrollIteration<(col + 1 == maxCol) ? 0 : col + 1, (col + 1 == maxCol) ? row + 1 : row, 
-                          maxCol, maxRow, size + 1, maxSize>()(l, r, o);
-        else
-          unrollIteration<(row + 1 == maxRow) ? col + 1 : col, (row + 1 == maxRow) ? 0 : row + 1, 
-                          maxCol, maxRow, size + 1, maxSize>()(l, r, o);
+        unrollIteration<index + 1, maxIndex>()(l, r, o);
       }
     };
 
-    template<int col, int row, int maxCol, int maxRow, int end>
-    struct unrollIteration<col, row, maxCol, maxRow, end, end> {
+    template<int end>
+    struct unrollIteration<end, end> {
       FORCEINLINE void operator()(LParam l, RParam r, OParam o) {}
     };
 
   public:
     FORCEINLINE void operator()(LParam l, RParam r, OParam o) {
       assert(l.rows() == r.rows() && l.cols() == r.cols());
-      unrollIteration<0, 0,
-        Traits<L>::IsStaticallySized ? Traits<L>::ColsAtCompileTime : Traits<R>::ColsAtCompileTime,
-        Traits<L>::IsStaticallySized ? Traits<L>::RowsAtCompileTime : Traits<R>::RowsAtCompileTime>()(l, r, o);
+      unrollIteration<0, SizeAtCompileTime>()(l, r, o);
     }
   };
 
@@ -1104,12 +1112,12 @@ namespace arx {
       return dot.get();
     }
 
-    value_type normSqr() const {
+    value_type squaredNorm() const {
       return this->dot(*this);
     }
 
     value_type norm() const {
-      return sqrt(normSqr());
+      return sqrt(squaredNorm());
     }
 
     void normalize() {
@@ -1133,7 +1141,7 @@ namespace arx {
     }
 
 
-    void fill(const value_type& value) {
+    void setConstant(const value_type& value) {
       *this = CwiseNullaryOp<value_type, RowsAtCompileTime, ColsAtCompileTime, Constant<value_type> >
         (this->rows(), this->cols(), Constant<value_type>(value));
     }
@@ -1180,11 +1188,11 @@ namespace arx {
       return Transpose<Derived>(this->derived());
     }
 
-    static const IdentityReturnType identity(int r, int c) {
+    static const IdentityReturnType Identity(int r, int c) {
       return IdentityReturnType(r, c);
     }
 
-    static const IdentityReturnType identity() {
+    static const IdentityReturnType Identity() {
       STATIC_ASSERT((IsStaticallySized));
       return IdentityReturnType(ColsAtCompileTime, RowsAtCompileTime);
     }

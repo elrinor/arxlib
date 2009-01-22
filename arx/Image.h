@@ -1518,11 +1518,11 @@ namespace arx {
       BMPHeader hdr;
       BMPInfoHeader infoHdr;
 
-      std::ifstream f(fileName.c_str(), ios_base::in | ios_base::binary);
+      std::ifstream f(fileName.c_str(), std::ios_base::in | std::ios_base::binary);
       if(!f.is_open())
         throw std::runtime_error("Could not open image file \"" + fileName + "\"");
 
-      string errorMsg = "Error while reading image file \"" + fileName + "\": ";
+      std::string errorMsg = "Error while reading image file \"" + fileName + "\": ";
 
       if(f.read((char *) &hdr, sizeof(hdr)).gcount() != sizeof(hdr))
         throw std::runtime_error(errorMsg + "could not read bitmap header");
@@ -1561,7 +1561,7 @@ namespace arx {
       BMPHeader hdr;
       BMPInfoHeader infoHdr;
 
-      ofstream f(fileName.c_str(), ios_base::out | ios_base::binary);
+      std::ofstream f(fileName.c_str(), std::ios_base::out | std::ios_base::binary);
       if(!f.is_open())
         throw std::runtime_error("Could not open image file \"" + fileName + "\"");
 
@@ -1573,7 +1573,7 @@ namespace arx {
       hdr.reserved2 = 0;
       hdr.offset = sizeof(BMPHeader) + sizeof(BMPInfoHeader);
 
-      string errorMsg = "Error while reading image file \"" + fileName + "\": ";
+      std::string errorMsg = "Error while reading image file \"" + fileName + "\": ";
 
       f.write((char *) &hdr, sizeof(hdr));
 
