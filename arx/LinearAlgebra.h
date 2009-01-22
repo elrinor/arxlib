@@ -137,9 +137,9 @@ namespace arx {
   template<class M, int R, int C> class Block;
 
 
-  // -------------------------------------------------------------------------- //
-  // MatrixFlags
-  // -------------------------------------------------------------------------- //
+// -------------------------------------------------------------------------- //
+// MatrixFlags
+// -------------------------------------------------------------------------- //
   enum MatrixFlags {
     /** Store matrix in a row-major order. In case we're working on an expression, this flag
     * determines the storage order of the matrix created by evaluation of expression. */
@@ -1004,6 +1004,10 @@ namespace arx {
     ARX_CWISE_DEFINE_BINOP(operator>=, std::greater_equal)
     ARX_CWISE_DEFINE_BINOP(operator==, std::equal_to)
     ARX_CWISE_DEFINE_BINOP(operator!=, std::not_equal_to)
+    ARX_CWISE_DEFINE_BINOP(operator*, Mul)
+    ARX_CWISE_DEFINE_BINOP(operator+, Add)
+    ARX_CWISE_DEFINE_BINOP(operator/, Div)
+    ARX_CWISE_DEFINE_BINOP(operator/, Sub)
 #undef ARX_CWISE_DEFINE_BINOP
   };
 
