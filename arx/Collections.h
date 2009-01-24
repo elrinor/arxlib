@@ -889,6 +889,18 @@ namespace arx {
 // -------------------------------------------------------------------------- //
 // GenericArray
 // -------------------------------------------------------------------------- //
+  /**
+   * GenericArray is a decomposed wrapper for dynamic arrays. It's behavior
+   * heavily relies on the Traits template parameter. 
+   *
+   * While being an analog to std::vector, GenericArray also makes possible
+   * direct data manipulation through data() member function. It can be useful
+   * for building advanced container types on top of GenericArray.
+   *
+   * @param Traits traits type.
+   *
+   * @see GenericArrayTraits.
+   */
   template<class Traits>
   class GenericArray {
   public:
@@ -1231,6 +1243,8 @@ namespace arx {
    * <li> FastArray uses nonstandard default allocator, which supports 
    *      overloaded operator new, therefore allowing to store types with 
    *      alignment.
+   * <li> FastArray makes direct data manipulation possible through data()
+   *      member function.
    * </ul>
    *
    * @param Type type to store in array.
@@ -1238,9 +1252,21 @@ namespace arx {
    */
   template<class Type, class Allocator = classnew_allocator<Type> >
   class FastArray: 
-    public GenericArray<GenericArrayTraits<Type, NoReserve, Reserve<>, SwapAssigner, Allocator> > {
+    public GenericArray<GenericArrayTraits<Type, NoReserve, Reserve<0>, SwapAssigner, Allocator> > {
   public:
     ARX_GENERICARRAY_INHERIT_CONSTRUCTORS(FastArray)
+  };
+
+
+  /**
+   * CheckedFastArray is an analog of FastArray. The only difference is that
+   * CheckedFastArray supports automatic resizing on push_back.
+   */
+  template<class Type, class Allocator = classnew_allocator<Type> >
+  class CheckedFastArray:
+    public GenericArray<GenericArrayTraits<Type, Reserve<16>, Reserve<0>, SwapAssigner, Allocator> > {
+  public:
+    ARX_GENERICARRAY_INHERIT_CONSTRUCTORS(CheckedFastArray)
   };
 
 } // namespace arx

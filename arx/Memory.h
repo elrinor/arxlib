@@ -143,6 +143,8 @@ namespace arx {
     typedef const T*  const_pointer;
     typedef T&        reference;
     typedef const T&  const_reference;
+    typedef typename std::allocator<T>::size_type         size_type;
+    typedef typename std::allocator<T>::difference_type   difference_type;
 
     template<typename OtherType>
     struct rebind { 
