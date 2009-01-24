@@ -241,6 +241,16 @@ namespace arx {
 
 namespace arx {
 // -------------------------------------------------------------------------- //
+// lambda
+// -------------------------------------------------------------------------- //
+  template<template<class> class MetaFunction> struct lambda1 {
+    template<class T> struct apply {
+      typedef MetaFunction<T> type;
+    };
+  };
+
+
+// -------------------------------------------------------------------------- //
 // Min & Max
 // -------------------------------------------------------------------------- //
   template<class A, class B> struct max_ {

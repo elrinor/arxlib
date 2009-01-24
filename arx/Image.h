@@ -56,6 +56,7 @@ namespace arx {
     };
 
     // TODO: merge with ones defined in LinearAlgebra
+    // TODO: use std::divides etc...
     DEFINE_BINARY_OPERATOR(Mul, T, l * r)
     DEFINE_BINARY_OPERATOR(Div, T, l / r)
     DEFINE_BINARY_OPERATOR(Add, T, l + r)
@@ -328,8 +329,7 @@ namespace arx {
    * @param c                          Color to convert.
    *
    * @param ToColor                    Color type to convert to.
-   * @param FromColor                  Color type to convert from.
-   */
+   * @param FromColor                  Color type to convert from. */
   template<class ToColor, class FromColor> 
   ToColor color_cast(const FromColor& c) {
     return color_cast_impl<ToColor, FromColor>()(c);
@@ -440,8 +440,6 @@ namespace arx {
   static Color alphaMul(const Color& c, typename datatype<Color>::type alpha) {
     return alpha_mul<Color>()(c, alpha);
   }
-
-
 
 
 // -------------------------------------------------------------------------- //

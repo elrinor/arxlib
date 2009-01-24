@@ -12,6 +12,12 @@
  * Define to disable thread support and thread safety in ArX library. May result in
  * faster code for single-threaded applications. */
 
+/** @def ARX_DISABLE_EXCEPTIONS
+ * Define to disable exception handling in ArX Library. When defined, ArX library
+ * won't throw exceptions, but also won't try handle exceptions in user code. 
+ * Note that in this case all the error will become non-interceptable, since
+ * error handling code will revert to assertions instead of exceptions. */
+
 
 // -------------------------------------------------------------------------- //
 // Config: LinearAlgebra module
@@ -72,6 +78,10 @@
 #  define DEBUG
 #endif
 
+
+// -------------------------------------------------------------------------- //
+// Derived defines
+// -------------------------------------------------------------------------- //
 #ifdef ARX_USE_BOOST
 #  ifdef ARX_DISABLE_THREADS
 #    define BOOST_DISABLE_THREADS
@@ -82,6 +92,29 @@
 #  define ARX_USE_IPPI
 #endif
 
+#ifdef ARX_DISABLE_EXCEPTIONS
+#  define ARX_TRY        {{
+#  define ARX_CATCH_ALL  } if(0) {
+#  define ARX_CATCH(X)   } if(0) {
+#  define ARX_RETHROW    
+#  define ARX_THROW(X)   
+#  define ARX_END_TRY    }}
+#  define ARX_ASSERT_OR_THROW(CONDITION, HANDLER)                               \
+  assert(CONDITION);
+#else
+#  define ARX_TRY        try {
+#  define ARX_CATCH_ALL  } catch(...) {
+#  define ARX_CATCH(X)   } catch(X) {
+#  define ARX_RETHROW    throw;
+#  define ARX_THROW(X)   throw(X);
+#  define ARX_END_TRY    }
+#  define ARX_ASSERT_OR_THROW(CONDITION, HANDLER)                               \
+  if(!(CONDITION)) {                                                            \
+    HANDLER;                                                                    \
+  }
+#endif
+
+
 
 // -------------------------------------------------------------------------- //
 // Some useful defines
@@ -91,7 +124,6 @@
 # else
 #  define FORCEINLINE inline
 #endif
-
 
 
 #endif

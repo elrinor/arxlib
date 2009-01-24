@@ -5,9 +5,12 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <iterator>
+#include <exception>
 #include "smart_ptr.h"
+#include "static_assert.h"
 #include "Mpl.h"
-
+#include "Memory.h"
 
 #ifdef ARX_USE_BOOST
 #  include <boost/array.hpp>
@@ -16,6 +19,9 @@ namespace arx {
 }
 #else
 namespace arx {
+// -------------------------------------------------------------------------- //
+// array
+// -------------------------------------------------------------------------- //
   /**
    * array template provides stl interface to c arrays.
    */
@@ -183,6 +189,9 @@ namespace arx {
 #endif // ARX_USE_BOOST
 
 namespace arx {
+// -------------------------------------------------------------------------- //
+// ArrayList
+// -------------------------------------------------------------------------- //
   /**
    * ArrayList is a Java-inspired std::vector wrapper with a reference-counted 
    * pointer semantics.
@@ -393,6 +402,9 @@ namespace arx {
   };
 
 
+// -------------------------------------------------------------------------- //
+// Map
+// -------------------------------------------------------------------------- //
   /**
    * Map is a Java-inspired std::map wrapper with a reference-counted 
    * pointer semantics.
@@ -562,6 +574,9 @@ namespace arx {
   };
 
 
+// -------------------------------------------------------------------------- //
+// Set
+// -------------------------------------------------------------------------- //
   /**
    * Set is a Java-inspired std::set wrapper with a reference-counted 
    * pointer semantics.
@@ -725,10 +740,12 @@ namespace arx {
   };
 
 
+// -------------------------------------------------------------------------- //
+// Slice
+// -------------------------------------------------------------------------- //
   namespace detail {
     class SliceAccessor;
   }
-
   
   /**
    * Slice wraps an stl container and provides a simple interface to
@@ -868,6 +885,363 @@ namespace arx {
     return detail::SliceAccessor::construct<StoreMode>(detail::SliceAccessor::getA(a), detail::SliceAccessor::getLo(a) + lo, detail::SliceAccessor::getLo(a) + hi);
   }
 
+
+// -------------------------------------------------------------------------- //
+// GenericArray
+// -------------------------------------------------------------------------- //
+  template<class Traits>
+  class GenericArray {
+  public:
+    typedef Traits traits_type;
+
+    typedef typename traits_type::pre_push_back_type pre_push_back_type;
+    typedef typename traits_type::pre_resize_type pre_resize_type;
+    typedef typename traits_type::assigner_type assigner_type;
+    typedef typename traits_type::allocator_type allocator_type;
+    typedef typename traits_type::value_type value_type;
+
+    typedef const value_type* const_pointer;
+    typedef const value_type& const_reference;
+    typedef value_type* pointer;
+    typedef value_type& reference;
+    typedef int size_type;
+    typedef int difference_type;
+
+    typedef const value_type* const_iterator;
+    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+    typedef value_type* iterator;
+    typedef std::reverse_iterator<iterator> reverse_iterator;
+
+    /** Default Constructor. 
+     * Constructs an empty GenericArray. */
+    GenericArray(): mSize(0), mCapacity(0), mData(NULL) {}
+
+    /** Copy Constructor. */
+    GenericArray(const GenericArray& other): mSize(0), mCapacity(0), mData(NULL), 
+                                             mAllocator(other.mAllocator) {
+      assigner_type()(*this, other);
+    }
+
+    explicit GenericArray(const allocator_type& allocator): 
+      mAllocator(allocator), mSize(0), mCapacity(0), mData(NULL) {}
+
+    explicit GenericArray(size_type capacity) {
+      initialize(capacity);
+    }
+
+    GenericArray(size_type capacity, const allocator_type& allocator): mAllocator(allocator) {
+      initialize(capacity);
+    }
+
+    ~GenericArray() {
+      if(!mData)
+        return;
+
+      clear();
+      mAllocator.deallocate(mData, mCapacity);
+    }
+
+    GenericArray& operator=(const GenericArray& other) {
+      assigner_type()(*this, other);
+      return *this;
+    }
+
+    reference at(size_type index) {
+      ARX_ASSERT_OR_THROW((index >= 0 && index < mSize), xRan());
+      return mData[index];
+    }
+
+    const_reference at(size_type index) const {
+      ARX_ASSERT_OR_THROW((index >= 0 && index < mSize), xRan());
+      return mData[index];
+    }
+
+    void clear() {
+      for(int i = 0; i < mSize; ++i)
+        mAllocator.destroy(mData + i);
+      mSize = 0;
+    }
+
+    bool empty() const {
+      return mSize == 0;
+    }
+
+    iterator begin() {
+      return mData;
+    }
+
+    const_iterator begin() const {
+      return mData;
+    }
+
+    iterator end() {
+      return mData + mSize;
+    }
+
+    const_iterator end() const {
+      return mData + mSize;
+    }
+
+    reverse_iterator rbegin() {
+      return reverse_iterator(end());
+    }
+
+    const_reverse_iterator rbegin() const {
+      return const_reverse_iterator(end());
+    }
+
+    reverse_iterator rend() {
+      return reverse_iterator(begin());
+    }
+
+    const_reverse_iterator rend() const {
+      return const_reverse_iterator(begin());
+    }
+
+    reference back() {
+      return at(mSize - 1);
+    }
+
+    const_reference back() const {
+      return at(mSize - 1);
+    }
+
+    reference front() {
+      return at(0);
+    }
+
+    const_reference front() const {
+      return at(0);
+    }
+
+    allocator_type get_allocator() const {
+      return mAllocator;
+    }
+
+    size_type capacity() const {
+      return mCapacity;
+    }
+
+    void reserve(size_type newCapacity) {
+      ARX_ASSERT_OR_THROW((newCapacity < max_size()), xLen());
+      ARX_ASSERT_OR_THROW((newCapacity > 0), xInvarg());
+
+      if(newCapacity <= mCapacity)
+        return;
+
+      pointer newData = mAllocator.allocate(newCapacity);
+      ARX_TRY
+        for(int i = 0; i < mSize; ++i)
+          mAllocator.construct(newData + i, operator[](i));
+        for(int i = 0; i < mSize; ++i)
+          mAllocator.destroy(mData + i);
+      ARX_CATCH_ALL
+        mAllocator.deallocate(newData, newCapacity);
+      _RERAISE;
+      _CATCH_END
+
+      if(mData != NULL)
+        mAllocator.deallocate(mData, mCapacity);
+      mCapacity = newCapacity;
+      mData = newData;
+    }
+
+    void resize(size_type newSize, const value_type& defaultValue) {
+      ARX_ASSERT_OR_THROW((newSize >= 0), xInvarg());
+      pre_resize_type()(*this, newSize);
+
+      if(newSize >= mSize) {
+        for(int i = 0; i < mSize; ++i)
+          mAllocator.construct(mData + i, defaultValue);
+      } else {
+        for(int i = newSize; i < mSize; ++i)
+          mAllocator.destroy(mData + i);
+      }
+      mSize = newSize;
+    }
+
+    void resize(size_type newSize) {
+      resize(newSize, value_type());
+    }
+
+    size_type size() const {
+      return mSize;
+    }
+
+    size_type max_size() const {
+      return static_cast<size_type>(mAllocator.max_size());
+    }
+
+    value_type& operator[] (size_type index) {
+      /* We don't use ARX_ASSERT_OR_THROW here - just like in stl. */
+      assert(index >= 0 && index < mSize);
+      return mData[index];
+    }
+
+    const value_type& operator[] (size_type index) const {
+      assert(index >= 0 && index < mSize);
+      return mData[index];
+    }
+
+    void push_back(const value_type& val) {
+      pre_push_back_type()(*this, mSize + 1);
+      mAllocator.construct(mData + mSize, val);
+      mSize++;
+    }
+
+    void pop_back() {
+      ARX_ASSERT_OR_THROW((!empty()), xInvarg());
+      mAllocator.destroy(mData + mSize);
+      mSize--;
+    }
+
+    template<class OtherTraits>
+    void swap(GenericArray<OtherTraits>& other) {
+      STATIC_ASSERT((is_same<value_type, typename OtherTraits::value_type>::value));
+      STATIC_ASSERT((is_same<allocator_type, typename OtherTraits::allocator_type>::value));
+      using std::swap;
+      if(mAllocator == other.mAllocator) {
+        swap(mData, other.mData);
+        swap(mSize, other.mSize);
+        swap(mCapacity, other.mCapacity);
+      } else {
+        GenericArray<Traits> tmp = other;
+        other = *this;
+        *this = tmp;
+      }
+    }
+
+    const pointer data() const {
+      return mData;
+    }
+
+    pointer data() {
+      return mData;
+    }
+
+  private:
+    void initialize(size_type capacity) {
+      mSize = 0;
+      mCapacity = capacity;
+      mData = mAllocator.allocate(capacity);
+    }
+
+    static void xLen() {
+      ARX_THROW(std::length_error("GenericArray is too long"));
+    }
+
+    static void xRan() {
+      ARX_THROW(std::out_of_range("invalid GenericArray subscript"));
+    }
+
+    static void xInvarg() {
+      ARX_THROW(std::invalid_argument("invalid GenericArray argument"));
+    }
+
+    allocator_type mAllocator;
+    size_type mSize;
+    size_type mCapacity;
+    pointer mData;
+  };
+
+  template<class FirstTraits, class SecondTraits> 
+  inline void swap(GenericArray<FirstTraits>& a, GenericArray<SecondTraits>& b) {
+    a.swap(b);
+  }
+
+
+// -------------------------------------------------------------------------- //
+// GenericArrayTraits
+// -------------------------------------------------------------------------- //
+  template<class Type, class PrePushBack, class PreResize, class Assigner,
+    class Allocator = classnew_allocator<Type> >
+  class GenericArrayTraits {
+  public:
+    typedef Type value_type;
+    typedef PrePushBack pre_push_back_type;
+    typedef PreResize pre_resize_type;
+    typedef Assigner assigner_type;
+    typedef Allocator allocator_type;
+  };
+
+
+// -------------------------------------------------------------------------- //
+// Pre* Checkers
+// -------------------------------------------------------------------------- //
+  template<int growth = 16>
+  class Reserve {
+  public:
+    template<class VectorType>
+    void operator()(VectorType& vector, int neededCapacity) {
+      if(vector.capacity() < neededCapacity)
+        vector.reserve(neededCapacity + growth);
+    }
+  };
+
+  class NoReserve {
+  public:
+    template<class VectorType>
+    void operator()(VectorType& vector, int neededCapacity) {
+      assert(vector.capacity() >= neededCapacity);
+    }
+  };
+
+
+// -------------------------------------------------------------------------- //
+// Assigners
+// -------------------------------------------------------------------------- //
+  class CopyAssigner {
+  public:
+    template<class LeftVectorType, class RightVectorType>
+    void operator()(LeftVectorType& left, const RightVectorType& right) {
+      left.clear();
+      left.reserve(right.size());
+      std::copy(right.begin(), right.end(), left.begin());
+    }
+  };
+
+  class SwapAssigner {
+  public:
+    template<class LeftVectorType, class RightVectorType>
+    void operator()(LeftVectorType& left, const RightVectorType& right) {
+      swap(left, const_cast<RightVectorType&>(right));
+    }
+  };
+
+
+// -------------------------------------------------------------------------- //
+// GenericArray derived classes
+// -------------------------------------------------------------------------- //
+#define ARX_GENERICARRAY_INHERIT_CONSTRUCTORS(THIS_TYPE)                        \
+  THIS_TYPE() {}                                                                \
+  THIS_TYPE(const THIS_TYPE& other): GenericArray(other) {}                     \
+  explicit THIS_TYPE(const allocator_type& allocator): GenericArray(allocator) {} \
+  explicit THIS_TYPE(size_type capacity): GenericArray(capacity) {}             \
+  THIS_TYPE(size_type capacity, const allocator_type& allocator): GenericArray(capacity, allocator) {}
+
+  /**
+   * FastArray is a std::vector-like class. Key differences from std::vector are:
+   * <ul>
+   * <li> FastArray doesn't support automatic resizing on push_back. You should
+   *      ensure that there is enough memory yourself.
+   * <li> FastArray implements RAII by enforcing the semantics of strict 
+   *      ownership. Therefore, operator= modifies the right-hand value. This
+   *      is extremely dangerous, so think twice before assigning anything,
+   *      or using FastArray in stl.
+   * <li> FastArray uses nonstandard default allocator, which supports 
+   *      overloaded operator new, therefore allowing to store types with 
+   *      alignment.
+   * </ul>
+   *
+   * @param Type type to store in array.
+   * @param Allocator allocator to use.
+   */
+  template<class Type, class Allocator = classnew_allocator<Type> >
+  class FastArray: 
+    public GenericArray<GenericArrayTraits<Type, NoReserve, Reserve<>, SwapAssigner, Allocator> > {
+  public:
+    ARX_GENERICARRAY_INHERIT_CONSTRUCTORS(FastArray)
+  };
 
 } // namespace arx
 
