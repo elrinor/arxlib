@@ -235,16 +235,16 @@ namespace arx {
 
   /** This metafunction determines the datatype of a given color type. 
    * For example, for <tt>Color3<float></tt> it will return <tt>float</tt>.  */
-  template<class T> struct datatype: public arx::identity_<T> { STATIC_ASSERT((is_datatype_supported<T>::value)); };
-  template<class T> struct datatype<Color3<T> >: public arx::identity_<T> {};
-  template<class T> struct datatype<Color4<T> >: public arx::identity_<T> {};
+  template<class T> struct datatype: public arx::identity<T> { STATIC_ASSERT((is_datatype_supported<T>::value)); };
+  template<class T> struct datatype<Color3<T> >: public arx::identity<T> {};
+  template<class T> struct datatype<Color4<T> >: public arx::identity<T> {};
 
 
   /** This metafunction returns color type with the given datatype and number of channels. */
   template<class datatype, int channels> struct compose_color;
-  template<class datatype> struct compose_color<datatype, 1>: public arx::identity_<datatype> {};
-  template<class datatype> struct compose_color<datatype, 3>: public arx::identity_<Color3<datatype> > {};
-  template<class datatype> struct compose_color<datatype, 4>: public arx::identity_<Color4<datatype> > {};
+  template<class datatype> struct compose_color<datatype, 1>: public arx::identity<datatype> {};
+  template<class datatype> struct compose_color<datatype, 3>: public arx::identity<Color3<datatype> > {};
+  template<class datatype> struct compose_color<datatype, 4>: public arx::identity<Color4<datatype> > {};
 
 
   /* Color typedefs. */

@@ -93,9 +93,6 @@ ARX_IS_SCALAR_TYPE_SPECIALIZE2(class T, const T* const)
   template<class T> struct pointer_ {
     typedef T* type;
   };
-  template<class T> struct identity_ {
-    typedef T type;
-  };
 
 } // namespace arx
 

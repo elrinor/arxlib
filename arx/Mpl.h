@@ -235,6 +235,14 @@ namespace arx {
     template<class Vector, class Lambda> struct apply: public iterate<Vector, vector0<>, Lambda, size<Vector>::value> {};
   };
 
+
+// -------------------------------------------------------------------------- //
+// identity
+// -------------------------------------------------------------------------- //
+  template<class T> struct identity {
+    typedef T type;
+  };
+
 } // namespace arx
 #endif // ARX_USE_BOOST
 

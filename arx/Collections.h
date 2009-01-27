@@ -754,7 +754,7 @@ namespace arx {
    * from does not invalidate the Slice instance. 
    * @param T a container type to wrap
    * @param StoreMode determines how to store a target container inside Slice instance.
-   *   Use arx::reference_ or arx::identity_, arx::reference_ is default.
+   *   Use arx::reference_ or arx::identity, arx::reference_ is default.
    */
   template<class T, template<class> class StoreMode = reference_> class Slice {
   public:
@@ -868,12 +868,12 @@ namespace arx {
   }
 
   template<class Y>
-  Slice<Y, identity_> createCopySlice(Y& a, typename Y::size_type lo, typename Y::size_type hi) {
-    return detail::SliceAccessor::construct<identity_>(a, lo, hi);
+  Slice<Y, identity> createCopySlice(Y& a, typename Y::size_type lo, typename Y::size_type hi) {
+    return detail::SliceAccessor::construct<identity>(a, lo, hi);
   }
   template<class Y, template<class> class StoreMode>
-  Slice<Y, identity_> createCopySlice(Slice<Y, StoreMode>& a, typename Slice<Y, StoreMode>::size_type lo, typename Slice<Y, StoreMode>::size_type hi) {
-    return detail::SliceAccessor::construct<identity_>(detail::SliceAccessor::getA(a), detail::SliceAccessor::getLo(a) + lo, detail::SliceAccessor::getLo(a) + hi);
+  Slice<Y, identity> createCopySlice(Slice<Y, StoreMode>& a, typename Slice<Y, StoreMode>::size_type lo, typename Slice<Y, StoreMode>::size_type hi) {
+    return detail::SliceAccessor::construct<identity>(detail::SliceAccessor::getA(a), detail::SliceAccessor::getLo(a) + lo, detail::SliceAccessor::getLo(a) + hi);
   }
 
   template<template<class> class StoreMode, class Y>
