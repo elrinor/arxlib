@@ -16,12 +16,12 @@
  */
 #ifdef ARX_USE_BOOST
 #  include <boost/type_traits/alignment_of.hpp>
-#  define ALIGNOF(TYPE) (boost::alignment_of<TYPE>::value)
+#  define ARX_ALIGNMENT_OF BOOST_ALIGNMENT_OF
 #else
 #  if defined(ARX_MSVC) || defined(ARX_ICC)
-#    define ALIGNOF(TYPE) __alignof(TYPE)
+#    define ARX_ALIGNMENT_OF(TYPE) __alignof(TYPE)
 #  elif defined(ARX_GCC)
-#    define ALIGNOF(TYPE) __alignof__(TYPE)
+#    define ARX_ALIGNMENT_OF(TYPE) __alignof__(TYPE)
 #  else
 #    /* Not supported. */
 #  endif

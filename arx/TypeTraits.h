@@ -90,7 +90,7 @@ namespace arx {
 #define ARX_TT_SPEC_0_1(NAME, SPEC, TYPE) \
   template<> struct NAME<SPEC> { typedef TYPE type; };
 // -------------------------------------------------------------------------- //
-// remove_xxx
+// remove_*
 // -------------------------------------------------------------------------- //
   ARX_TT_DEF(class T, remove_reference, T)
   ARX_TT_SPEC_1_1(class T, remove_reference, T&, T)
@@ -103,7 +103,7 @@ namespace arx {
 
 
 // -------------------------------------------------------------------------- //
-// add_xxx
+// add_*
 // -------------------------------------------------------------------------- //
 #ifdef ARX_MSVC
 #   pragma warning(push)
