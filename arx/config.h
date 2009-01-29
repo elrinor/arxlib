@@ -98,7 +98,7 @@
 #  define ARX_CATCH(X)   } if(0) {
 #  define ARX_RETHROW    
 #  define ARX_THROW(X)   
-#  define ARX_END_TRY    }}
+#  define ARX_TRY_END    }}
 #  define ARX_ASSERT_OR_THROW(CONDITION, HANDLER)                               \
   assert(CONDITION);
 #else
@@ -107,7 +107,7 @@
 #  define ARX_CATCH(X)   } catch(X) {
 #  define ARX_RETHROW    throw;
 #  define ARX_THROW(X)   throw(X);
-#  define ARX_END_TRY    }
+#  define ARX_TRY_END    }
 #  define ARX_ASSERT_OR_THROW(CONDITION, HANDLER)                               \
   if(!(CONDITION)) {                                                            \
     HANDLER;                                                                    \

@@ -5,9 +5,28 @@
 #include "Mpl.h"
 
 #ifdef ARX_USE_BOOST
-#include <boost/type_traits/is_base_and_derived.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <boost/type_traits/alignment_of.hpp>
+#include <boost/type_traits/remove_reference.hpp>
+#include <boost/type_traits/remove_pointer.hpp>
+#include <boost/type_traits/add_reference.hpp>
+#include <boost/type_traits/add_volatile.hpp>
+#include <boost/type_traits/add_const.hpp>
+#include <boost/type_traits/add_cv.hpp>
+#include <boost/type_traits/add_pointer.hpp>
 namespace arx {
   using boost::is_same;
+
+  using boost::alignment_of;
+
+  using boost::remove_reference;
+  using boost::remove_pointer;
+
+  using boost::add_reference;
+  using boost::add_volatile;
+  using boost::add_const;
+  using boost::add_cv;
+  using boost::add_pointer;
 }
 #else
 
@@ -21,79 +40,107 @@ namespace arx {
   template<class T> struct is_same<T, T> {
     enum {value = true};
   };
+
+
+// -------------------------------------------------------------------------- //
+// alignment_of
+// -------------------------------------------------------------------------- //
+  namespace detail {
+#ifdef ARX_MSVC
+#  pragma warning(push)
+#  pragma warning(disable: 4324) /* structure was padded due to __declspec(align()) */
+#endif
+    template<class T>
+    struct alignment_of_struct {
+      char c;
+      T t;
+    };
+#ifdef ARX_MSVC
+#  pragma warning(pop)
+#endif
+
+    template<class T>
+    struct alignment_of_impl {
+#ifndef ARX_ALIGNMENT_OF
+      enum {
+        value = min_<minus<sizeof_<alignment_of_struct<T> >, sizeof_<T> >, sizeof_<T> >::value
+      };
+#else
+      enum {
+        value = ARX_ALIGNMENT_OF(T)
+      };
+#endif
+    };
+  } // namespace detail 
+
+  template<class T> struct alignment_of: public int_<detail::alignment_of_impl<T>::value> {};
+
+  template<class T> struct alignment_of<T&>: public alignment_of<T*> {};
+
+  template<> struct alignment_of<void>: public int_<0> {};
+  template<> struct alignment_of<void const>: public int_<0> {};
+  template<> struct alignment_of<void volatile>: public int_<0> {};
+  template<> struct alignment_of<void const volatile>: public int_<0> {};
+
+
+#define ARX_TT_DEF(ARG, NAME, TYPE) \
+  template<ARG> struct NAME { typedef TYPE type; };
+#define ARX_TT_SPEC_1_1(ARG, NAME, SPEC, TYPE) \
+  template<ARG> struct NAME<SPEC> { typedef TYPE type; };
+#define ARX_TT_SPEC_0_1(NAME, SPEC, TYPE) \
+  template<> struct NAME<SPEC> { typedef TYPE type; };
+// -------------------------------------------------------------------------- //
+// remove_xxx
+// -------------------------------------------------------------------------- //
+  ARX_TT_DEF(class T, remove_reference, T)
+  ARX_TT_SPEC_1_1(class T, remove_reference, T&, T)
+
+  ARX_TT_DEF(class T, remove_pointer, T)
+  ARX_TT_SPEC_1_1(class T,remove_pointer, T*, T)
+  ARX_TT_SPEC_1_1(class T,remove_pointer, T* const, T)
+  ARX_TT_SPEC_1_1(class T,remove_pointer, T* volatile, T)
+  ARX_TT_SPEC_1_1(class T,remove_pointer, T* const volatile, T)
+
+
+// -------------------------------------------------------------------------- //
+// add_xxx
+// -------------------------------------------------------------------------- //
+#ifdef ARX_MSVC
+#   pragma warning(push)
+#   pragma warning(disable: 4181) /* warning C4181: qualifier applied to reference type ignored */
+#endif 
+
+  ARX_TT_DEF(class T, add_const, T const)
+  ARX_TT_SPEC_1_1(class T, add_const, T&, T&)
+
+  ARX_TT_DEF(class T, add_cv, T const volatile)
+  ARX_TT_SPEC_1_1(class T, add_cv, T&, T&)
+
+  template<class T> struct add_pointer {
+    typedef typename remove_reference<T>::type no_ref_type;
+    typedef no_ref_type* type;
+  };
+
+  ARX_TT_DEF(class T, add_reference, T&)
+  ARX_TT_SPEC_1_1(class T, add_reference, T&, T&)
+  ARX_TT_SPEC_0_1(add_reference, void, void)
+  ARX_TT_SPEC_0_1(add_reference, void const, void const)
+  ARX_TT_SPEC_0_1(add_reference, void volatile, void volatile)
+  ARX_TT_SPEC_0_1(add_reference, void const volatile, void const volatile)
+
+  ARX_TT_DEF(class T, add_volatile, T volatile)
+  ARX_TT_SPEC_1_1(class T, add_volatile, T&, T&)
+
+#ifdef ARX_MSVC
+#   pragma warning(pop)
+#endif 
+
+#undef ARX_TT_DEF
+#undef ARX_TT_SPEC_1_1
+#undef ARX_TT_SPEC_0_1
+
 } // namespace arx
 
 #endif
-
-namespace arx {
-// -------------------------------------------------------------------------- //
-// is_scalar
-// -------------------------------------------------------------------------- //
-#define ARX_FOREACH_SIMPLE_TYPE(MACRO)                                          \
-  MACRO(char)                                                                   \
-  MACRO(short)                                                                  \
-  MACRO(int)                                                                    \
-  MACRO(long)                                                                   \
-  MACRO(long long)                                                              \
-  MACRO(unsigned char)                                                          \
-  MACRO(unsigned short)                                                         \
-  MACRO(unsigned int)                                                           \
-  MACRO(unsigned long)                                                          \
-  MACRO(unsigned long long)                                                     \
-  MACRO(float)                                                                  \
-  MACRO(double)                                                                 \
-  MACRO(long double)                                                            \
-  MACRO(const char)                                                             \
-  MACRO(const short)                                                            \
-  MACRO(const int)                                                              \
-  MACRO(const long)                                                             \
-  MACRO(const long long)                                                        \
-  MACRO(const unsigned char)                                                    \
-  MACRO(const unsigned short)                                                   \
-  MACRO(const unsigned int)                                                     \
-  MACRO(const unsigned long)                                                    \
-  MACRO(const unsigned long long)                                               \
-  MACRO(const float)                                                            \
-  MACRO(const double)                                                           \
-  MACRO(const long double)                                                      \
-
-  template<class T> struct is_scalar {
-    typedef false_ type;
-    enum {value = false};
-  };
-
-#define ARX_IS_SCALAR_TYPE_SPECIALIZE2(_T, _X)                                  \
-  template<_T> struct is_scalar<_X> {                                           \
-    typedef true_ type;                                                         \
-    enum {value = true};                                                        \
-  };                                                                            \
-
-#define ARX_IS_SCALAR_TYPE_SPECIALIZE(_X)                                       \
-  ARX_IS_SCALAR_TYPE_SPECIALIZE2(ARX_EMPTY(), _X)                               \
-
-ARX_FOREACH_SIMPLE_TYPE(ARX_IS_SCALAR_TYPE_SPECIALIZE)
-ARX_IS_SCALAR_TYPE_SPECIALIZE2(class T, T*)
-ARX_IS_SCALAR_TYPE_SPECIALIZE2(class T, const T*)
-ARX_IS_SCALAR_TYPE_SPECIALIZE2(class T, T* const)
-ARX_IS_SCALAR_TYPE_SPECIALIZE2(class T, const T* const)
-#undef ARX_IS_SCALAR_TYPE_SPECIALIZE
-#undef ARX_IS_SCALAR_TYPE_SPECIALIZE2
-
-
-// -------------------------------------------------------------------------- //
-// StoreModes
-// -------------------------------------------------------------------------- //
-  /* TODO replace with add_reference etc... */
-  template<class T> struct reference_ {
-    typedef T& type;
-  };
-  template<class T> struct const_reference_ {
-    typedef T& type;
-  };
-  template<class T> struct pointer_ {
-    typedef T* type;
-  };
-
-} // namespace arx
 
 #endif // __ARX_TYPETRAITS_H__
