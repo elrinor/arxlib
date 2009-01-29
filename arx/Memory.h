@@ -151,19 +151,19 @@ namespace arx {
       typedef classnew_allocator<OtherType> other; 
     };
 
-    T* address(T& ref) const { 
+    pointer address(reference ref) const { 
       return addressof(ref); 
     }
 
-    const T* address(const T& ref) const { 
+    const_pointer address(const_reference ref) const { 
       return addressof(ref); 
     }
 
-    T* allocate(size_t size, const void* hint = 0) { 
+    pointer allocate(size_t size, const void* hint = 0) { 
       return impl_type::allocate(size, hint);
     }
 
-    void deallocate(T* ptr, size_t size) { 
+    void deallocate(pointer ptr, size_t size) { 
       impl_type::deallocate(ptr, size);
     }
     
@@ -171,21 +171,21 @@ namespace arx {
       return size_t(-1) / sizeof(T); 
     }
 
-    void construct(T* ptr, const T& refObj) { 
+    void construct(pointer ptr, const value_type& refObj) { 
       ::new(ptr) T(refObj); 
     }
     
-    void destroy(T* ptr) { 
+    void destroy(pointer ptr) { 
       ptr->~T(); 
     }
 
-    template<class OtherT>
-    bool operator==(const classnew_allocator<OtherT>&) {
-      return impl_type::HAS_NEW == classnew_allocator<OtherT>::impl_type::HAS_NEW;
+    template<class OtherType>
+    bool operator==(const classnew_allocator<OtherType>&) {
+      return impl_type::HAS_NEW == classnew_allocator<OtherType>::impl_type::HAS_NEW;
     }
 
-    template<class OtherT>
-    bool operator!=(const classnew_allocator<OtherT>& other) {
+    template<class OtherType>
+    bool operator!=(const classnew_allocator<OtherType>& other) {
       return !operator==(other);
     }
 
@@ -209,11 +209,11 @@ namespace arx {
     template<bool has_new> struct allocator_impl {
       enum { HAS_NEW = true };
 
-      static T* allocate(size_t size, const void* = 0) { 
-        return static_cast<T*>(T::operator new(size * sizeof(T)));
+      static pointer allocate(size_t size, const void* /* hint */ = 0) { 
+        return static_cast<pointer>(T::operator new(size * sizeof(T)));
       }
 
-      static void deallocate(T* ptr, size_t) { 
+      static void deallocate(pointer ptr, size_t) { 
         T::operator delete[](ptr); 
       }
     };
@@ -221,11 +221,11 @@ namespace arx {
     template<> struct allocator_impl<false> {
       enum { HAS_NEW = false };
 
-      static T* allocate(size_t size, const void* = 0) { 
-        return static_cast<T*>(::operator new(size * sizeof(T))); 
+      static pointer allocate(size_t size, const void* = 0) { 
+        return static_cast<pointer>(::operator new(size * sizeof(T))); 
       }
 
-      static void deallocate(T* ptr, size_t) { 
+      static void deallocate(pointer ptr, size_t) { 
         ::operator delete(ptr);
       }
     };
