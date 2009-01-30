@@ -362,8 +362,8 @@ namespace arx {
   };
 
   template<class T>
-  struct Constant {
-    Constant(T scalar): scalar(scalar) {}
+  struct Const {
+    Const(T scalar): scalar(scalar) {}
     const T operator()() const {
       return this->scalar;
     }
@@ -1049,6 +1049,7 @@ namespace arx {
       StorageOrder = Flags & RowMajorBit ? RowMajor : ColMajor
     };
 
+    typedef CwiseNullaryOp<value_type, RowsAtCompileTime, ColsAtCompileTime, Const<value_type> > ConstantReturnType;
     typedef Identity<value_type, RowsAtCompileTime, ColsAtCompileTime> IdentityReturnType;
     typedef CwiseNullaryOp<value_type, RowsAtCompileTime, ColsAtCompileTime, Random<value_type> > RandomReturnType;
     typedef Block<Derived, 1, ColsAtCompileTime> RowType;
@@ -1148,12 +1149,6 @@ namespace arx {
       return result;
     }
 
-
-    void setConstant(const value_type& value) {
-      *this = CwiseNullaryOp<value_type, RowsAtCompileTime, ColsAtCompileTime, Constant<value_type> >
-        (this->rows(), this->cols(), Constant<value_type>(value));
-    }
-
     ColType col(int c) {
       return Block<Derived, RowsAtCompileTime, 1>(this->derived(), 0, c);
     }
@@ -1196,30 +1191,59 @@ namespace arx {
       return Transpose<Derived>(this->derived());
     }
 
-    static const IdentityReturnType Identity(int r, int c) {
-      return IdentityReturnType(r, c);
-    }
-
     static const IdentityReturnType Identity() {
       STATIC_ASSERT((IsStaticallySized));
       return IdentityReturnType(ColsAtCompileTime, RowsAtCompileTime);
     }
 
-    Derived& setRandom() {
-      return *this = random();
+    static const IdentityReturnType Identity(int r, int c) {
+      return IdentityReturnType(r, c);
     }
 
-    static const RandomReturnType random() {
+    static const RandomReturnType Random() {
       STATIC_ASSERT((IsStaticallySized));
       return RandomReturnType();
     }
 
-    static const RandomReturnType random(int size) {
+    static const RandomReturnType Random(int size) {
       return RandomReturnType(size);
     }
 
-    static const RandomReturnType random(int r, int c) {
+    static const RandomReturnType Random(int r, int c) {
       return RandomReturnType(r, c);
+    }
+
+    static const ConstantReturnType Constant(int size, const value_type& value) {
+      return ConstantReturnType(size, Const<value_type>(value));
+    }
+
+    static const ConstantReturnType Constant(int r, int c, const value_type& value) {
+      return ConstantReturnType(r, c, Const<value_type>(value));
+    }
+
+    static const ConstantReturnType Constant(const value_type& value) {
+      STATIC_ASSERT((IsStaticallySized));
+      return ConstantReturnType(Const<value_type>(value));
+    }
+
+    Derived& setConstant(const value_type& value) {
+      return *this = Constant(this->cols(), this->rows(), value);
+    }
+
+    Derived& setZero() {
+      return setConstant(static_cast<value_type>(0));
+    }
+
+    Derived& setOnes() {
+      return setConstant(static_cast<value_type>(1));
+    }
+
+    Derived& setRandom() {
+      return *this = random(this->rows(), this->cols());
+    }
+
+    Derived& setIdentity() {
+      return *this = Identity(this->rows(), this->cols());
     }
 
     const Cwise<Derived> cwise() const {
@@ -1951,6 +1975,10 @@ namespace arx {
 // -------------------------------------------------------------------------- //
 // Useful typedefs
 // -------------------------------------------------------------------------- //
+  typedef Matrix<int, 4, 1> Vector4i;
+  typedef Matrix<int, 3, 1> Vector3i;
+  typedef Matrix<int, 2, 1> Vector2i;
+
   typedef Matrix<float, 4, 1> Vector4f;
   typedef Matrix<float, 3, 1> Vector3f;
   typedef Matrix<float, 2, 1> Vector2f;
