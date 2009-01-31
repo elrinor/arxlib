@@ -801,6 +801,25 @@ namespace arx {
 
 
 // -------------------------------------------------------------------------- //
+// ArrayExceptions
+// -------------------------------------------------------------------------- //
+  class ArrayExceptions {
+  public:
+    static void xLen() {
+      ARX_THROW(std::length_error("Array is too long"));
+    }
+
+    static void xRan() {
+      ARX_THROW(std::out_of_range("invalid Array subscript"));
+    }
+
+    static void xInvarg() {
+      ARX_THROW(std::invalid_argument("invalid Array argument"));
+    }
+  };
+
+
+// -------------------------------------------------------------------------- //
 // GenericArrayBase
 // -------------------------------------------------------------------------- //
   /**
@@ -811,7 +830,7 @@ namespace arx {
    * @param Derived derived type.
    */
   template<class Derived, class Traits>
-  class GenericArrayBase {
+  class GenericArrayBase: public ArrayExceptions {
   public:
     typedef Derived derived_type;
     typedef Traits traits_type;
@@ -849,7 +868,7 @@ namespace arx {
     }
 
     void reserve(size_type newCapacity) {
-      derived().reserve();
+      derived().reserve(newCapacity);
     }
 
     reference at(size_type index) {
@@ -928,7 +947,7 @@ namespace arx {
       ARX_ASSERT_OR_THROW((newSize >= 0), xInvarg());
       reserve(newSize);
 
-      if(newSize >= mSize) {
+      if(newSize >= size()) {
         for(int i = 0; i < size(); ++i)
           allocator().construct(data() + i, defaultValue);
       } else {
@@ -948,12 +967,12 @@ namespace arx {
 
     value_type& operator[] (size_type index) {
       /* We don't use ARX_ASSERT_OR_THROW here - just like in stl. */
-      assert(index >= 0 && index < mSize);
+      assert(index >= 0 && index < size());
       return *(data() + index);
     }
 
     const value_type& operator[] (size_type index) const {
-      assert(index >= 0 && index < mSize);
+      assert(index >= 0 && index < size());
       return *(data() + index);
     }
 
@@ -988,18 +1007,6 @@ namespace arx {
 
     const derived_type& derived() const {
       return static_cast<const derived_type&>(*this);
-    }
-
-    static void xLen() {
-      ARX_THROW(std::length_error("GenericArray is too long"));
-    }
-
-    static void xRan() {
-      ARX_THROW(std::out_of_range("invalid GenericArray subscript"));
-    }
-
-    static void xInvarg() {
-      ARX_THROW(std::invalid_argument("invalid GenericArray argument"));
     }
   };
 
@@ -1127,7 +1134,7 @@ namespace arx {
     }
 
     typedef typename traits_type::assigner_type assigner_type;
-    friend class base_type;
+    friend class GenericArrayBase<GenericArray<traits_type>, traits_type>;
 
     allocator_type mAllocator;
     size_type mSize;
@@ -1139,6 +1146,103 @@ namespace arx {
   inline void swap(GenericArray<FirstTraits>& a, GenericArray<SecondTraits>& b) {
     a.swap(b);
   }
+
+
+// -------------------------------------------------------------------------- //
+// ArrayTail
+// -------------------------------------------------------------------------- //
+  template<class Array>
+  class ArrayTail: public GenericArrayBase<ArrayTail<Array>, 
+    GenericArrayBaseTraits<typename Array::value_type, NoReserve, typename Array::allocator_type> > {
+  public:
+    typedef Array array_type;
+
+    /** Default Constructor. 
+     * Constructs an uninitialized ArrayTail. */
+    ArrayTail(): mSrc(NULL), mShift(0) {}
+
+    /* Default copy constructor is OK. */
+
+    explicit ArrayTail(array_type& src, size_type shift): mSrc(&src), mShift(shift) {
+      assert(shift >= 0);
+    }
+
+    explicit ArrayTail(ArrayTail& src, size_type shift): mSrc(src.mSrc), mShift(shift + src.mShift) {
+      assert(shift >= 0);
+    }
+
+    /* Default operator= is OK. */
+
+    /* Default destructor is OK. */
+
+    template<class OtherTraits>
+    void swap(ArrayTail& other) {
+      using std::swap;
+      swap(mSrc, other.mSrc);
+      swap(mShift, other.mShift);
+    }
+
+    size_type capacity() const {
+      return mSrc->capacity() - mShift;
+    }
+
+    /** This one can return negative value! */
+    size_type size() const {
+      return mSrc->size() - mShift;
+    }
+
+    void reserve(size_type newCapacity) {
+      mSrc->reserve(static_cast<array_size_type>(newCapacity + mShift));
+    }
+
+    const_pointer data() const {
+      return mSrc->data();
+    }
+
+    pointer data() {
+      return mSrc->data();
+    }
+
+    /* This one is just for convenience. */
+    ArrayTail tail(size_type shift) {
+      return ArrayTail(*this, shift);
+    }
+
+    /* Now we have to override some of the GenericArrayBase methods
+     * because we cannot provide setSize(size_type) method... */
+    void clear() {
+      mSrc->resize(static_cast<array_size_type>(mShift));
+    }
+
+    void resize(size_type newSize, const value_type& defaultValue) {
+      mSrc->resize(static_cast<array_size_type>(newSize + mShift), defaultValue);
+    }
+
+    void resize(size_type newSize) {
+      mSrc->resize(static_cast<array_size_type>(newSize + mShift));
+    }
+
+    void push_back(const value_type& val) {
+      mSrc->push_back(val);
+    }
+
+    void pop_back() {
+      mSrc->pop_back();
+    }
+
+  private:
+    typedef typename array_type::size_type array_size_type;
+
+    allocator_type allocator() {
+      /* This approach seems to be better, since it's std-compliant. */
+      return mSrc->get_allocator();
+    }
+
+    friend class GenericArrayBase<ArrayTail<array_type>, traits_type>;
+
+    array_type* mSrc;
+    size_type mShift;
+  };
 
 
 // -------------------------------------------------------------------------- //
