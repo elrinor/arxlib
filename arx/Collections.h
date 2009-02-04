@@ -988,6 +988,16 @@ namespace arx {
       setSize(size() - 1);
     }
 
+    void assign(size_type count, const value_type& val) {
+      clear();
+      resize(count, val);
+    }
+
+    template<class InputIterator>
+    void assign(InputIterator first, InputIterator last) {
+      internalAssign(first, last, typename std::iterator_traits<InputIterator>::iterator_category());
+    }
+
   private:
     allocator_type& allocator() {
       return derived().allocator();
@@ -1007,6 +1017,24 @@ namespace arx {
 
     const derived_type& derived() const {
       return static_cast<const derived_type&>(*this);
+    }
+
+    template<class Iterator>
+    void internalAssign(Iterator first, Iterator last, std::input_iterator_tag /* category */) {
+      clear();
+      for(; first != last; first++)
+        push_back(*first); /* TODO: checked() here. */
+    }
+
+    template<class Iterator>
+    void internalAssign(Iterator first, Iterator last, std::forward_iterator_tag /* category */) {
+      clear();
+      reserve(std::distance(first, last));
+
+      int pos = 0;
+      for(; first != last; first++, pos++)
+        allocator().construct(data() + pos, *first);
+      setSize(pos);
     }
   };
 
