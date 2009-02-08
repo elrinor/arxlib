@@ -1,3 +1,7 @@
+/** @file ArX Smart Pointer Library
+ *
+ * Presents implementation of several smart pointer classes.
+ */
 #ifndef __ARX_SMART_PTR__
 #define __ARX_SMART_PTR__
 

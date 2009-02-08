@@ -1,3 +1,8 @@
+/** @file ArX Collections Library.
+ *
+ * Implementation of several container classes which can be pretty useful in 
+ * some cases.
+ */
 #ifndef __ARX_COLLECTIONS_H__
 #define __ARX_COLLECTIONS_H__
 

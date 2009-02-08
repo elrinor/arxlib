@@ -1,3 +1,7 @@
+/** @file ArX Memory Library.
+ *
+ * Includes some routines for aligned memory manipulations.
+ */
 #ifndef __ARX_MEMORY_H__
 #define __ARX_MEMORY_H__
 

@@ -1,12 +1,5 @@
-#ifndef __ARX_PREPROCESSOR_H__
-#define __ARX_PREPROCESSOR_H__
-
-#include "config.h"
-
-/**
- * @file
+/** @file ARX Preprocessor Library
  *
- * This is ARX Preprocessor library header file. <br>
  * The macros defined here are used for high-level preprocessor metaprogramming. <br>
  * This library was inspired by BOOST PP library (and uses parts of it). <p>
  *
@@ -17,6 +10,10 @@
  * <li> <tt>GCC 3.4+</tt>
  * </ul>
  */
+#ifndef __ARX_PREPROCESSOR_H__
+#define __ARX_PREPROCESSOR_H__
+
+#include "config.h"
 
 #ifdef ARX_USE_BOOST
 #  include <boost/config.hpp>

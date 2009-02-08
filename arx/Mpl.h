@@ -1,3 +1,7 @@
+/** @file ArX MPL Library
+ *
+ * Offers some of the functionality of Boost MPL Library.
+ */
 #ifndef __ARX_MPL_H__
 #define __ARX_MPL_H__
 
@@ -136,6 +140,7 @@ namespace arx {
   template<class Sequence> struct push_back_impl;
   template<class Sequence> struct pop_front_impl;
   template<class Sequence> struct remove_if_impl;
+  template<class Sequence> struct contains_impl;
 
   template<class Vector, long n> struct v_at;
   template<class Vector, class Lambda, long n> struct v_transform;
@@ -148,6 +153,7 @@ namespace arx {
   template<class Sequence, class T> struct push_back: push_back_impl<typename Sequence::tag>::template apply<Sequence, T> {};
   template<class Sequence> struct pop_front: pop_front_impl<typename Sequence::tag>::template apply<Sequence> {};
   template<class Sequence, class Lambda> struct remove_if: remove_if_impl<typename Sequence::tag>::template apply<Sequence, Lambda> {};
+  template<class Sequence, class T> struct contains: contains_impl<typename Sequence::tag>::template apply<Sequence, T> {};
 
 #define ENUM_PARAMS_I(INDEX, ARGS) class ARX_JOIN(ARX_TUPLE_ELEM(2, 1, ARGS), INDEX) ARX_COMMA_IF(ARX_NOT_EQUAL(ARX_INC(INDEX), ARX_TUPLE_ELEM(2, 0, ARGS)))
 #define ENUM_PARAMS(SIZE, PREFIX) ARX_ARRAY_FOREACH(ARX_INDEX_ARRAY(SIZE), ENUM_PARAMS_I, (SIZE, PREFIX))
@@ -202,15 +208,25 @@ namespace arx {
   };
 
   template<long n> struct transform_impl<vector_tag<n> > {
-      template<class Vector, class Lambda> struct apply: v_transform<Vector, Lambda, size<Vector>::value> {};
+    template<class Vector, class Lambda> struct apply: v_transform<Vector, Lambda, size<Vector>::value> {};
   };
 
   template<long n> struct push_back_impl<vector_tag<n> > {
-      template<class Vector, class T> struct apply: v_push_back<Vector, T, size<Vector>::value> {};
+    template<class Vector, class T> struct apply: v_push_back<Vector, T, size<Vector>::value> {};
   };
 
   template<long n> struct pop_front_impl<vector_tag<n> > {
-      template<class Vector> struct apply: v_pop_front<Vector, size<Vector>::value> {};
+    template<class Vector> struct apply: v_pop_front<Vector, size<Vector>::value> {};
+  };
+
+  template<long n> struct contains_impl<vector_tag<n> > {
+    template<class Vector, class T> struct apply {
+      struct is_same_lambda {
+        template<class U> struct apply: public false_ {};
+        template<> struct apply<T>: public true_ {};
+      };
+      typedef not_equal_to<size<typename remove_if<Vector, is_same_lambda>::type>, size<Vector> > type;
+    };
   };
 
 #undef DEF_V_AT_N

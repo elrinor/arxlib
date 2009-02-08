@@ -1,3 +1,9 @@
+/** @file ArX Linear Algebra Library.
+ * 
+ * Implements vector and matrix arithmetic via expression templates.
+ * Interface is compatible with Eigen, which is much more powerful, yet is
+ * released under LGPL.
+ */
 #ifndef __ARX_LINEARALGEBRA_H__
 #define __ARX_LINEARALGEBRA_H__
 

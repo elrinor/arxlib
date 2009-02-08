@@ -1,3 +1,7 @@
+/** @file ArX Static Assertion Library.
+ * 
+ * Static Assertion implementation.
+ */
 #ifndef __ARX_STATIC_ASSERT_H__
 #define __ARX_STATIC_ASSERT_H__
 

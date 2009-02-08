@@ -1,3 +1,7 @@
+/** @file ArX Utility Library.
+ *
+ * Utility Classes and more.
+ */
 #ifndef __ARX_UTILITY_H__
 #define __ARX_UTILITY_H__
 

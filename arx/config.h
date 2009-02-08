@@ -7,6 +7,7 @@
 /** @def ARX_USE_BOOST
  * Define to use implementation of some features from boost library instead of hand-coded one.
  * Normally boost classes offer wider functionality and sometimes produce faster code. */
+#define ARX_USE_BOOST
 
 /** @def ARX_DISABLE_THREADS
  * Define to disable thread support and thread safety in ArX library. May result in

@@ -1,3 +1,7 @@
+/** @file ArX TypeTraits Library.
+ * 
+ * Implements some of type traits offered by Boost Type Traits Libraty.
+ */
 #ifndef __ARX_TYPETRAITS_H__
 #define __ARX_TYPETRAITS_H__
 

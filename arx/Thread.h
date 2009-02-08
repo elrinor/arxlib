@@ -1,3 +1,9 @@
+/** @file ArX Thread Library.
+ * 
+ * This is a "poor man's" threading library, poorly written and poorly tested.
+ * If possible, use threading support offered by boost. And anyway, all this
+ * functionality will soon be available with the C++0x threading library.
+ */
 #ifndef __ARX_THREAD_H__
 #define __ARX_THREAD_H__
 
