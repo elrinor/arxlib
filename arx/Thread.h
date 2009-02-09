@@ -171,6 +171,12 @@ namespace arx {
     native_handle_type native_handle() {
       return this->h;
     }
+
+    static unsigned hardware_concurrency() {
+      SYSTEM_INFO sInfo;
+      GetSystemInfo(&sInfo);
+      return sInfo.dwNumberOfProcessors;
+    }
   }
 }
 #elif defined(_POSIX_THREADS)
