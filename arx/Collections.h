@@ -1117,7 +1117,7 @@ namespace arx {
 
     void reserve(size_type newCapacity) {
       ARX_ASSERT_OR_THROW((newCapacity < max_size()), xLen());
-      ARX_ASSERT_OR_THROW((newCapacity > 0), xInvarg());
+      ARX_ASSERT_OR_THROW((newCapacity >= 0), xInvarg());
 
       if(newCapacity <= mCapacity)
         return;

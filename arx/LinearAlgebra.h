@@ -157,28 +157,30 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   enum MatrixFlags {
     /** Store matrix in a row-major order. In case we're working on an expression, this flag
-    * determines the storage order of the matrix created by evaluation of expression. */
+     * determines the storage order of the matrix created by evaluation of expression. */
     RowMajorBit = 0x1,
 
     /** This flag determines whether the expression should be evaluated and stored into 
-    * temporary before nesting. */
+     * temporary before nesting. */
     EvalBeforeNestingBit = 0x2,
 
     /** This flag determines whether the expression should be evaluated and stored into 
-    * temporary before assignment. Used to solve aliasing problems in matrix product. */
+     * temporary before assignment. Used to solve aliasing problems in matrix product. */
     EvalBeforeAssigningBit = 0x4,
 
     /** This flag determines whether the expression can be seen as 1D vector, i.e. whether it 
-    * supports coeff(int) method without any overhead. */
+     * supports coeff(int) method without any overhead. */
     LinearAccessBit = 0x10,
 
     /** This flag determines whether the first coefficient of matrix is aligned. */
     AlignedBit = 0x40,
 
     /** This flag means the expression's elements could be accessed only once. Therefore,
-    * if one needs to access them several times, like in matrix product, he should
-    * evaluate it into temporary first. */
-    NonRepeatableBit = 0x10000000
+     * if one needs to access them several times, like in matrix product, he should
+     * evaluate it into temporary first. */
+    NonRepeatableBit = 0x10000000,
+
+    NestByValueBit = 0x20000000
   };
 
   enum {
@@ -279,7 +281,7 @@ namespace arx {
     }
     enum {
       Cost = 0,
-      Flags = 0
+      Flags = NestByValueBit
     };
   private:
     T scalar;
@@ -334,17 +336,16 @@ namespace arx {
 
   template<class T>
   struct Dot {
-    Dot(): scalar(static_cast<T>(0)) {}
-    const T get() { return this->scalar; }
+    Dot(T& target): scalar(&target) { *scalar = 0; }
     void operator()(const T& l, const T& r) {
-      this->scalar += l * r;
+      *this->scalar += l * r;
     }
     enum {
       Cost = NumTraits<T>::AddCost + NumTraits<T>::MulCost,
-      Flags = 0
+      Flags = NestByValueBit
     };
   private:
-    T scalar;
+    T* scalar;
   };
 
 
@@ -414,7 +415,10 @@ namespace arx {
         (EvalCost < NoEvalCost)
     };
     typedef 
-      typename if_c<PerformEval, PlainMatrixType, const M&>::type type;
+      typename if_c<PerformEval, 
+        PlainMatrixType, 
+        typename if_c<!!(Traits<M>::Flags & NestByValueBit), const M, const M&>::type
+      >::type type;
   };
 
 
@@ -426,8 +430,8 @@ namespace arx {
   template<class M, int elemAccessCount = 1>
   struct InheritNestingFlags {
     enum {
-      value = (TraitsBase<M>::Flags & RowMajorBit) | 
-        (Nested<M, elemAccessCount>::PerformEval ? 0 : 
+      value = (TraitsBase<M>::Flags & (RowMajorBit | NestByValueBit)) | 
+        (Nested<M, elemAccessCount>::PerformEval ? NestByValueBit : 
         (TraitsBase<M>::Flags & (EvalBeforeAssigningBit | NonRepeatableBit)))
     };
   };
@@ -608,7 +612,8 @@ namespace arx {
       ColsAtCompileTime = C,
       CoeffReadCost = 1, 
       Flags = (InheritNestingFlags<M>::value) | 
-        (Traits<M>::IsVectorAtCompileTime ? LinearAccessBit : LinearAccessBit),
+        (Traits<M>::IsVectorAtCompileTime ? LinearAccessBit : LinearAccessBit) | 
+        NestByValueBit,
       StorageOrder = Flags & RowMajorBit ? RowMajor : ColMajor
     };
     typedef typename Nested<M>::type MNested;
@@ -878,7 +883,7 @@ namespace arx {
   template<class M>
   class Cwise {
   private:
-    const M& m; /* TODO: may nest by value... */
+    typename Nested<M>::type m;
 
   public:
     typedef typename Traits<M>::value_type value_type;
@@ -1017,10 +1022,11 @@ namespace arx {
       ARX_STATIC_ASSERT_SAME_VALUETYPE(Derived, OtherDerived);
       ARX_STATIC_ASSERT_SAME_VECTOR_SIZE(Derived, OtherDerived);
       assert(size() == that.size());
-      Dot<value_type> dot;
+      value_type result;
+      Dot<value_type> dot(result);
       Unroller<Derived, OtherDerived, Dot<value_type>, const Derived&, const OtherDerived&, Dot<value_type>&>
         ()(this->derived(), that.derived(), dot);
-      return dot.get();
+      return result;
     }
 
     value_type squaredNorm() const {
@@ -1033,6 +1039,12 @@ namespace arx {
 
     void normalize() {
       *this /= norm();
+    }
+
+    PlainMatrixType normalized() const {
+      PlainMatrixType tmp = *this;
+      tmp.normalize();
+      return tmp;
     }
 
     template<typename OtherDerived>
@@ -1129,7 +1141,7 @@ namespace arx {
     }
 
     Derived& setConstant(const value_type& value) {
-      return *this = Constant(this->cols(), this->rows(), value);
+      return *this = Constant(this->rows(), this->cols(), value);
     }
 
     Derived& setZero() {
@@ -1469,7 +1481,7 @@ namespace arx {
     const O o;
 
   public:
-    CwiseBinaryOp(const L& l, const R& r, const O& o = O()): l(l), r(r), o(o) {
+    CwiseBinaryOp(const L& l, const R& r, const O o = O()): l(l), r(r), o(o) {
       assert(l.cols() == r.cols() && l.rows() == r.rows());
     }
 
@@ -1517,7 +1529,7 @@ namespace arx {
     const O o;
 
   public:
-    CwiseUnaryOp(const M& m, const O& o = O()): m(m), o(o) {}
+    CwiseUnaryOp(const M& m, const O o = O()): m(m), o(o) {}
 
     // default copy constructor is OK
 
@@ -1582,18 +1594,18 @@ namespace arx {
     const O o;
 
   public:
-    CwiseNullaryOp(const O& o = O()): o(o), rowsStorage(RowsAtCompileTime), colsStorage(ColsAtCompileTime) {
+    CwiseNullaryOp(const O o = O()): o(o), rowsStorage(RowsAtCompileTime), colsStorage(ColsAtCompileTime) {
       STATIC_ASSERT((RowsAtCompileTime != DYNAMIC_SIZE && ColsAtCompileTime != DYNAMIC_SIZE));
     }
 
-    CwiseNullaryOp(int size, const O& o = O()): 
+    CwiseNullaryOp(int size, const O o = O()): 
       rowsStorage(RowsAtCompileTime == DYNAMIC_SIZE ? size : 1), 
       colsStorage(ColsAtCompileTime == DYNAMIC_SIZE ? size : 1), o(o) {
       STATIC_ASSERT((RowsAtCompileTime == 1 || ColsAtCompileTime == 1));
       assert(size >= 1);
     }
 
-    CwiseNullaryOp(int rows, int cols, const O& o = O()): o(o), rowsStorage(rows), colsStorage(cols) {
+    CwiseNullaryOp(int rows, int cols, const O o = O()): o(o), rowsStorage(rows), colsStorage(cols) {
       assert(RowsAtCompileTime == DYNAMIC_SIZE || RowsAtCompileTime == rows); 
       assert(ColsAtCompileTime == DYNAMIC_SIZE || ColsAtCompileTime == cols);
       assert(rows >= 1 && cols >= 1);
@@ -1745,8 +1757,14 @@ namespace arx {
     
     typename Traits<this_type>::MNested m;
 
-    int_if_dynamic<RowsAtCompileTime == 1 ? 0 : DYNAMIC_SIZE> startRow;
-    int_if_dynamic<ColsAtCompileTime == 1 ? 0 : DYNAMIC_SIZE> startCol;
+    int_if_dynamic<
+      (RowsAtCompileTime == Traits<M>::RowsAtCompileTime && RowsAtCompileTime != DYNAMIC_SIZE) ? 
+      0 : DYNAMIC_SIZE
+    > startRow;
+    int_if_dynamic<
+      (ColsAtCompileTime == Traits<M>::ColsAtCompileTime && ColsAtCompileTime != DYNAMIC_SIZE) ? 
+      0 : DYNAMIC_SIZE
+    > startCol;
 
   public:
     /** Constructor for fixed size */
