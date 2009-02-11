@@ -26,7 +26,6 @@ namespace arx {
 #include <functional>
 #include <algorithm>
 #include <limits>
-#include "smart_ptr.h"
 #include "static_assert.h"
 #include "Preprocessor.h"
 #include "Mpl.h"
