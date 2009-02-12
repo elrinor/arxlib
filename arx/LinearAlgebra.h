@@ -1139,6 +1139,18 @@ namespace arx {
       return ConstantReturnType(Const<value_type>(value));
     }
 
+    static const ConstantReturnType Zero(int r, int c) {
+      return Constant(r, c, static_cast<value_type>(0));
+    }
+
+    static const ConstantReturnType Zero(int size) {
+      return Constant(size, static_cast<value_type>(0));
+    }
+
+    static const ConstantReturnType Zero() {
+      return Constant(static_cast<value_type>(0));
+    }
+
     Derived& setConstant(const value_type& value) {
       return *this = Constant(this->rows(), this->cols(), value);
     }
