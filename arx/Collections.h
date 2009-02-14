@@ -1003,6 +1003,15 @@ namespace arx {
       internalAssign(first, last, typename std::iterator_traits<InputIterator>::iterator_category());
     }
 
+    iterator erase(iterator pos) {
+      assert(begin <= pos && pos < end());
+      std::copy(pos + 1, end(), pos);
+      allocator().destroy(data() + size() - 1);
+      setSize(size() - 1);
+      return pos;
+    }
+
+
   private:
     allocator_type& allocator() {
       return derived().allocator();

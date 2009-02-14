@@ -26,7 +26,7 @@ namespace arx {
     };
 
     template<class F>
-    class thread_proc {
+    class thread_proc: public thread_proc_base {
     private:
       F f;
 
@@ -128,13 +128,17 @@ namespace arx {
   };
 
   namespace detail {
-    DWORD WINAPI invoke_thread_proc(void* f) {
+    inline DWORD WINAPI invoke_thread_proc(void* f) {
       /* We're already in another thread... */
       thread_proc_base* threadFunc = reinterpret_cast<thread_proc_base*>(f);
       try {
         threadFunc->operator()();
-      catch (...) {}
+      } catch (...) {
+        std::terminate();
+        return 1;
+      }
       delete threadFunc;
+      return 0;
     }
   } // namespace detail
 
@@ -153,7 +157,7 @@ namespace arx {
     }
 
     template<class F>
-    explicit thread(F f): {
+    explicit thread(F f) {
       detail::thread_proc_base* threadFunc = new detail::thread_proc<F>(f);
       HANDLE h = CreateThread(0, 0, detail::invoke_thread_proc, reinterpret_cast<void*>(threadFunc), 
         CREATE_SUSPENDED, &this->id);
@@ -177,7 +181,7 @@ namespace arx {
       GetSystemInfo(&sInfo);
       return sInfo.dwNumberOfProcessors;
     }
-  }
+  };
 }
 #elif defined(_POSIX_THREADS)
 #  include <pthread.h>
