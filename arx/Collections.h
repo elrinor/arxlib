@@ -953,7 +953,7 @@ namespace arx {
       reserve(newSize);
 
       if(newSize >= size()) {
-        for(int i = 0; i < size(); ++i)
+        for(int i = size(); i < newSize; ++i)
           allocator().construct(data() + i, defaultValue);
       } else {
         for(int i = newSize; i < size(); ++i)
@@ -1238,11 +1238,11 @@ namespace arx {
     }
 
     const_pointer data() const {
-      return mSrc->data();
+      return mSrc->data() + mShift;
     }
 
     pointer data() {
-      return mSrc->data();
+      return mSrc->data() + mShift;
     }
 
     /* This one is just for convenience. */
