@@ -14,6 +14,7 @@
 #include <Eigen/Core>
 #include <Eigen/Array>
 #include <Eigen/Geometry>
+#include <Eigen/LU>
 
 namespace arx {
   using namespace Eigen;
@@ -900,6 +901,12 @@ namespace arx {
     const CwiseBinaryOp<M, OtherDerived, FUNCTOR<value_type> >                  \
     NAME(const MatrixBase<OtherDerived> &that) const {                          \
       return CwiseBinaryOp<M, OtherDerived, FUNCTOR<value_type> >(this->m, that.derived()); \
+    }                                                                           \
+    const CwiseBinaryOp<M, CwiseNullaryOp<M, Const<value_type> >, FUNCTOR<value_type> > \
+    NAME(const value_type& value) const {                                       \
+      return CwiseBinaryOp<M, CwiseNullaryOp<M, Const<value_type> >, FUNCTOR<value_type> >( \
+        this->m, m.Constant(m.rows(), m.cols(), value)                          \
+      );                                                                        \
     }
 
     ARX_CWISE_DEFINE_UNOP(abs,         Abs)
@@ -1199,8 +1206,19 @@ namespace arx {
       STATIC_ASSERT((ARX_SAME_MATRIX_SIZE(Derived, OtherDerived) || 
         (ARX_VECTOR_ONLY(Derived) && ARX_VECTOR_ONLY(OtherDerived) && ARX_SAME_VECTOR_SIZE(Derived, OtherDerived))));
       assert(this->rows() == that.rows() && this->cols() == that.cols());
-      Unroller<Derived, OtherDerived, Assign<value_type>, Derived&, const OtherDerived&, const Assign<value_type>&>
-        ()(this->derived(), that.derived(), Assign<value_type>());
+
+      if(Traits<OtherDerived>::Flags && EvalBeforeAssigningBit) {
+        /* TODO. */
+        typedef typename Traits<OtherDerived>::PlainMatrixType OtherPlainMatrixType;
+        OtherPlainMatrixType evaluated;
+        Unroller<OtherPlainMatrixType, OtherDerived, Assign<value_type>, OtherPlainMatrixType&, const OtherDerived&, const Assign<value_type>&>
+          ()(evaluated, that.derived(), Assign<value_type>());
+        Unroller<Derived, OtherPlainMatrixType, Assign<value_type>, Derived&, const OtherPlainMatrixType&, const Assign<value_type>&>
+          ()(this->derived(), evaluated, Assign<value_type>());
+      } else {
+        Unroller<Derived, OtherDerived, Assign<value_type>, Derived&, const OtherDerived&, const Assign<value_type>&>
+          ()(this->derived(), that.derived(), Assign<value_type>());
+      }
       return this->derived();
     }
 
@@ -1232,13 +1250,13 @@ namespace arx {
     }
 
     template<class OtherDerived>
-    void computeInverse(MatrixBase<OtherDerived> &result) const {
+    void computeInverse(MatrixBase<OtherDerived> *result) const {
       ARX_STATIC_ASSERT_SAME_MATRIX_SIZE(Derived, OtherDerived);
       ARX_STATIC_ASSERT_DYNAMIC_NUMBERS_EQ(RowsAtCompileTime, ColsAtCompileTime);
       STATIC_ASSERT((NumTraits<value_type>::HasFloatingPoint));
       assert(this->rows() == this->cols());
-      assert(this->rows() == result.rows() && this->cols() == result.cols());
-      Inverter<RowsAtCompileTime>()(*this, result);
+      assert(this->rows() == result->rows() && this->cols() == result->cols());
+      Inverter<RowsAtCompileTime>()(*this, *result);
     }
 
     const PlainMatrixType inverse() const {

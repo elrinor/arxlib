@@ -748,15 +748,21 @@ namespace arx {
 // -------------------------------------------------------------------------- //
 // Generic*Traits
 // -------------------------------------------------------------------------- //
-  template<class Type, class PrePushBack, class Allocator = classnew_allocator<Type> > 
+  template<class Type, class PrePushBack, class DefaultConstructor, 
+    class CopyConstructor, class Destructor, class Allocator = classnew_allocator<Type> > 
   struct GenericArrayBaseTraits {
     typedef Type value_type;
     typedef PrePushBack pre_push_back_type;
+    typedef DefaultConstructor default_constructor_type;
+    typedef CopyConstructor copy_constructor_type;
+    typedef Destructor destructor_type;
     typedef Allocator allocator_type;
   };
 
-  template<class Type, class PrePushBack, class Assigner, class Allocator = classnew_allocator<Type> >
-  struct GenericArrayTraits: public GenericArrayBaseTraits<Type, PrePushBack, Allocator> {
+  template<class Type, class PrePushBack, class DefaultConstructor, 
+    class CopyConstructor, class Destructor, class Assigner, class Allocator = classnew_allocator<Type> >
+  struct GenericArrayTraits: 
+    public GenericArrayBaseTraits<Type, PrePushBack, DefaultConstructor, CopyConstructor, Destructor, Allocator> {
     typedef Assigner assigner_type;
   };
 
@@ -778,6 +784,10 @@ namespace arx {
   public:
     template<class VectorType>
     void operator()(VectorType& vector, int neededCapacity) {
+      if(vector.capacity() < neededCapacity) {
+        return;
+      }
+
       assert(vector.capacity() >= neededCapacity);
     }
   };
@@ -804,6 +814,61 @@ namespace arx {
     }
   };
 
+
+// -------------------------------------------------------------------------- //
+// Constructors
+// -------------------------------------------------------------------------- //
+  class AllocatorDefaultConstructor {
+  public:
+    template<class VectorType>
+    void operator()(VectorType& vector, typename VectorType::pointer position) {
+      vector.get_allocator().construct(position, typename VectorType::value_type());
+    }
+  };
+
+  class PlacementNewDefaultConstructor {
+  public:
+    template<class VectorType>
+    void operator()(VectorType& vector, typename VectorType::pointer position) {
+      ::new (position) typename VectorType::value_type();
+    }
+  };
+
+  class AllocatorCopyConstructor {
+  public:
+    template<class VectorType>
+    void operator()(VectorType& vector, typename VectorType::pointer position, const typename VectorType::value_type& value) {
+      vector.get_allocator().construct(position, value);
+    }
+  };
+
+  class PlacementNewCopyConstructor {
+  public:
+    template<class VectorType>
+    void operator()(VectorType& vector, typename VectorType::pointer position, const typename VectorType::value_type& value) {
+      ::new (position) typename VectorType::value_type(value);
+    }
+  };
+
+// -------------------------------------------------------------------------- //
+// Destructors
+// -------------------------------------------------------------------------- //
+  class AllocatorDestructor {
+  public:
+    template<class VectorType>
+    void operator()(VectorType& vector, typename VectorType::pointer position) {
+      vector.get_allocator().destroy(position);
+    }
+  };
+
+  class SimpleDestructor {
+  public:
+    template<class VectorType>
+    void operator()(VectorType& vector, typename VectorType::pointer position) {
+      typedef typename VectorType::value_type T;
+      position->~T();
+    }
+  };
 
 // -------------------------------------------------------------------------- //
 // ArrayExceptions
@@ -840,9 +905,12 @@ namespace arx {
     typedef Derived derived_type;
     typedef Traits traits_type;
 
-    typedef typename traits_type::pre_push_back_type  pre_push_back_type;
-    typedef typename traits_type::allocator_type      allocator_type;
-    typedef typename traits_type::value_type          value_type;
+    typedef typename traits_type::pre_push_back_type       pre_push_back_type;
+    typedef typename traits_type::default_constructor_type default_constructor_type;
+    typedef typename traits_type::copy_constructor_type    copy_constructor_type;
+    typedef typename traits_type::destructor_type          destructor_type;
+    typedef typename traits_type::allocator_type           allocator_type;
+    typedef typename traits_type::value_type               value_type;
 
     typedef const value_type* const_pointer;
     typedef const value_type& const_reference;
@@ -888,7 +956,7 @@ namespace arx {
 
     void clear() {
       for(int i = 0; i < size(); ++i)
-        allocator().destroy(data() + i);
+        destructor_type()(*this, data() + i);
       setSize(0);
     }
 
@@ -949,21 +1017,11 @@ namespace arx {
     }
 
     void resize(size_type newSize, const value_type& defaultValue) {
-      ARX_ASSERT_OR_THROW((newSize >= 0), xInvarg());
-      reserve(newSize);
-
-      if(newSize >= size()) {
-        for(int i = size(); i < newSize; ++i)
-          allocator().construct(data() + i, defaultValue);
-      } else {
-        for(int i = newSize; i < size(); ++i)
-          allocator().destroy(data() + i);
-      }
-      setSize(newSize);
+      internalResize(newSize, CopyConstructorAdapter(defaultValue))
     }
 
     void resize(size_type newSize) {
-      resize(newSize, value_type());
+      internalResize(newSize, default_constructor_type());
     }
 
     size_type max_size() const {
@@ -983,13 +1041,13 @@ namespace arx {
 
     void push_back(const value_type& val) {
       pre_push_back_type()(*this, size() + 1);
-      allocator().construct(data() + size(), val);
+      copy_constructor_type()(*this, data() + size(), val);
       setSize(size() + 1);
     }
 
     void pop_back() {
       ARX_ASSERT_OR_THROW((!empty()), xInvarg());
-      allocator().destroy(data() + size());
+      destructor_type()(*this, data() + size() - 1);
       setSize(size() - 1);
     }
 
@@ -1006,13 +1064,23 @@ namespace arx {
     iterator erase(iterator pos) {
       assert(begin <= pos && pos < end());
       std::copy(pos + 1, end(), pos);
-      allocator().destroy(data() + size() - 1);
-      setSize(size() - 1);
+      pop_back();
       return pos;
     }
 
-
   private:
+    class CopyConstructorAdapter {
+    public:
+      CopyConstructorAdapter(const value_type& value): mValue(value) {}
+
+      void operator()(GenericArrayBase& that, pointer position) {
+        copy_constructor_type()(that, position, mValue);
+      }
+    private:
+      const value_type& mValue;
+    };
+
+
     allocator_type& allocator() {
       return derived().allocator();
     }
@@ -1033,6 +1101,21 @@ namespace arx {
       return static_cast<const derived_type&>(*this);
     }
 
+    template<class Constructor>
+    void internalResize(size_type newSize, Constructor& c) {
+      ARX_ASSERT_OR_THROW((newSize >= 0), xInvarg());
+      reserve(newSize);
+
+      if(newSize >= size()) {
+        for(int i = size(); i < newSize; ++i)
+          c(*this, data() + i);
+      } else {
+        for(int i = newSize; i < size(); ++i)
+          destructor_type()(*this, data() + i);
+      }
+      setSize(newSize);
+    }
+
     template<class Iterator>
     void internalAssign(Iterator first, Iterator last, std::input_iterator_tag /* category */) {
       clear();
@@ -1047,7 +1130,7 @@ namespace arx {
 
       int pos = 0;
       for(; first != last; first++, pos++)
-        allocator().construct(data() + pos, *first);
+        copy_constructor_type()(*this, data() + pos, *first);
       setSize(pos);
     }
   };
@@ -1134,9 +1217,9 @@ namespace arx {
       pointer newData = mAllocator.allocate(newCapacity);
       ARX_TRY
         for(int i = 0; i < mSize; ++i)
-          mAllocator.construct(newData + i, operator[](i));
-      for(int i = 0; i < mSize; ++i)
-        mAllocator.destroy(mData + i);
+          copy_constructor_type()(*this, newData + i, operator[](i));
+        for(int i = 0; i < mSize; ++i)
+          destructor_type()(*this, mData + i);
       ARX_CATCH_ALL
         mAllocator.deallocate(newData, newCapacity);
       ARX_RETHROW;
@@ -1195,7 +1278,7 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   template<class Array>
   class ArrayTail: public GenericArrayBase<ArrayTail<Array>, 
-    GenericArrayBaseTraits<typename Array::value_type, NoReserve, typename Array::allocator_type> > {
+    GenericArrayBaseTraits<typename Array::value_type, void, void, void, void, typename Array::allocator_type> > {
   public:
     typedef Array array_type;
 
@@ -1272,6 +1355,10 @@ namespace arx {
       mSrc->pop_back();
     }
 
+    iterator erase(iterator pos) {
+      return mSrc->erase(pos);
+    }
+
   private:
     typedef typename array_type::size_type array_size_type;
 
@@ -1284,6 +1371,84 @@ namespace arx {
 
     array_type* mSrc;
     size_type mShift;
+  };
+
+
+// -------------------------------------------------------------------------- //
+// GenericStaticArray
+// -------------------------------------------------------------------------- //
+  template<int N, class Traits>
+  class GenericStaticArray: public GenericArrayBase<GenericStaticArray<N, Traits>, Traits> {
+  public:
+    /** Default Constructor. 
+    * Constructs an empty GenericArray. */
+    GenericStaticArray(): mSize(0) {}
+
+    ~GenericStaticArray() {
+      clear();
+    }
+
+    size_type capacity() const {
+      return N;
+    }
+
+    size_type size() const {
+      return mSize;
+    }
+
+    void reserve(size_type newCapacity) {
+      ARX_ASSERT_OR_THROW((newCapacity < max_size()), xLen());
+      ARX_ASSERT_OR_THROW((newCapacity >= 0), xInvarg());
+    }
+
+    const_pointer data() const {
+      return reinterpret_cast<pointer>(mData);
+    }
+
+    pointer data() {
+      return reinterpret_cast<pointer>(mData);
+    }
+
+    size_type max_size() const {
+      return N;
+    }
+
+  private:
+    GenericStaticArray(const GenericStaticArray& other);
+    GenericStaticArray& operator= (const GenericStaticArray& other);
+
+    allocator_type& allocator() {
+      return allocator_type();
+    }
+
+    const allocator_type& allocator() const {
+      return allocator_type();
+    }
+
+    void setSize(size_type newSize) {
+      mSize = newSize;
+    }
+
+    void initialize(size_type capacity) {
+      mSize = 0;
+    }
+
+    friend class GenericArrayBase<GenericStaticArray<N, traits_type>, traits_type>;
+
+    size_type mSize;
+    unsigned char mData[N * sizeof(value_type)];
+  };
+
+
+// -------------------------------------------------------------------------- //
+// GenericStaticArray derived classes
+// -------------------------------------------------------------------------- //
+  template<class Type, int N>
+  class StaticFastArray: 
+    public GenericStaticArray<N, GenericArrayBaseTraits<Type, NoReserve, PlacementNewDefaultConstructor, 
+      PlacementNewCopyConstructor, SimpleDestructor, arx::classnew_allocator<Type> > > {
+  public:
+    /* */
   };
 
 
@@ -1318,21 +1483,23 @@ namespace arx {
    */
   template<class Type, class Allocator = classnew_allocator<Type> >
   class FastArray: 
-    public GenericArray<GenericArrayTraits<Type, NoReserve, SwapAssigner, Allocator> > {
+    public GenericArray<GenericArrayTraits<Type, NoReserve, PlacementNewDefaultConstructor, 
+      PlacementNewCopyConstructor, SimpleDestructor, SwapAssigner, Allocator> > {
   public:
     ARX_GENERICARRAY_INHERIT_CONSTRUCTORS(FastArray)
   };
 
 
   /**
-   * CheckedFastArray is an analog of FastArray. The only difference is that
-   * CheckedFastArray supports automatic resizing on push_back.
+   * CheckedArray is an analog of FastArray. The only difference is that
+   * CheckedArray supports automatic resizing on push_back.
    */
   template<class Type, class Allocator = classnew_allocator<Type> >
-  class CheckedFastArray:
-    public GenericArray<GenericArrayTraits<Type, Reserve<16>, SwapAssigner, Allocator> > {
+  class CheckedArray:
+    public GenericArray<GenericArrayTraits<Type, Reserve<16>, PlacementNewDefaultConstructor, 
+      PlacementNewCopyConstructor, SimpleDestructor, SwapAssigner, Allocator> > {
   public:
-    ARX_GENERICARRAY_INHERIT_CONSTRUCTORS(CheckedFastArray)
+    ARX_GENERICARRAY_INHERIT_CONSTRUCTORS(CheckedArray)
   };
 
 } // namespace arx
