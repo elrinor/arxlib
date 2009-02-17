@@ -1473,6 +1473,18 @@ namespace arx {
     void saveToFile(const std::string& fileName) const {
       image_cast<Image3b>(this->derived()).saveToFile(fileName);
     }
+
+    int getWidth() const { return derived().getWidth(); }
+
+    int getHeight() const { return derived().getHeight(); }
+
+    color_type getPixelInterpolated(float x, float y) const {
+      return derived().getPixelInterpolated(x, y);
+    }
+
+    color_type getPixel(int x, int y) const {
+      return derived().getPixel(x, y);
+    }
   };
 
 
