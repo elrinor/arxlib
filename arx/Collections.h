@@ -447,10 +447,10 @@ namespace arx {
     Map(Iter first, Iter last): impl(new container_type(first, last)) {}
 
     template<class Iter>
-    Map(Iter first, Iter last, const key_compare& ñ): impl(new container_type(first, last, c)) {}
+    Map(Iter first, Iter last, const key_compare& comp): impl(new container_type(first, last, comp)) {}
 
     template<class Iter>
-    Map(Iter first, Iter last, const key_compare& c, const allocator_type& a) : impl(new container_type(first, last, c, a)) {}
+    Map(Iter first, Iter last, const key_compare& comp, const allocator_type& a) : impl(new container_type(first, last, comp, a)) {}
 
     void erase(iterator pos) {
       this->impl->erase(pos);
@@ -617,10 +617,10 @@ namespace arx {
     Set(Iter first, Iter last): impl(new container_type(first, last)) {}
 
     template<class Iter>
-    Set(Iter first, Iter last, const key_compare& ñ): impl(new container_type(first, last, c)) {}
+    Set(Iter first, Iter last, const key_compare& comp): impl(new container_type(first, last, comp)) {}
 
     template<class Iter>
-    Set(Iter first, Iter last, const key_compare& c, const allocator_type& a) : impl(new container_type(first, last, c, a)) {}
+    Set(Iter first, Iter last, const key_compare& comp, const allocator_type& a) : impl(new container_type(first, last, comp, a)) {}
 
     void erase(iterator pos) {
       this->impl->erase(pos);

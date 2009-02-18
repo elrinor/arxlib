@@ -26,7 +26,7 @@
 /** @def ARX_USE_EIGEN
  * Define to use Eigen library in place of ArX LinearAlgebra module. Eigen is a highly-optimized
  * library with a rich set of features, which generally produces better code that ArX LinearAlgebra. */
-// #define ARX_USE_EIGEN
+#define ARX_USE_EIGEN
 
 
 /** @def ARX_UNROLL_COST_LIMIT

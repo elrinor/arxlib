@@ -195,7 +195,7 @@ namespace arx {
 
   private:
     /* This one is probably buggy. */
-    template<class T> struct has_operator_new {
+    template<class Y> struct has_operator_new {
       typedef char true_type;
       struct false_type { true_type dummy[2]; };
       template<void* (*func)(size_t)> struct nothing {};
@@ -205,27 +205,27 @@ namespace arx {
       static false_type has_member(void*);
 
       enum {
-        value = sizeof(has_operator_new<T>::has_member(static_cast<T*>(NULL))) == sizeof(true_type)
+        value = sizeof(has_operator_new<Y>::has_member(static_cast<Y*>(NULL))) == sizeof(true_type)
       };
     };
 
-    template<bool has_new> struct allocator_impl {
+    template<class U, bool has_new = has_operator_new<U>::value> struct allocator_impl {
       enum { HAS_NEW = true };
 
       static pointer allocate(size_t size, const void* /* hint */ = 0) { 
-        return static_cast<pointer>(T::operator new(size * sizeof(T)));
+        return static_cast<pointer>(U::operator new(size * sizeof(U)));
       }
 
       static void deallocate(pointer ptr, size_t) { 
-        T::operator delete(ptr); 
+        U::operator delete(ptr); 
       }
     };
 
-    template<> struct allocator_impl<false> {
+    template<class U> struct allocator_impl<U, false> {
       enum { HAS_NEW = false };
 
       static pointer allocate(size_t size, const void* = 0) {
-        return static_cast<pointer>(::operator new(size * sizeof(T))); 
+        return static_cast<pointer>(::operator new(size * sizeof(U))); 
       }
 
       static void deallocate(pointer ptr, size_t) { 
@@ -233,7 +233,7 @@ namespace arx {
       }
     };
 
-    typedef allocator_impl<has_operator_new<T>::value> impl_type;
+    typedef allocator_impl<T> impl_type;
   };
 
 } // namespace arx

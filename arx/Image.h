@@ -179,27 +179,27 @@ namespace arx {
     }
   };
 
-  template<class T, class B, class D>
+  template<class T, template<class> class B, class D>
   D operator+(const ColorBase<T, B, D>& l, const ColorBase<T, B, D>& r) {
     return ColorBase<T, B, D>(l) += static_cast<const D&>(r);
   }
 
-  template<class T, class B, class D>
+  template<class T, template<class> class B, class D>
   D operator-(const ColorBase<T, B, D>& l, const ColorBase<T, B, D>& r) {
     return ColorBase<T, B, D>(l) -= static_cast<const D&>(r);
   }
 
-  template<class T, class B, class D, class Y>
+  template<class T, template<class> class B, class D, class Y>
   D operator*(const ColorBase<T, B, D>& l, const Y& r) {
     return ColorBase<T, B, D>(l) *= r;
   }
 
-  template<class T, class B, class D, class Y>
+  template<class T, template<class> class B, class D, class Y>
   D operator*(const Y& l, const ColorBase<T, B, D>& r) {
     return ColorBase<T, B, D>(r) *= l;
   }
 
-  template<class T, class B, class D, class Y>
+  template<class T, template<class> class B, class D, class Y>
   D operator/(const ColorBase<T, B, D>& l, const Y& r) {
     return ColorBase<T, B, D>(l) /= r;
   }
