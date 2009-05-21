@@ -542,19 +542,19 @@ namespace arx {
     }
 
     iterator lower_bound(const key_type& key) {
-      return this->impl->lower_bound(key)
+      return this->impl->lower_bound(key);
     }
 
     const_iterator lower_bound(const key_type& key) const {
-      return this->impl->lower_bound(key)
+      return this->impl->lower_bound(key);
     }
 
     iterator upper_bound(const key_type& key) {
-      return this->impl->upper_bound(key)
+      return this->impl->upper_bound(key);
     }
 
     const_iterator upper_bound(const key_type& key) const {
-      return this->impl->upper_bound(key)
+      return this->impl->upper_bound(key);
     }
 
     std::pair<const_iterator, const_iterator> equal_range(const key_type& key) const {

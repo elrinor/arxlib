@@ -1207,7 +1207,7 @@ namespace arx {
         (ARX_VECTOR_ONLY(Derived) && ARX_VECTOR_ONLY(OtherDerived) && ARX_SAME_VECTOR_SIZE(Derived, OtherDerived))));
       assert(this->rows() == that.rows() && this->cols() == that.cols());
 
-      if(Traits<OtherDerived>::Flags && EvalBeforeAssigningBit) {
+      if(Traits<OtherDerived>::Flags & EvalBeforeAssigningBit) {
         /* TODO. */
         typedef typename Traits<OtherDerived>::PlainMatrixType OtherPlainMatrixType;
         OtherPlainMatrixType evaluated;
@@ -1320,15 +1320,15 @@ namespace arx {
     template<class T, int R, int C>
     class apply {
     private:
-      int myRows;
-      int myCols;
+      int_if_dynamic<R> rowsStorage;
+      int_if_dynamic<C> colsStorage;
 
     public:
       T* storedData;
 
-      apply(): storedData(NULL) {}
+      apply(): storedData(NULL), rowsStorage(0), colsStorage(0) {}
 
-      apply(int rows, int cols): myRows(rows), myCols(cols) {
+      apply(int rows, int cols): rowsStorage(rows), colsStorage(cols) {
         this->storedData = static_cast<T*>
           (ARX_VEC_ALIGNED_MALLOC(this->rowsStorage.getValue() * this->colsStorage.getValue() * sizeof(T)));
       }
@@ -1338,11 +1338,11 @@ namespace arx {
       }
 
       int rows() const { 
-        return this->myRows; 
+        return this->rowsStorage.getValue(); 
       }
 
       int cols() const { 
-        return this->myCols; 
+        return this->colsStorage.getValue(); 
       }
     };
   };
@@ -1960,6 +1960,8 @@ namespace arx {
 
   typedef Matrix<float, DYNAMIC_SIZE, 1> VectorXf;
   typedef Matrix<float, DYNAMIC_SIZE, DYNAMIC_SIZE> MatrixXf;
+
+  typedef Matrix<int, DYNAMIC_SIZE, DYNAMIC_SIZE> MatrixXi;
 
 } // namespace arx
 
