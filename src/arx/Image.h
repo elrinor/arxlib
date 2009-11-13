@@ -9,8 +9,8 @@
  * Currently supported numbers of channels:
  * <ul>
  * <li> C1
- * <li> C3 (through Color3 template)
- * <li> AC4 (through Color4 template)
+ * <li> C3 (using Color3 template)
+ * <li> AC4 (using Color4 template)
  * </ul>
  */
 #ifndef __ARX_IMAGE_H__
@@ -22,10 +22,7 @@
 #include <cassert>
 #include <string>
 #include <fstream>
-#include "smart_ptr.h"
 #include "Utility.h"
-#include "Mpl.h"
-#include "LinearAlgebra.h"
 #include "Memory.h"
 
 #ifdef ARX_USE_IPPI

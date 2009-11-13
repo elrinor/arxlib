@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <memory>
 #include <cassert>
-#include "smart_ptr.h"
 #include "Collections.h"
 #include "Utility.h"
 
