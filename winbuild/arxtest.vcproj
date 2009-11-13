@@ -181,6 +181,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\arx\Foreach.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\arx\Image.h"
 				>
 			</File>
@@ -189,7 +193,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\arx\LambdaHack.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\arx\Memory.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\arx\Null.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\arx\ObjectPool.h"
 				>
 			</File>
 			<File
@@ -197,7 +213,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\arx\StaticBlock.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\arx\Utility.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\arx\Utility2.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\arx\Views.h"
 				>
 			</File>
 			<Filter
