@@ -10,7 +10,9 @@
 
 class OMG: public std::map<int, int> {
 public:
-  ARX_FORWARD_CONSTRUCTOR(OMG, map, (mInt(0)), ({}))
+  ARX_FORWARD_CONSTRUCTOR(OMG, (ARX_FWD_TEXT(map))(ARX_FWD_ARGS())(ARX_FWD_COMMA())(ARX_FWD_TEXT(mInt(0))), ({}));
+
+  
 
 private:
   int mInt;

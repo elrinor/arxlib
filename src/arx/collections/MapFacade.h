@@ -92,7 +92,6 @@ namespace arx {
 
       return find(key)->second;
     }
-    
 
   protected:
     /*
