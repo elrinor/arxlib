@@ -43,7 +43,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="../src"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
-				GeneratePreprocessedFile="0"
+				GeneratePreprocessedFile="2"
 				KeepComments="false"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -216,7 +216,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\src\arx\collections\SharedContainer.h"
+					RelativePath="..\src\arx\collections\Shared.h"
 					>
 				</File>
 				<File
