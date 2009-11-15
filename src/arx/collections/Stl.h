@@ -11,7 +11,7 @@
 #include <unordered_set>
 #include <unordered_map>
 
-#include "RaSequenceProxy.h"
+#include "ContinuousSequenceProxy.h"
 #include "OrderedSetProxy.h"
 #include "BackSequenceProxyMixin.h"
 #include "SetObserverMixin.h"
@@ -23,7 +23,7 @@ namespace arx {
 // vector
 // -------------------------------------------------------------------------- //
   template<class T, class Allocator = std::allocator<T> >
-  class vector: public BackSequenceProxyMixin<RaSequenceProxy<vector<T, Allocator>, std::vector<T, Allocator> > > {
+  class vector: public BackSequenceProxyMixin<ContinuousSequenceProxy<vector<T, Allocator>, std::vector<T, Allocator> > > {
   private:
     typedef BackSequenceProxyMixin base_type;
 
