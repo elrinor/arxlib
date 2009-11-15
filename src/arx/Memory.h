@@ -10,6 +10,8 @@
 #include <cstddef>
 #include <malloc.h>
 #include <memory>
+#include <boost/static_assert.hpp>
+#include "Utility.h"
 
 
 /**

@@ -1,19 +1,16 @@
-#ifndef __ARX_RANGEFACADE_H__
-#define __ARX_RANGEFACADE_H__
+#ifndef __ARX_CONTAINERPROXY_H__
+#define __ARX_CONTAINERPROXY_H__
 
 #include "config.h"
-#include <boost/operators.hpp>
+#include "ProxyBase.h"
 
 namespace arx {
 // -------------------------------------------------------------------------- //
-// RangeFacade
+// ContainerProxy
 // -------------------------------------------------------------------------- //
   template<class Derived, class Container>
-  class RangeFacade {
+  class ContainerProxy: public ProxyBase<Derived, Container> {
   public:
-    typedef Derived derived_type;
-    typedef Container container_type;
-
 #define ARX_INJECT(T)                                                           \
     typedef typename container_type::T T
     ARX_INJECT(allocator_type);
@@ -125,30 +122,15 @@ namespace arx {
     friend bool operator>= (const derived_type& l, const derived_type& r) {
       return l.container() >= r.container();
     }
-    
-  protected:
-    /* 
-    container_type& crtpContainer();
-    const container_type& crtpContainer() const;
-    */
 
-    container_type& container() {
-      return derived().crtpContainer();
-    }
+    /* Additional mutators. */
 
-    const container_type& container() const {
-      return derived().crtpContainer();
-    }
-
-    derived_type& derived() {
-      return static_cast<derived_type&>(*this);
-    }
-
-    const derived_type& derived() const {
-      return static_cast<const derived_type&>(*this);
+    derived_type& operator<< (const value_type& value) {
+      insert(end(), value);
+      return derived();
     }
   };
 
 } // namespace arx
 
-#endif // __ARX_RANGEFACADE_H__
+#endif // __ARX_CONTAINERPROXY_H__
