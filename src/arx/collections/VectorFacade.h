@@ -9,7 +9,7 @@ namespace arx {
 // VectorFacade
 // -------------------------------------------------------------------------- //
   template<class Derived, class Container> 
-  class VectorFacade: public RangeFacade<Derived, Container> {
+  class VectorFacade: public ContainerProxy<Derived, Container> {
   public:
     void assign(size_type count, const value_type& value) {
       container().assign(count, value);

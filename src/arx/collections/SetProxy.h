@@ -1,25 +1,22 @@
-#ifndef __ARX_MAPFACADE_H__
-#define __ARX_MAPFACADE_H__
+#ifndef __ARX_SETPROXY_H__
+#define __ARX_SETPROXY_H__
 
 #include "config.h"
-#include <cassert>
-#include "RangeFacade.h"
-
-#include <xhash>
+#include <boost/range.hpp>  /* for boost::begin & boost::end. */
+#include "ContainerProxy.h"
 
 namespace arx {
 // -------------------------------------------------------------------------- //
-// MapFacade
+// SetProxy
 // -------------------------------------------------------------------------- //
   template<class Derived, class Container>
-  class MapFacade: public RangeFacade<Derived, Container> {
+  class SetProxy: public ContainerProxy<Derived, Container> {
   public:
 #define ARX_INJECT(T)                                                           \
     typedef typename container_type::T T
     ARX_INJECT(key_compare);
     ARX_INJECT(key_type);
     ARX_INJECT(value_compare);
-    ARX_INJECT(mapped_type);
 #undef ARX_INJECT
 
     size_type count(const key_type& key) const {
@@ -79,46 +76,14 @@ namespace arx {
       return container().value_comp();
     }
 
-    mapped_type& operator[] (const key_type& key) {
-      return container().operator[] (key);
-    }
+    /* Additional mutators. */
 
-    /* Additional functions. */
-
-    bool contains(const key_type& key) const {
-      return find(key) != end();
-    }
-
-    mapped_type& operator[] (const key_type& key) const {
-      assert(contains(key));
-
-      return find(key)->second;
-    }
-
-  protected:
-    /*
-    container_type& crtpContainer();
-    const container_type& crtpContainer() const;
-    */
-
-  private:
-    container_type& container() {
-      return derived().crtpContainer();
-    }
-
-    const container_type& container() const {
-      return derived().crtpContainer();
-    }
-
-    derived_type& derived() {
-      return static_cast<derived_type&>(*this);
-    }
-
-    const derived_type& derived() const {
-      return static_cast<const derived_type&>(*this);
+    template<class InputRange>
+    void insert(InputRange range) {
+      insert(boost::begin(range), boost::end(range));
     }
   };
 
 } // namespace arx
 
-#endif // __ARX_MAPFACADE_H__
+#endif // __ARX_SETPROXY_H__

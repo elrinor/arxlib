@@ -6,7 +6,27 @@
 #define __ARX_UTILITY_H__
 
 #include "config.h"
-#include <functional>
+#include <boost/compressed_pair.hpp>
+#include <functional>  /* for std::less. */
+#include <utility>     /* for std::pair. */
+
+#if 0
+// -------------------------------------------------------------------------- //
+// std::tr1::hash<std::pair<*> >
+// -------------------------------------------------------------------------- //
+namespace std {
+  namespace tr1 {
+    template<class T1, class T2>
+    class hash<std::pair<T1, T2> >: public std::unary_function<std::pair<T1, T2>, size_t> {
+    public:
+      result_type operator()(const argument_type& pair) const {
+        return hash<T1>()(pair.first) ^ hash<T2>()(pair.second);
+      }
+    };
+
+  } // namespace tr1
+} // namespace std
+#endif // currently disabled
 
 // -------------------------------------------------------------------------- //
 // Some useful defines
@@ -17,93 +37,13 @@
 #  define FORCEINLINE inline
 #endif
 
+#define STATIC_ASSERT BOOST_STATIC_ASSERT
 
-#ifdef ARX_USE_BOOST
-#  include <boost/utility.hpp>
-namespace arx {
-  using boost::addressof;
-}
-#else
-namespace arx {
-  namespace detail {
-    template<class T> struct addressof_impl {
-      static inline T* f(T& v, long) {
-        return reinterpret_cast<T*>
-          (&const_cast<char&>(reinterpret_cast<const volatile char &>(v)));
-      }
-
-      /* This magic was copied directly from boost implementation...
-       * And I should admit that I don't understand, what is it for. */
-      static inline T* f(T* v, int) {
-        return v;
-      }
-    };
-  } // namespace detail
-
-  template<class T> T* addressof(T& v) {
-    return detail::addressof_impl<T>::f(v, 0);
-  }
-} // namespace arx
-#endif
 
 namespace arx {
-  namespace noncopyable_adl_protected { // protection from unintended ADL
-    /**
-     * noncopyable class. Subclass to hide your copy constructor and operator=.
-     *
-     * Note that original implementation included empty destructor, which for 
-     * some strange reason was getting in the way of MSVC 8.0 optimizer, making 
-     * it unable to inline and eliminate the child class's constructor. Same 
-     * goes for nonassignable class. That's why even if ARX_USE_BOOST is 
-     * defined, I don't use noncopyable from boost - boost implementation 
-     * includes this empty destructor. It took me a lot of digging into 
-     * assembly to find this bug (?).
-     */
-    class noncopyable {
-    public:
-      noncopyable() {};
-    private:
-      noncopyable( const noncopyable& );
-      const noncopyable& operator=( const noncopyable& );
-    };
-  } // namespace noncopyable_adl_protected
-
-  typedef noncopyable_adl_protected::noncopyable noncopyable;
-
-  namespace nonassignable_adl_protected { // protection from unintended ADL
-    /**
-     * nonassignable class. Subclass to hide your operator=.
-     *
-     * Also see note on noncopyable class.
-     *
-     * @see noncopyable
-     */
-    class nonassignable {
-    private:
-      const nonassignable& operator=( const nonassignable& );
-    };
-  } // namespace nonassignable_adl_protected
-
-  typedef nonassignable_adl_protected::nonassignable nonassignable;
-
-
-  /**
-   * ValueType template is used to determine the type of the result of operator[] of type T
-   */
-  template<class T> class ValueType {
-  public:
-    typedef typename T::value_type type;
-  };
-  template<class T> class ValueType<T*> {
-  public:
-    typedef T type;
-  };
-  template<class T, int N> class ValueType<T[N]> {
-  public:
-    typedef T type;
-  };
-
-
+// -------------------------------------------------------------------------- //
+// Some useful functions
+// -------------------------------------------------------------------------- //
   /**
    * Square template
    */
@@ -111,48 +51,53 @@ namespace arx {
     return x * x;
   }
 
+
+// -------------------------------------------------------------------------- //
+// UnorderedPair
+// -------------------------------------------------------------------------- //
   /**
    * UnorderedPair stores an unordered pair of two values of the same type.
+   * Derives from Cmp for empty base optimization.
    */
-  template<class T, class Comparator = std::less<T> > class UnorderedPair: private Comparator {
+  template<class T, class Cmp = std::less<T> > class UnorderedPair: private Cmp {
   public:
     T first;
     T second;
 
     UnorderedPair() {}
 
-    UnorderedPair(const T& a, const T& b, const Comparator& c = Comparator()): 
-      Comparator(c), first(Comparator::operator()(a, b) ? a : b), second(Comparator::operator()(a, b) ? b : a) {}
+    UnorderedPair(const T& a, const T& b, const Cmp& c = Cmp()): 
+      Cmp(c), first(Cmp::operator()(a, b) ? a : b), second(Cmp::operator()(a, b) ? b : a) {}
 
-    bool operator<(const UnorderedPair& that) const {
-      return Comparator::operator()(this->first, that.first) ||
-        (!Comparator::operator()(that.first, this->first) && Comparator::operator()(this->second, that.second));
+    bool operator<(const UnorderedPair& other) const {
+      return Cmp::operator()(first, other.first) ||
+        (!Cmp::operator()(other.first, first) && Cmp::operator()(second, other.second));
     }
 
-    bool operator>(const UnorderedPair& that) const {
-      return that < *this;
+    bool operator>(const UnorderedPair& other) const {
+      return other < *this;
     }
 
-    bool operator>=(const UnorderedPair& that) const {
-      return !(*this < that);
+    bool operator>=(const UnorderedPair& other) const {
+      return !(*this < other);
     }
 
-    bool operator<=(const UnorderedPair& that) const {
-      return !(*this > that);
+    bool operator<=(const UnorderedPair& other) const {
+      return !(*this > other);
     }
 
-    bool operator==(const UnorderedPair& that) const {
-      return *this >= that && *this <= that;
+    bool operator==(const UnorderedPair& other) const {
+      return *this >= other && *this <= other;
     }
 
-    bool operator!=(const UnorderedPair& that) const {
-      return !(*this == that);
+    bool operator!=(const UnorderedPair& other) const {
+      return !(*this == other);
     }
   };
 
-  template<class T, class Comparator> 
-  UnorderedPair<T, Comparator> make_upair(const T& a, const T& b, const Comparator& c) {
-    return UnorderedPair<T, Comparator>(a, b, c);
+  template<class T, class Cmp> 
+  UnorderedPair<T, Cmp> make_upair(const T& a, const T& b, const Cmp& c) {
+    return UnorderedPair<T, Cmp>(a, b, c);
   }
 
   template<class T> 
