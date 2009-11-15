@@ -43,9 +43,10 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="../src"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
-				GeneratePreprocessedFile="2"
+				GeneratePreprocessedFile="0"
 				KeepComments="false"
 				MinimalRebuild="true"
+				ExceptionHandling="2"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
@@ -185,6 +186,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\arx\HasTypedXxx.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\arx\Image.h"
 				>
 			</File>
@@ -217,6 +222,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\arx\StaticCounter.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\arx\Utility.h"
 				>
 			</File>
@@ -232,25 +241,49 @@
 				Name="collections"
 				>
 				<File
-					RelativePath="..\src\arx\collections\Forward.h"
+					RelativePath="..\src\arx\Facade.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\arx\collections\MapFacade.h"
+					RelativePath="..\src\arx\Forward.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\arx\collections\RangeFacade.h"
+					RelativePath="..\src\arx\MapFacade.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\arx\collections\Shared.h"
+					RelativePath="..\src\arx\RangeFacade.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\arx\collections\VectorFacade.h"
+					RelativePath="..\src\arx\VectorFacade.h"
 					>
 				</File>
+				<Filter
+					Name="views"
+					>
+					<File
+						RelativePath="..\src\arx\ReverseView.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\ViewBase.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\ViewTraits.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="ranges"
+					>
+					<File
+						RelativePath="..\src\arx\RangeTraits.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
