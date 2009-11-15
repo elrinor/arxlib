@@ -22,8 +22,17 @@
 #include <cassert>
 #include <string>
 #include <fstream>
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/or.hpp>
+#include <boost/mpl/int.hpp>
+#include <boost/mpl/identity.hpp>
+#include <boost/type_traits.hpp>    /* for boost::is_same */
+#include <boost/shared_ptr.hpp>
+#include <boost/noncopyable.hpp>
+#include <Eigen/Eigen>
 #include "Utility.h"
 #include "Memory.h"
+#include "Utility.h"
 
 #ifdef ARX_USE_IPPI
 #  include <ipp.h>
@@ -66,7 +75,7 @@ namespace arx {
 // Colors
 // -------------------------------------------------------------------------- //
   /** This metafunction determines whether the given datatype is supported. */
-  template<class T> struct is_datatype_supported: public arx::or_<arx::is_same<T, float>, arx::is_same<T, unsigned char> > {};
+  template<class T> struct is_datatype_supported: public boost::mpl::or_<boost::is_same<T, float>, boost::is_same<T, unsigned char> > {};
 
 
   /** Defines min() and max() functions for supported simple color types. */
@@ -225,23 +234,23 @@ namespace arx {
 
 
   /** This metafunction determines the number of channels in a color type. */
-  template<class T> struct channels: public arx::int_<1> { STATIC_ASSERT((is_datatype_supported<T>::value)); };
-  template<class T> struct channels<Color3<T> >: public arx::int_<3> {};
-  template<class T> struct channels<Color4<T> >: public arx::int_<4> {};
+  template<class T> struct channels: public boost::mpl::int_<1> { STATIC_ASSERT((is_datatype_supported<T>::value)); };
+  template<class T> struct channels<Color3<T> >: public boost::mpl::int_<3> {};
+  template<class T> struct channels<Color4<T> >: public boost::mpl::int_<4> {};
 
 
   /** This metafunction determines the datatype of a given color type. 
    * For example, for <tt>Color3<float></tt> it will return <tt>float</tt>.  */
-  template<class T> struct datatype: public arx::identity<T> { STATIC_ASSERT((is_datatype_supported<T>::value)); };
-  template<class T> struct datatype<Color3<T> >: public arx::identity<T> {};
-  template<class T> struct datatype<Color4<T> >: public arx::identity<T> {};
+  template<class T> struct datatype: public boost::mpl::identity<T> { STATIC_ASSERT((is_datatype_supported<T>::value)); };
+  template<class T> struct datatype<Color3<T> >: public boost::mpl::identity<T> {};
+  template<class T> struct datatype<Color4<T> >: public boost::mpl::identity<T> {};
 
 
   /** This metafunction returns color type with the given datatype and number of channels. */
   template<class datatype, int channels> struct compose_color;
-  template<class datatype> struct compose_color<datatype, 1>: public arx::identity<datatype> {};
-  template<class datatype> struct compose_color<datatype, 3>: public arx::identity<Color3<datatype> > {};
-  template<class datatype> struct compose_color<datatype, 4>: public arx::identity<Color4<datatype> > {};
+  template<class datatype> struct compose_color<datatype, 1>: public boost::mpl::identity<datatype> {};
+  template<class datatype> struct compose_color<datatype, 3>: public boost::mpl::identity<Color3<datatype> > {};
+  template<class datatype> struct compose_color<datatype, 4>: public boost::mpl::identity<Color4<datatype> > {};
 
 
   /* Color typedefs. */
@@ -548,7 +557,7 @@ namespace arx {
    * expression evaluation. This is done by storing them by value, not by reference. By-value storage
    * increments reference counter of materialized type, and therefore prohibits writing to it. */
   template<class T> struct WriteProtected {
-    typedef typename arx::if_c<T::materialized, T, T&>::type type;
+    typedef typename boost::mpl::if_c<T::materialized, T, T&>::type type;
   };
 
   /** Using this metafunction, expression types can protect materialized types from writing during 
@@ -556,7 +565,7 @@ namespace arx {
    * always be readable, but it will always be constructible from T and T-assignable. */
   template<class T> struct WriteProtectedUnreadable {
     struct Nothing { Nothing() {} Nothing(const T&) {} Nothing& operator=(const T& that) { return *this; } };
-    typedef typename arx::if_c<T::materialized, T, Nothing>::type type;
+    typedef typename boost::mpl::if_c<T::materialized, T, Nothing>::type type;
   };
 
 
@@ -569,7 +578,7 @@ namespace arx {
     const L& l;
     const R& r;
 
-    STATIC_ASSERT((arx::is_same<typename L::color_type, typename R::color_type>::value));
+    STATIC_ASSERT((boost::is_same<typename L::color_type, typename R::color_type>::value));
 
   public:
     typedef typename L::color_type color_type;
@@ -936,7 +945,7 @@ namespace arx {
    *
    * @param pixel_size                 Size of a single image pixel in bytes. */
   template<int pixel_size>
-  struct GenericImageData: public arx::noncopyable {
+  struct GenericImageData: public boost::noncopyable {
     void* pixels; /**< Pointer to pixel buffer. */
     int width; /**< Width of an image in pixels. */
     int height; /**< Height of an image in pixels. */
@@ -983,7 +992,7 @@ namespace arx {
    * @param Color                      Class representing single pixel in an image. 
    * @param Derived                    Derived class, if any. */
   template<class Color, class Derived = void> class GenericImage: 
-    public GenericImageBase<Color, typename arx::if_<arx::is_same<Derived, void>, GenericImage<Color, Derived>, Derived>::type, true> {
+    public GenericImageBase<Color, typename boost::mpl::if_<boost::is_same<Derived, void>, GenericImage<Color, Derived>, Derived>::type, true> {
   public:
     typedef Color color_type; /**< Type of a single pixel. */
     enum { pixel_size = sizeof(color_type) /**< Size in bytes of a single pixel. */ };
@@ -992,10 +1001,10 @@ namespace arx {
   protected:
     typedef GenericImage base_type; /**< Base type for easy access in derived classes. */
     typedef GenericImageData<pixel_size> storage_type; /**< Storage type. */
-    typedef typename arx::if_<arx::is_same<Derived, void>, base_type, Derived>::type derived_type; /**< Derived type, or this type, if none. */
+    typedef typename boost::mpl::if_<boost::is_same<Derived, void>, base_type, Derived>::type derived_type; /**< Derived type, or this type, if none. */
 
   private:
-    arx::shared_ptr<storage_type> data; /**< Shared data. */ 
+    boost::shared_ptr<storage_type> data; /**< Shared data. */ 
 
     template<class OtherColor, class OtherDerived> friend class GenericImage;
 
@@ -1191,7 +1200,7 @@ namespace arx {
      * @param m                        Transformation matrix.
      * @param blendFunc                Blending function to use. */
     template<class OtherColor, class OtherDerived, bool otherMaterialized, class BlendFunction>
-    void drawBlended(const GenericImageBase<OtherColor, OtherDerived, otherMaterialized>& givenThat, const arx::Matrix3f& m, const BlendFunction& blendFunc) {
+    void drawBlended(const GenericImageBase<OtherColor, OtherDerived, otherMaterialized>& givenThat, const Eigen::Matrix3f& m, const BlendFunction& blendFunc) {
       using namespace arx;
       using namespace std;
 
@@ -1227,7 +1236,7 @@ namespace arx {
      * @param that                     Image to draw.
      * @param m                        Transformation matrix. */
     template<class OtherColor, class OtherDerived, bool otherMaterialized>
-    void draw(const GenericImageBase<OtherColor, OtherDerived, otherMaterialized>& that, const arx::Matrix3f& m) {
+    void draw(const GenericImageBase<OtherColor, OtherDerived, otherMaterialized>& that, const Eigen::Matrix3f& m) {
       drawBlended(that, m, BlendFunc::NOBLEND());
     }
 
@@ -1238,7 +1247,7 @@ namespace arx {
      *
      * @see drawBlended */
     template<class OtherColor, class OtherDerived, bool otherMaterialized>
-    void drawBlended(const GenericImageBase<OtherColor, OtherDerived, otherMaterialized>& that, const arx::Matrix3f& m) {
+    void drawBlended(const GenericImageBase<OtherColor, OtherDerived, otherMaterialized>& that, const Eigen::Matrix3f& m) {
       drawBlended(that, m, BlendFunc::OVER<>());
     }
 
@@ -1341,11 +1350,11 @@ namespace arx {
     /** Downcasts GenericImageBase to Derived class. */
     const Derived& derived() const { return *static_cast<const Derived*>(this); }
 
-    typedef typename arx::if_c<materialized, Derived, GenericImage<color_type> >::type materialized_type;
+    typedef typename boost::mpl::if_c<materialized, Derived, GenericImage<color_type> >::type materialized_type;
 
     /* For materialize() - it must return a reference to current image instance. */ 
-    typedef typename arx::if_c<materialized, materialized_type&, materialized_type>::type materialized_ref_type;
-    typedef typename arx::if_c<materialized, const materialized_type&, materialized_type>::type materialized_const_ref_type;
+    typedef typename boost::mpl::if_c<materialized, materialized_type&, materialized_type>::type materialized_ref_type;
+    typedef typename boost::mpl::if_c<materialized, const materialized_type&, materialized_type>::type materialized_const_ref_type;
 
     /** Returns suitable size of a Gaussian kernel for the given sigma (standard deviation of the Gaussian distribution). */
     static int getGaussianKernelSize(float sigma) {
@@ -1438,7 +1447,7 @@ namespace arx {
      *
      * @return                         Materialized copy of this image in case it wasn't materialized, or image itself otherwise. */
     materialized_ref_type materialize() {
-      return arx::if_c<materialized, materialize_materialized, materialize_unmaterialized>::type()(*this);
+      return boost::mpl::if_c<materialized, materialize_materialized, materialize_unmaterialized>::type()(*this);
     }
 
     /** Materializes an image, i.e. allocates in image buffer in case it didn't existed to allow direct data manipulation.
@@ -1603,7 +1612,7 @@ namespace arx {
       for(int i = 0; i < image.getHeight(); i++) 
         f.write(ptr - i * image.getWStep(), bmpStep);
     }
-  } // namspace detail
+  } // namespace detail
 
 
 // -------------------------------------------------------------------------- //

@@ -1,12 +1,8 @@
-/** @file ArX Utility Library.
- *
- * Utility Classes and more.
- */
 #ifndef __ARX_UTILITY_H__
 #define __ARX_UTILITY_H__
 
 #include "config.h"
-#include <boost/compressed_pair.hpp>
+#include <boost/static_assert.hpp>
 #include <functional>  /* for std::less. */
 #include <utility>     /* for std::pair. */
 
