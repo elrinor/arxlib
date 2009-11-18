@@ -1,14 +1,14 @@
-#ifndef __ARX_FRONTSEQUENCEPROXYMIXIN_H__
-#define __ARX_FRONTSEQUENCEPROXYMIXIN_H__
+#ifndef __ARX_FRONT_SEQUENCE_FACADE_MIXIN_H__
+#define __ARX_FRONT_SEQUENCE_FACADE_MIXIN_H__
 
 #include "config.h"
 
 namespace arx {
 // -------------------------------------------------------------------------- //
-// BackSequenceProxyMixin
+// BackSequenceFacadeMixin
 // -------------------------------------------------------------------------- //
   template<class Base>
-  class BackSequenceProxyMixin: public Base {
+  class FrontSequenceFacadeMixin: public Base {
   public:
     void pop_front() {
       container().pop_front();
@@ -27,4 +27,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_FRONTSEQUENCEPROXYMIXIN_H__
+#endif // __ARX_FRONT_SEQUENCE_FACADE_MIXIN_H__

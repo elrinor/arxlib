@@ -1,15 +1,15 @@
-#ifndef __ARX_CONTAINERPROXY_H__
-#define __ARX_CONTAINERPROXY_H__
+#ifndef __ARX_CONTAINER_FACADE_H__
+#define __ARX_CONTAINER_FACADE_H__
 
 #include "config.h"
-#include "ProxyBase.h"
+#include "FacadeBase.h"
 
 namespace arx {
 // -------------------------------------------------------------------------- //
-// ContainerProxy
+// ContainerFacade
 // -------------------------------------------------------------------------- //
   template<class Derived, class Container>
-  class ContainerProxy: public ProxyBase<Derived, Container> {
+  class ContainerFacade: public FacadeBase<Derived, Container> {
   public:
 #define ARX_INJECT(T)                                                           \
     typedef typename container_type::T T
@@ -133,4 +133,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_CONTAINERPROXY_H__
+#endif // __ARX_CONTAINER_FACADE_H__

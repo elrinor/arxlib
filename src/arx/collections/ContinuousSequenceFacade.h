@@ -1,15 +1,15 @@
-#ifndef __ARX_CONTINUOUSSEQUENCEPROXY_H__
-#define __ARX_CONTINUOUSSEQUENCEPROXY_H__
+#ifndef __ARX_CONTINUOUS_SEQUENCE_FACADE_H__
+#define __ARX_CONTINUOUS_SEQUENCE_FACADE_H__
 
 #include "config.h"
-#include "RaSequenceProxy.h"
+#include "RaSequenceFacade.h"
 
 namespace arx {
 // -------------------------------------------------------------------------- //
-// ContinuousSequenceProxy
+// ContinuousSequenceFacade
 // -------------------------------------------------------------------------- //
   template<class Derived, class Container>
-  class ContinuousSequenceProxy: public RaSequenceProxy<Derived, Container> {
+  class ContinuousSequenceFacade: public RaSequenceFacade<Derived, Container> {
   public:
     void reserve(size_type count) {
       container().reserve(count);
@@ -18,4 +18,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_CONTINUOUSSEQUENCEPROXY_H__
+#endif // __ARX_CONTINUOUS_SEQUENCE_FACADE_H__

@@ -1,15 +1,15 @@
-#ifndef __ARX_ORDEREDSETPROXY_H__
-#define __ARX_ORDEREDSETPROXY_H__
+#ifndef __ARX_ORDERED_SET_FACADE_H__
+#define __ARX_ORDERED_SET_FACADE_H__
 
 #include "config.h"
-#include "SetProxy.h"
+#include "SetFacade.h"
 
 namespace arx {
 // -------------------------------------------------------------------------- //
-// OrderedSetProxy
+// OrderedSetFacade
 // -------------------------------------------------------------------------- //
   template<class Derived, class Container>
-  class OrderedSetProxy: public SetProxy<Derived, Container> {
+  class OrderedSetFacade: public SetFacade<Derived, Container> {
   public:
     typedef typename container_type::key_compare key_compare;
     typedef typename container_type::value_compare value_compare;
@@ -25,4 +25,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_ORDEREDSETPROXY_H__
+#endif // __ARX_ORDERED_SET_FACADE_H__

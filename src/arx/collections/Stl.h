@@ -12,21 +12,21 @@
 #include <unordered_map>
 #include <boost/array.hpp>
 
-#include "ContinuousSequenceProxy.h"
-#include "OrderedSetProxy.h"
-#include "BackSequenceProxyMixin.h"
+#include "ContinuousSequenceFacade.h"
+#include "OrderedSetFacade.h"
+#include "BackSequenceFacadeMixin.h"
 #include "SetObserverMixin.h"
 #include "MapObserverMixin.h"
-#include "MapProxyMixin.h"
+#include "MapFacadeMixin.h"
 
 namespace arx {
 // -------------------------------------------------------------------------- //
 // vector
 // -------------------------------------------------------------------------- //
   template<class T, class Allocator = std::allocator<T> >
-  class vector: public BackSequenceProxyMixin<ContinuousSequenceProxy<vector<T, Allocator>, std::vector<T, Allocator> > > {
+  class vector: public BackSequenceFacadeMixin<ContinuousSequenceFacade<vector<T, Allocator>, std::vector<T, Allocator> > > {
   private:
-    typedef BackSequenceProxyMixin base_type;
+    typedef BackSequenceFacadeMixin base_type;
 
   public:
     vector() {}
@@ -59,7 +59,7 @@ namespace arx {
     }
 
   private:
-    friend ProxyAccess;
+    friend FacadeBase;
     std::vector<T, Allocator> mPrivate;
   };
 
@@ -68,7 +68,7 @@ namespace arx {
 // map
 // -------------------------------------------------------------------------- //
   template<class Key, class Type, class Cmp = std::less<Key>, class Allocator = std::allocator<std::pair<const Key, Type> > >
-  class map: public MapObserverMixin<MapProxyMixin<OrderedSetProxy<map<Key, Type, Cmp, Allocator>, std::map<Key, Type, Cmp, Allocator> > > > {
+  class map: public MapObserverMixin<MapFacadeMixin<OrderedSetFacade<map<Key, Type, Cmp, Allocator>, std::map<Key, Type, Cmp, Allocator> > > > {
   private:
     typedef MapObserverMixin base_type;
 
@@ -102,7 +102,7 @@ namespace arx {
     }
 
   private:
-    friend ProxyAccess;
+    friend FacadeBase;
     std::map<Key, Type, Cmp, Allocator> mPrivate;
   };
 
@@ -112,7 +112,7 @@ namespace arx {
 // set
 // -------------------------------------------------------------------------- //
   template<class Key, class Cmp = std::less<Key>, class Allocator = std::allocator<Key> >
-  class set: public SetObserverMixin<OrderedSetProxy<set<Key, Cmp, Allocator>, std::set<Key, Cmp, Allocator> > > {
+  class set: public SetObserverMixin<OrderedSetFacade<set<Key, Cmp, Allocator>, std::set<Key, Cmp, Allocator> > > {
   private:
     typedef SetObserverMixin base_type;
 
@@ -146,7 +146,7 @@ namespace arx {
     }
 
   private:
-    friend ProxyAccess;
+    friend FacadeBase;
     std::set<Key, Cmp, Allocator> mPrivate;
   };
 

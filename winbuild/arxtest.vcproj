@@ -233,6 +233,10 @@
 				Name="collections"
 				>
 				<File
+					RelativePath="..\src\arx\collections\Algorithm.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\arx\collections\Stl.h"
 					>
 				</File>
@@ -240,39 +244,35 @@
 					Name="proxies"
 					>
 					<File
-						RelativePath="..\src\arx\collections\ContainerProxy.h"
+						RelativePath="..\src\arx\collections\ContainerFacade.h"
 						>
 					</File>
 					<File
-						RelativePath="..\src\arx\collections\ContinuousSequenceProxy.h"
+						RelativePath="..\src\arx\collections\ContinuousSequenceFacade.h"
 						>
 					</File>
 					<File
-						RelativePath="..\src\arx\collections\OrderedSetProxy.h"
+						RelativePath="..\src\arx\collections\FacadeBase.h"
 						>
 					</File>
 					<File
-						RelativePath="..\src\arx\collections\ProxyAccess.h"
+						RelativePath="..\src\arx\collections\OrderedSetFacade.h"
 						>
 					</File>
 					<File
-						RelativePath="..\src\arx\collections\ProxyBase.h"
+						RelativePath="..\src\arx\collections\RaSequenceFacade.h"
 						>
 					</File>
 					<File
-						RelativePath="..\src\arx\collections\RaSequenceProxy.h"
+						RelativePath="..\src\arx\collections\SequenceFacade.h"
 						>
 					</File>
 					<File
-						RelativePath="..\src\arx\collections\SequenceProxy.h"
+						RelativePath="..\src\arx\collections\SetFacade.h"
 						>
 					</File>
 					<File
-						RelativePath="..\src\arx\collections\SetProxy.h"
-						>
-					</File>
-					<File
-						RelativePath="..\src\arx\collections\UnorderedSetProxy.h"
+						RelativePath="..\src\arx\collections\UnorderedSetFacade.h"
 						>
 					</File>
 				</Filter>
@@ -280,19 +280,19 @@
 					Name="mixins"
 					>
 					<File
-						RelativePath="..\src\arx\collections\BackSequenceProxyMixin.h"
+						RelativePath="..\src\arx\collections\BackSequenceFacadeMixin.h"
 						>
 					</File>
 					<File
-						RelativePath="..\src\arx\collections\FrontSequenceProxyMixin.h"
+						RelativePath="..\src\arx\collections\FrontSequenceFacadeMixin.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\collections\MapFacadeMixin.h"
 						>
 					</File>
 					<File
 						RelativePath="..\src\arx\collections\MapObserverMixin.h"
-						>
-					</File>
-					<File
-						RelativePath="..\src\arx\collections\MapProxyMixin.h"
 						>
 					</File>
 					<File
@@ -304,19 +304,7 @@
 					Name="old"
 					>
 					<File
-						RelativePath="..\src\arx\collections\Facade.h"
-						>
-					</File>
-					<File
 						RelativePath="..\src\arx\collections\Forward.h"
-						>
-					</File>
-					<File
-						RelativePath="..\src\arx\collections\MapFacade.h"
-						>
-					</File>
-					<File
-						RelativePath="..\src\arx\collections\RangeTraits.h"
 						>
 					</File>
 					<File
@@ -328,11 +316,15 @@
 						>
 					</File>
 					<File
-						RelativePath="..\src\arx\collections\ViewBase.h"
+						RelativePath="..\src\arx\collections\Views.h"
 						>
 					</File>
+				</Filter>
+				<Filter
+					Name="views"
+					>
 					<File
-						RelativePath="..\src\arx\collections\Views.h"
+						RelativePath="..\src\arx\collections\ViewBase.h"
 						>
 					</File>
 					<File

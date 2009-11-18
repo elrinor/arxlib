@@ -17,7 +17,7 @@ namespace arx {
     return std::equal(boost::begin(l), boost::end(l), boost::begin(r));
   }
 
-  template<class Collections, class T>
+  template<class Collection, class T>
   boost::range_iterator<Collection> find(Collection& c, const T& value) {
     return std::find(boost::begin(c), boost::end(c), value);
   }

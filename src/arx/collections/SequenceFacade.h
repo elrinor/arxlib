@@ -1,16 +1,16 @@
-#ifndef __ARX_SEQUENCEPROXY_H__
-#define __ARX_SEQUENCEPROXY_H__
+#ifndef __ARX_SEQUENCE_FACADE_H__
+#define __ARX_SEQUENCE_FACADE_H__
 
 #include "config.h"
 #include <boost/range.hpp>  /* for boost::begin & boost::end. */
-#include "ContainerProxy.h"
+#include "ContainerFacade.h"
 
 namespace arx {
 // -------------------------------------------------------------------------- //
-// SequenceProxy
+// SequenceFacade
 // -------------------------------------------------------------------------- //
   template<class Derived, class Container>
-  class SequenceProxy: public ContainerProxy<Derived, Container> {
+  class SequenceFacade: public ContainerFacade<Derived, Container> {
   public:
     void assign(size_type count, const value_type& value) {
       container().assign(count, value);
@@ -64,4 +64,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_SEQUENCEPROXY_H__
+#endif // __ARX_SEQUENCE_FACADE_H__

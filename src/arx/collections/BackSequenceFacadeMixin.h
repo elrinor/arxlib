@@ -1,14 +1,14 @@
-#ifndef __ARX_BACKSEQUENCEPROXYMIXIN_H__
-#define __ARX_BACKSEQUENCEPROXYMIXIN_H__
+#ifndef __ARX_BACK_SEQUENCE_FACADE_MIXIN_H__
+#define __ARX_BACK_SEQUENCE_FACADE_MIXIN_H__
 
 #include "config.h"
 
 namespace arx {
 // -------------------------------------------------------------------------- //
-// BackSequenceProxyMixin
+// BackSequenceFacadeMixin
 // -------------------------------------------------------------------------- //
   template<class Base>
-  class BackSequenceProxyMixin: public Base {
+  class BackSequenceFacadeMixin: public Base {
   public:
     void pop_back() {
       container().pop_back();
@@ -27,4 +27,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_BACKSEQUENCEPROXYMIXIN_H__
+#endif // __ARX_BACK_SEQUENCE_FACADE_MIXIN_H__
