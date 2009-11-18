@@ -8,6 +8,7 @@
 #include <iterator>
 #include <exception>
 #include "collections/Stl.h"
+#include "collections/Algorithm.h"
 #include "Memory.h"
 
 namespace arx {
