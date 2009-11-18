@@ -35,7 +35,7 @@ namespace arx {
       return container().begin();
     }
 
-    void clear() const {
+    void clear() {
       container().clear();
     }
 

@@ -35,6 +35,7 @@ namespace std {
 
 #define STATIC_ASSERT BOOST_STATIC_ASSERT
 
+#define Unreachable() {assert(!!"Unreachable code executed."); ARX_THROW(0);}
 
 namespace arx {
 // -------------------------------------------------------------------------- //

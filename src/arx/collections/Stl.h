@@ -10,6 +10,7 @@
 #include <map>
 #include <unordered_set>
 #include <unordered_map>
+#include <boost/array.hpp>
 
 #include "ContinuousSequenceProxy.h"
 #include "OrderedSetProxy.h"
@@ -148,6 +149,12 @@ namespace arx {
     friend ProxyAccess;
     std::set<Key, Cmp, Allocator> mPrivate;
   };
+
+
+// -------------------------------------------------------------------------- //
+// array
+// -------------------------------------------------------------------------- //
+  using boost::array;
 
 
 }
