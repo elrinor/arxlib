@@ -1,5 +1,5 @@
-#ifndef __ARX_VIEWBASE_H__
-#define __ARX_VIEWBASE_H__
+#ifndef __ARX_VIEW_BASE_H__
+#define __ARX_VIEW_BASE_H__
 
 #include "config.h"
 #include "ViewTraits.h"
@@ -11,7 +11,7 @@ namespace arx {
   template<class Base>
   class ViewBase {
   public:
-    typedef normal_view_tag view_category;
+    typedef proxy_tag proxy_category;
     typedef Base base_type;
 
   protected:
@@ -22,4 +22,4 @@ namespace arx {
 
 }
 
-#endif // __ARX_VIEWBASE_H__
+#endif // __ARX_VIEW_BASE_H__

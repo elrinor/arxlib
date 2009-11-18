@@ -1,15 +1,14 @@
-#ifndef __ARX_PROXYBASE_H__
-#define __ARX_PROXYBASE_H__
+#ifndef __ARX_FACADE_BASE_H__
+#define __ARX_FACADE_BASE_H__
 
 #include "config.h"
-#include "ProxyAccess.h"
 
 namespace arx {
 // -------------------------------------------------------------------------- //
-// ProxyBase
+// FacadeBase
 // -------------------------------------------------------------------------- //
   template<class Derived, class Container>
-  class ProxyBase {
+  class FacadeBase {
   public:
     typedef Derived derived_type;
     typedef Container container_type;
@@ -21,11 +20,11 @@ namespace arx {
     */
 
     container_type& container() {
-      return ProxyAccess().container<container_type>(derived());
+      return derived().crtpContainer();
     }
 
     const container_type& container() const {
-      return ProxyAccess().container<container_type>(derived());
+      return derived().crtpContainer();
     }
 
     derived_type& derived() {
@@ -39,4 +38,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_PROXYBASE_H__
+#endif // __ARX_FACADE_BASE_H__

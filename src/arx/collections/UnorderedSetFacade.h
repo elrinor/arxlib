@@ -1,15 +1,15 @@
-#ifndef __ARX_UNORDERDEDSETPROXY_H__
-#define __ARX_UNORDERDEDSETPROXY_H__
+#ifndef __ARX_UNORDERDED_SET_FACADE_H__
+#define __ARX_UNORDERDED_SET_FACADE_H__
 
 #include "config.h"
-#include "SetProxy.h"
+#include "SetFacade.h"
 
 namespace arx {
 // -------------------------------------------------------------------------- //
-// UnorderedSetProxy
+// UnorderedSetFacade
 // -------------------------------------------------------------------------- //
   template<class Derived, class Container>
-  class UnorderedSetProxy: public SetProxy<Derived, Container> {
+  class UnorderedSetFacade: public SetFacade<Derived, Container> {
   public:
 #define ARX_INJECT(T)                                                           \
     typedef typename container_type::T T
@@ -62,4 +62,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_UNORDERDEDSETPROXY_H__
+#endif // __ARX_UNORDERDED_SET_FACADE_H__

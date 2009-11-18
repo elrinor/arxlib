@@ -1,16 +1,16 @@
-#ifndef __ARX_SETPROXY_H__
-#define __ARX_SETPROXY_H__
+#ifndef __ARX_SET_FACADE_H__
+#define __ARX_SET_FACADE_H__
 
 #include "config.h"
 #include <boost/range.hpp>  /* for boost::begin & boost::end. */
-#include "ContainerProxy.h"
+#include "ContainerFacade.h"
 
 namespace arx {
 // -------------------------------------------------------------------------- //
-// SetProxy
+// SetFacade
 // -------------------------------------------------------------------------- //
   template<class Derived, class Container>
-  class SetProxy: public ContainerProxy<Derived, Container> {
+  class SetFacade: public ContainerFacade<Derived, Container> {
   public:
 #define ARX_INJECT(T)                                                           \
     typedef typename container_type::T T
@@ -86,4 +86,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_SETPROXY_H__
+#endif // __ARX_SET_FACADE_H__

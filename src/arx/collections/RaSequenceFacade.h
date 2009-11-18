@@ -1,15 +1,15 @@
-#ifndef __ARX_RASEQUENCEPROXY_H__
-#define __ARX_RASEQUENCEPROXY_H__
+#ifndef __ARX_RA_SEQUENCE_FACADE_H__
+#define __ARX_RA_SEQUENCE_FACADE_H__
 
 #include "config.h"
-#include "SequenceProxy.h"
+#include "SequenceFacade.h"
 
 namespace arx {
 // -------------------------------------------------------------------------- //
-// RaSequenceProxy
+// RaSequenceFacade
 // -------------------------------------------------------------------------- //
   template<class Derived, class Container>
-  class RaSequenceProxy: public SequenceProxy<Derived, Container> {
+  class RaSequenceFacade: public SequenceFacade<Derived, Container> {
   public:
     reference at(size_type pos) {
       return container().at(pos);
@@ -30,4 +30,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_RASEQUENCEPROXY_H__
+#endif // __ARX_RA_SEQUENCE_FACADE_H__

@@ -1,5 +1,5 @@
-#ifndef __ARX_MAPOBSERVERMIXIN_H__
-#define __ARX_MAPOBSERVERMIXIN_H__
+#ifndef __ARX_MAP_OBSERVER_MIXIN_H__
+#define __ARX_MAP_OBSERVER_MIXIN_H__
 
 #include "config.h"
 #include <cassert>
@@ -23,4 +23,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_MAPOBSERVERMIXIN_H__
+#endif // __ARX_MAP_OBSERVER_MIXIN_H__

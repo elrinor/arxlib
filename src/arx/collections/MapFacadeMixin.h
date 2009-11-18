@@ -1,14 +1,14 @@
-#ifndef __ARX_MAPPROXYMIXIN_H__
-#define __ARX_MAPPROXYMIXIN_H__
+#ifndef __ARX_MAP_FACADE_MIXIN_H__
+#define __ARX_MAP_FACADE_MIXIN_H__
 
 #include "config.h"
 
 namespace arx {
 // -------------------------------------------------------------------------- //
-// MapProxyMixin
+// MapFacadeMixin
 // -------------------------------------------------------------------------- //
   template<class Base>
-  class MapProxyMixin: public Base {
+  class MapFacadeMixin: public Base {
   public:
     typedef typename Base::container_type::mapped_type mapped_type;
 
@@ -19,4 +19,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_MAPPROXYMIXIN_H__
+#endif // __ARX_MAP_FACADE_MIXIN_H__
