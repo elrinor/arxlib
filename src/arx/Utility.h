@@ -44,7 +44,8 @@ namespace arx {
   /**
    * Square template
    */
-  template<class T> T sqr(T x) {
+  template<class T> 
+  inline T sqr(T x) {
     return x * x;
   }
 
