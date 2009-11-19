@@ -1,5 +1,5 @@
-#ifndef __ARX_SHAREDCONTAINER_H__
-#define __ARX_SHAREDCONTAINER_H__
+#ifndef __ARX_COLLECTIONS_SHARED_H__
+#define __ARX_COLLECTIONS_SHARED_H__
 
 #include "../config.h"
 #include <boost/intrusive_ptr.hpp>
@@ -63,4 +63,4 @@ namespace arx {
 }
 
 
-#endif // __ARX_SHAREDCONTAINER_H__
+#endif // __ARX_COLLECTIONS_SHARED_H__

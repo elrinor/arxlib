@@ -1,5 +1,5 @@
-#ifndef __ARX_CONTAINER_FACADE_H__
-#define __ARX_CONTAINER_FACADE_H__
+#ifndef __ARX_COLLECTIONS_CONTAINER_FACADE_H__
+#define __ARX_COLLECTIONS_CONTAINER_FACADE_H__
 
 #include "config.h"
 #include "FacadeBase.h"
@@ -133,4 +133,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_CONTAINER_FACADE_H__
+#endif // __ARX_COLLECTIONS_CONTAINER_FACADE_H__

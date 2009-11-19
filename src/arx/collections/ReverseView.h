@@ -1,5 +1,5 @@
-#ifndef __ARX_REVERSEVIEW_H__
-#define __ARX_REVERSEVIEW_H__
+#ifndef __ARX_COLLECTIONS_REVERSE_VIEW_H__
+#define __ARX_COLLECTIONS_REVERSE_VIEW_H__
 
 #include "config.h"
 #include <boost/iterator.hpp>
@@ -33,4 +33,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_REVERSEVIEW_H__
+#endif // __ARX_COLLECTIONS_REVERSE_VIEW_H__

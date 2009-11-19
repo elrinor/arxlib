@@ -1,5 +1,5 @@
-#ifndef __ARX_SET_FACADE_H__
-#define __ARX_SET_FACADE_H__
+#ifndef __ARX_COLLECTIONS_SET_FACADE_H__
+#define __ARX_COLLECTIONS_SET_FACADE_H__
 
 #include "config.h"
 #include <boost/range.hpp>  /* for boost::begin & boost::end. */
@@ -86,4 +86,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_SET_FACADE_H__
+#endif // __ARX_COLLECTIONS_SET_FACADE_H__

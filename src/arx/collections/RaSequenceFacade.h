@@ -1,5 +1,5 @@
-#ifndef __ARX_RA_SEQUENCE_FACADE_H__
-#define __ARX_RA_SEQUENCE_FACADE_H__
+#ifndef __ARX_COLLECTIONS_RA_SEQUENCE_FACADE_H__
+#define __ARX_COLLECTIONS_RA_SEQUENCE_FACADE_H__
 
 #include "config.h"
 #include "SequenceFacade.h"
@@ -30,4 +30,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_RA_SEQUENCE_FACADE_H__
+#endif // __ARX_COLLECTIONS_RA_SEQUENCE_FACADE_H__

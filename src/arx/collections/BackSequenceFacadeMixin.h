@@ -1,5 +1,5 @@
-#ifndef __ARX_BACK_SEQUENCE_FACADE_MIXIN_H__
-#define __ARX_BACK_SEQUENCE_FACADE_MIXIN_H__
+#ifndef __ARX_COLLECTIONS_BACK_SEQUENCE_FACADE_MIXIN_H__
+#define __ARX_COLLECTIONS_BACK_SEQUENCE_FACADE_MIXIN_H__
 
 #include "config.h"
 
@@ -27,4 +27,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_BACK_SEQUENCE_FACADE_MIXIN_H__
+#endif // __ARX_COLLECTIONS_BACK_SEQUENCE_FACADE_MIXIN_H__

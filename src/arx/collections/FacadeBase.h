@@ -1,5 +1,5 @@
-#ifndef __ARX_FACADE_BASE_H__
-#define __ARX_FACADE_BASE_H__
+#ifndef __ARX_COLLECTIONS_FACADE_BASE_H__
+#define __ARX_COLLECTIONS_FACADE_BASE_H__
 
 #include "config.h"
 
@@ -38,4 +38,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_FACADE_BASE_H__
+#endif // __ARX_COLLECTIONS_FACADE_BASE_H__
