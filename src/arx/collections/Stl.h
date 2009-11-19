@@ -1,5 +1,5 @@
-#ifndef __ARX_STL_H__
-#define __ARX_STL_H__
+#ifndef __ARX_COLLECTIONS_STL_H__
+#define __ARX_COLLECTIONS_STL_H__
 
 #include "config.h"
 
@@ -160,4 +160,4 @@ namespace arx {
 }
 
 
-#endif // __ARX_STL_H__
+#endif // __ARX_COLLECTIONS_STL_H__

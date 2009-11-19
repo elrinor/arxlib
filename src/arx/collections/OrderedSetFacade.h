@@ -1,5 +1,5 @@
-#ifndef __ARX_ORDERED_SET_FACADE_H__
-#define __ARX_ORDERED_SET_FACADE_H__
+#ifndef __ARX_COLLECTIONS_ORDERED_SET_FACADE_H__
+#define __ARX_COLLECTIONS_ORDERED_SET_FACADE_H__
 
 #include "config.h"
 #include "SetFacade.h"
@@ -25,4 +25,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_ORDERED_SET_FACADE_H__
+#endif // __ARX_COLLECTIONS_ORDERED_SET_FACADE_H__

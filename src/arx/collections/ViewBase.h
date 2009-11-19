@@ -1,5 +1,5 @@
-#ifndef __ARX_VIEW_BASE_H__
-#define __ARX_VIEW_BASE_H__
+#ifndef __ARX_COLLECTIONS_VIEW_BASE_H__
+#define __ARX_COLLECTIONS_VIEW_BASE_H__
 
 #include "config.h"
 #include "ViewTraits.h"
@@ -22,4 +22,4 @@ namespace arx {
 
 }
 
-#endif // __ARX_VIEW_BASE_H__
+#endif // __ARX_COLLECTIONS_VIEW_BASE_H__

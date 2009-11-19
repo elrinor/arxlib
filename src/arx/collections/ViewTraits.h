@@ -1,5 +1,5 @@
-#ifndef __ARX_VIEW_TRAITS_H__
-#define __ARX_VIEW_TRAITS_H__
+#ifndef __ARX_COLLECTIONS_VIEW_TRAITS_H__
+#define __ARX_COLLECTIONS_VIEW_TRAITS_H__
 
 #include "config.h"
 #include <boost/type_traits.hpp> /* for boost::is_convertible, boost::is_same */
@@ -48,4 +48,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_VIEW_TRAITS_H__
+#endif // __ARX_COLLECTIONS_VIEW_TRAITS_H__

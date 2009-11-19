@@ -1,5 +1,5 @@
-#ifndef __ARX_FORWARD_H__
-#define __ARX_FORWARD_H__
+#ifndef __ARX_COLLECTIONS_FORWARD_H__
+#define __ARX_COLLECTIONS_FORWARD_H__
 
 #include "config.h"
 #include <boost/preprocessor.hpp>
@@ -40,4 +40,4 @@
  * ARX_FORWARD_CONSTRUCTOR(OMG, (ARX_FWD_TEXT(map))(ARX_FWD_ARGS())(ARX_FWD_COMMA())(ARX_FWD_TEXT(mInt(0))), ({}));
  */
 
-#endif // __ARX_FORWARD_H__
+#endif // __ARX_COLLECTIONS_FORWARD_H__

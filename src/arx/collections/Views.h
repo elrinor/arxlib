@@ -1,5 +1,5 @@
-#ifndef __ARX_VIEWS_H__
-#define __ARX_VIEWS_H__
+#ifndef __ARX_COLLECTIONS_VIEWS_H__
+#define __ARX_COLLECTIONS_VIEWS_H__
 
 #include "LambdaHack.h"
 #include <boost/iterator/transform_iterator.hpp>
@@ -105,4 +105,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_VIEWS_H__
+#endif // __ARX_COLLECTIONS_VIEWS_H__

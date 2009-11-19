@@ -1,5 +1,5 @@
-#ifndef __ARX_ALGORITHM_H__
-#define __ARX_ALGORITHM_H__
+#ifndef __ARX_COLLECTIONS_ALGORITHM_H__
+#define __ARX_COLLECTIONS_ALGORITHM_H__
 
 #include "config.h"
 #include <utility>         /* for std::fill, std::equal */
@@ -35,4 +35,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_ALGORITHM_H__
+#endif // __ARX_COLLECTIONS_ALGORITHM_H__
