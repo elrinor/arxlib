@@ -37,6 +37,8 @@ namespace arx {
       return container().front();
     }
 
+    using ContainerFacade::insert;
+
     void insert(iterator where, size_type count, const value_type& value) {
       return container().insert(where, count, value);
     }
