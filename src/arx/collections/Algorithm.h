@@ -28,8 +28,13 @@ namespace arx {
   }
 
   template<class InputCollection, class OutputCollection>
-  typename boost::range_iterator<OutputCollection>::type copy(InputCollection& from, OutputCollection& to) {
+  typename boost::range_iterator<OutputCollection>::type copy(const InputCollection& from, OutputCollection& to) {
     return std::copy(boost::begin(from), boost::end(from), boost::begin(to));
+  }
+
+  template<class InputCollection, class InsertableCollection>
+  void back_insert(const InputCollection& from, InsertableCollection& to) {
+    std::copy(boost::begin(from), boost::end(from), std::inserter(to, boost::end(to)));
   }
 
 
