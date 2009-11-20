@@ -14,6 +14,10 @@ namespace arx {
     void reserve(size_type count) {
       container().reserve(count);
     }
+
+    size_type capacity() const {
+      return container().capacity();
+    }
   };
 
 } // namespace arx
