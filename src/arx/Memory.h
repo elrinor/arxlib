@@ -133,9 +133,14 @@ namespace arx {
     typedef typename std::allocator<T>::difference_type   difference_type;
 
     template<typename OtherType>
-    struct rebind { 
+    struct rebind {
       typedef classnew_allocator<OtherType> other; 
     };
+
+    classnew_allocator() {}
+
+    template<class Other>
+    classnew_allocator(const classnew_allocator<Other>&) {}
 
     pointer address(reference ref) const { 
       return addressof(ref); 
@@ -176,8 +181,9 @@ namespace arx {
     }
 
   private:
-    /* This one is probably buggy. */
-    template<class Y> struct has_operator_new {
+    /* This one is probably buggy. */ /* TODO:replace with has_xxx */
+    template<class Y> 
+    struct has_operator_new {
       typedef char true_type;
       struct false_type { true_type dummy[2]; };
       template<void* (*func)(size_t)> struct nothing {};
@@ -191,7 +197,8 @@ namespace arx {
       };
     };
 
-    template<class U, bool has_new = has_operator_new<U>::value> struct allocator_impl {
+    template<class U, bool has_new = has_operator_new<U>::value> 
+    struct allocator_impl {
       enum { HAS_NEW = true };
 
       static pointer allocate(size_t size, const void* /* hint */ = 0) { 
@@ -203,7 +210,8 @@ namespace arx {
       }
     };
 
-    template<class U> struct allocator_impl<U, false> {
+    template<class U> 
+    struct allocator_impl<U, false> {
       enum { HAS_NEW = false };
 
       static pointer allocate(size_t size, const void* = 0) {
