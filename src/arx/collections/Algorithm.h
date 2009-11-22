@@ -37,6 +37,16 @@ namespace arx {
     std::copy(boost::begin(from), boost::end(from), std::inserter(to, boost::end(to)));
   }
 
+  template<class ForwardCollection, class Cmp> 
+  typename boost::iterator_reference<typename boost::range_const_iterator<ForwardCollection>::type>::type max_element(const ForwardCollection& c, Cmp cmp) {
+    return *std::max_element(boost::begin(c), boost::end(c), cmp);
+  }
+
+  template<class ForwardCollection> 
+  typename boost::iterator_reference<typename boost::range_const_iterator<ForwardCollection>::type>::type max_element(const ForwardCollection& c) {
+    return *std::max_element(boost::begin(c), boost::end(c));
+  }
+
 
 } // namespace arx
 
