@@ -11,6 +11,7 @@
 #include "collections/Algorithm.h"
 #include "Memory.h"
 
+#if 0
 namespace arx {
 // -------------------------------------------------------------------------- //
 // Generic*Traits
@@ -284,7 +285,7 @@ namespace arx {
     }
 
     void resize(size_type newSize, const value_type& defaultValue) {
-      internalResize(newSize, CopyConstructorAdapter(defaultValue))
+      internalResize(newSize, CopyConstructorAdapter(defaultValue));
     }
 
     void resize(size_type newSize) {
@@ -415,7 +416,10 @@ namespace arx {
    */
   template<class Traits> 
   class GenericArray: public GenericArrayBase<GenericArray<Traits>, Traits> {
+    typedef GenericArrayBase<GenericArray<Traits>, Traits> base_type;
   public:
+    ARX_INJECT_TYPES(base_type, (allocator_type)(size_type)(const_pointer)(pointer)(traits_type));
+
     /** Default Constructor. 
      * Constructs an empty GenericArray. */
     GenericArray(): mSize(0), mCapacity(0), mData(NULL) {}
@@ -446,14 +450,14 @@ namespace arx {
       if(!mData)
         return;
 
-      clear();
+      base_type::clear();
       mAllocator.deallocate(mData, mCapacity);
     }
 
     template<class OtherTraits>
     void swap(GenericArray<OtherTraits>& other) {
-      STATIC_ASSERT((is_same<value_type, typename OtherTraits::value_type>::value));
-      STATIC_ASSERT((is_same<allocator_type, typename OtherTraits::allocator_type>::value));
+      STATIC_ASSERT((boost::is_same<value_type, typename OtherTraits::value_type>::value));
+      STATIC_ASSERT((boost::is_same<allocator_type, typename OtherTraits::allocator_type>::value));
       using std::swap;
       if(mAllocator == other.mAllocator) {
         swap(mData, other.mData);
@@ -770,5 +774,6 @@ namespace arx {
   };
 
 } // namespace arx
+#endif
 
 #endif // __ARX_COLLECTIONS_H__

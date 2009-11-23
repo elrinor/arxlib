@@ -9,6 +9,7 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   template<class Base>
   class SetObserverMixin: public Base {
+    ARX_INHERIT_FACADE_BASE(Base);
   public:
     bool contains(const typename Base::key_type& key) {
       return derived().find(key) != derived().end();

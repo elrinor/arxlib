@@ -11,7 +11,10 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   template<class Derived, class Container>
   class SequenceFacade: public ContainerFacade<Derived, Container> {
+    ARX_INHERIT_FACADE_BASE(ContainerFacade<Derived, Container>);
   public:
+    ARX_INJECT_TYPES(base_type, (size_type)(value_type)(reference)(const_reference)(iterator));
+
     void assign(size_type count, const value_type& value) {
       container().assign(count, value);
     }
@@ -37,7 +40,7 @@ namespace arx {
       return container().front();
     }
 
-    using ContainerFacade::insert;
+    using base_type::insert;
 
     void insert(iterator where, size_type count, const value_type& value) {
       return container().insert(where, count, value);

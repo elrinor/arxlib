@@ -10,22 +10,10 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   template<class Derived, class Container>
   class ContainerFacade: public FacadeBase<Derived, Container> {
+    ARX_INHERIT_FACADE_BASE(FacadeBase<Derived, Container>);
+    typedef ContainerFacade<Derived, Container> this_type;
   public:
-#define ARX_INJECT(T)                                                           \
-    typedef typename container_type::T T
-    ARX_INJECT(allocator_type);
-    ARX_INJECT(const_iterator);
-    ARX_INJECT(const_pointer);
-    ARX_INJECT(const_reference);
-    ARX_INJECT(const_reverse_iterator);
-    ARX_INJECT(difference_type);
-    ARX_INJECT(iterator);
-    ARX_INJECT(pointer);
-    ARX_INJECT(reference);
-    ARX_INJECT(reverse_iterator);
-    ARX_INJECT(size_type);
-    ARX_INJECT(value_type);
-#undef ARX_INJECT
+    ARX_INJECT_TYPES(container_type, (allocator_type)(const_iterator)(const_pointer)(const_reference)(const_reverse_iterator)(difference_type)(iterator)(pointer)(reference)(reverse_iterator)(size_type)(value_type));
 
     const_iterator begin() const {
       return container().begin();
@@ -96,31 +84,31 @@ namespace arx {
     }
 
     friend void swap(derived_type& l, derived_type& r) {
-      swap(l.container(), r.container());
+      swap(l.this_type::container(), r.this_type::container());
     }
 
     friend bool operator== (const derived_type& l, const derived_type& r) {
-      return l.container() == r.container();
+      return l.this_type::container() == r.this_type::container();
     }
 
     friend bool operator!= (const derived_type& l, const derived_type& r) {
-      return l.container() != r.container();
+      return l.this_type::container() != r.this_type::container();
     }
 
     friend bool operator< (const derived_type& l, const derived_type& r) {
-      return l.container() < r.container();
+      return l.this_type::container() < r.this_type::container();
     }
 
     friend bool operator> (const derived_type& l, const derived_type& r) {
-      return l.container() > r.container();
+      return l.this_type::container() > r.this_type::container();
     }
 
     friend bool operator<= (const derived_type& l, const derived_type& r) {
-      return l.container() <= r.container();
+      return l.this_type::container() <= r.this_type::container();
     }
 
     friend bool operator>= (const derived_type& l, const derived_type& r) {
-      return l.container() >= r.container();
+      return l.this_type::container() >= r.this_type::container();
     }
 
     /* Additional mutators. */

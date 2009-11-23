@@ -11,6 +11,7 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   template<class Base>
   class MapObserverMixin: public Base {
+    ARX_INHERIT_FACADE_BASE(Base);
   public:
     using Base::operator [];
 

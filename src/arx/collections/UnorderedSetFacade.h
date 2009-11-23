@@ -10,14 +10,9 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   template<class Derived, class Container>
   class UnorderedSetFacade: public SetFacade<Derived, Container> {
+    ARX_INHERIT_FACADE_BASE(SetFacade<Derived, Container>);
   public:
-#define ARX_INJECT(T)                                                           \
-    typedef typename container_type::T T
-    ARX_INJECT(const_local_iterator);
-    ARX_INJECT(local_iterator);
-    ARX_INJECT(hasher);
-    ARX_INJECT(key_equal);
-#undef ARX_INJECT
+    ARX_INJECT_TYPES(container_type, (const_local_iterator)(local_iterator)(hasher)(key_equal))
 
     size_type bucket(const key_type& key) const {
       return container().bucket(key);
