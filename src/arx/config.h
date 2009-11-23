@@ -16,30 +16,6 @@
 
 
 // -------------------------------------------------------------------------- //
-// Config: Image module
-// -------------------------------------------------------------------------- //
-/** @def ARX_USE_OPENCV
- * Define to use OpenCV routines for image saving / loading in ArX Image Processing library. 
- * If not defined, only 24-bit bmp files will be supported. */
-
-/** @def ARX_USE_IPPI
- * Use ippi for image processing? If not defined, hand-coded routines will be used
- * instead of ippi ones. This may lead to a significant slowdown in some cases. */
-
-/** @def ARX_USE_CIPPIMAGE
- * Define CIppImage-compatible interfaces? */
-
-/** @def ARX_USE_IPPIMALLOC 
- * Use ippiMalloc for image allocation? */
-
-/** @def ARX_GAUSS_TRUNCATE
- * Truncate gaussian kernel at <tt>sigma * ARX_GAUSS_TRUNCATE</tt> pixels away from center */
-#ifndef ARX_GAUSS_TRUNCATE
-#  define ARX_GAUSS_TRUNCATE 4.0f
-#endif
-
-
-// -------------------------------------------------------------------------- //
 // Guess defines - do not change
 // -------------------------------------------------------------------------- //
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
@@ -50,7 +26,7 @@
 
 #if defined(__INTEL_COMPILER) || defined(__ICL) || defined(__ICC) || defined(__ECC)
 #  define ARX_ICC
-#elif defined __GNUC__
+#elif defined(__GNUC__) || defined(__GNUG__)
 #  define ARX_GCC
 #elif defined _MSC_VER
 #  define ARX_MSVC
@@ -60,10 +36,6 @@
 // -------------------------------------------------------------------------- //
 // Derived defines
 // -------------------------------------------------------------------------- //
-#if defined(ARX_USE_CIPPIMAGE) || defined(ARX_USE_IPPIMALLOC)
-#  define ARX_USE_IPPI
-#endif
-
 #ifdef ARX_DISABLE_EXCEPTIONS
 #  define ARX_TRY        {{
 #  define ARX_CATCH_ALL  } if(0) {
