@@ -8,8 +8,6 @@
 #include <list>
 #include <set>
 #include <map>
-#include <unordered_set>
-#include <unordered_map>
 #include <boost/array.hpp>
 
 #include "ContinuousSequenceFacade.h"
@@ -25,42 +23,42 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   template<class T, class Allocator = std::allocator<T> >
   class vector: public BackSequenceFacadeMixin<ContinuousSequenceFacade<vector<T, Allocator>, std::vector<T, Allocator> > > {
-  private:
-    typedef BackSequenceFacadeMixin base_type;
-
+    ARX_INHERIT_FACADE_BASE(BackSequenceFacadeMixin<ContinuousSequenceFacade<vector<T, Allocator>, std::vector<T, Allocator> > >);
   public:
+    ARX_INJECT_TYPES(base_type, (size_type)(value_type)(allocator_type));
+
     vector() {}
     
-    explicit vector(const Allocator& allocator): mPrivate(allocator) {}
+    explicit vector(const allocator_type& allocator): mPrivate(allocator) {}
     
-    explicit vector(typename base_type::size_type count): mPrivate(count) {}
+    explicit vector(size_type count): mPrivate(count) {}
 
-    vector(typename base_type::size_type count, const typename base_type::value_type& value): mPrivate(count, value) {}
+    vector(size_type count, const value_type& value): mPrivate(count, value) {}
 
-    vector(typename base_type::size_type count, const typename base_type::value_type& value, const Allocator& allocator): mPrivate(count, value, allocator) {}
+    vector(size_type count, const value_type& value, const allocator_type& allocator): mPrivate(count, value, allocator) {}
     
-    vector(const vector<T, Allocator>& other): mPrivate(other.mPrivate) {}
+    vector(const vector& other): mPrivate(other.mPrivate) {}
 
-    vector(const typename base_type::container_type& other): mPrivate(other) {}
+    vector(const container_type& other): mPrivate(other) {}
 
     template<class InputIterator>
     vector(InputIterator first, InputIterator last): mPrivate(first, last) {}
     
     template<class InputIterator>
-    vector(InputIterator first, InputIterator last, const Allocator& allocator): mPrivate(first, last, allocator) {}
+    vector(InputIterator first, InputIterator last, const allocator_type& allocator): mPrivate(first, last, allocator) {}
     
   protected:
-    const std::vector<T, Allocator>& crtpContainer() const {
+    const container_type& crtpContainer() const {
       return mPrivate;
     }
 
-    std::vector<T, Allocator>& crtpContainer() {
+    container_type& crtpContainer() {
       return mPrivate;
     }
 
   private:
-    friend FacadeBase;
-    std::vector<T, Allocator> mPrivate;
+    friend class FacadeBase<vector, container_type>;
+    container_type mPrivate;
   };
 
 
@@ -69,41 +67,41 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   template<class Key, class Type, class Cmp = std::less<Key>, class Allocator = std::allocator<std::pair<const Key, Type> > >
   class map: public MapObserverMixin<MapFacadeMixin<OrderedSetFacade<map<Key, Type, Cmp, Allocator>, std::map<Key, Type, Cmp, Allocator> > > > {
-  private:
-    typedef MapObserverMixin base_type;
-
+    ARX_INHERIT_FACADE_BASE(MapObserverMixin<MapFacadeMixin<OrderedSetFacade<map<Key, Type, Cmp, Allocator>, std::map<Key, Type, Cmp, Allocator> > > >);
   public:
+    ARX_INJECT_TYPES(base_type, (key_compare)(allocator_type));
+
     map() {}
 
-    explicit map(const Cmp& cmp): mPrivate(cmp) {}
+    explicit map(const key_compare& cmp): mPrivate(cmp) {}
 
-    map(const Cmp& cmp, const Allocator& allocator): mPrivate(cmp, allocator) {}
+    map(const key_compare& cmp, const allocator_type& allocator): mPrivate(cmp, allocator) {}
 
-    map(const map<Key, Type, Cmp, Allocator>& other): mPrivate(other.mPrivate) {}
+    map(const map& other): mPrivate(other.mPrivate) {}
 
-    map(const typename base_type::container_type& other): mPrivate(other) {}
+    map(const container_type& other): mPrivate(other) {}
 
     template<class InputIterator>
     map(InputIterator first, InputIterator last): mPrivate(first, last) {}
     
     template<class InputIterator>
-    map(InputIterator first, InputIterator last, const Cmp& cmp): mPrivate(first, last, cmp) {}
+    map(InputIterator first, InputIterator last, const key_compare& cmp): mPrivate(first, last, cmp) {}
     
     template<class InputIterator>
-    map(InputIterator first, InputIterator last, const Cmp& cmp, const Allocator& allocator): mPrivate(first, last, cmp, allocator) {}
+    map(InputIterator first, InputIterator last, const key_compare& cmp, const allocator_type& allocator): mPrivate(first, last, cmp, allocator) {}
 
   protected:
-    const std::map<Key, Type, Cmp, Allocator>& crtpContainer() const {
+    const container_type& crtpContainer() const {
       return mPrivate;
     }
 
-    std::map<Key, Type, Cmp, Allocator>& crtpContainer() {
+    container_type& crtpContainer() {
       return mPrivate;
     }
 
   private:
-    friend FacadeBase;
-    std::map<Key, Type, Cmp, Allocator> mPrivate;
+    friend class FacadeBase<map, container_type>;
+    container_type mPrivate;
   };
 
 
@@ -113,41 +111,41 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   template<class Key, class Cmp = std::less<Key>, class Allocator = std::allocator<Key> >
   class set: public SetObserverMixin<OrderedSetFacade<set<Key, Cmp, Allocator>, std::set<Key, Cmp, Allocator> > > {
-  private:
-    typedef SetObserverMixin base_type;
-
+    ARX_INHERIT_FACADE_BASE(SetObserverMixin<OrderedSetFacade<set<Key, Cmp, Allocator>, std::set<Key, Cmp, Allocator> > >);
   public:
+    ARX_INJECT_TYPES(base_type, (key_compare)(allocator_type));
+
     set() {}
     
     explicit set(const Cmp& cmp): mPrivate(cmp) {}
 
-    set(const Cmp& cmp, const Allocator& allocator): mPrivate(cmp, allocator) {}
+    set(const key_compare& cmp, const allocator_type& allocator): mPrivate(cmp, allocator) {}
 
-    set(const set<Key, Cmp, Allocator>& other): mPrivate(other.mPrivate) {}
+    set(const set& other): mPrivate(other.mPrivate) {}
 
-    set(const typename base_type::container_type& other): mPrivate(other) {}
+    set(const container_type& other): mPrivate(other) {}
 
     template<class InputIterator>
     set(InputIterator first, InputIterator last): mPrivate(first, last) {}
 
     template<class InputIterator>
-    set(InputIterator first, InputIterator last, const Cmp& cmp): mPrivate(first, last, cmp) {}
+    set(InputIterator first, InputIterator last, const key_compare& cmp): mPrivate(first, last, cmp) {}
 
     template<class InputIterator>
-    set(InputIterator first, InputIterator last, const Cmp& comp, const Allocator& allocator): mPrivate(first, last, cmp, allocator) {}
+    set(InputIterator first, InputIterator last, const key_compare& cmp, const allocator_type& allocator): mPrivate(first, last, cmp, allocator) {}
 
   protected:
-    const std::set<Key, Cmp, Allocator>& crtpContainer() const {
+    const container_type& crtpContainer() const {
       return mPrivate;
     }
 
-    std::set<Key, Cmp, Allocator>& crtpContainer() {
+    container_type& crtpContainer() {
       return mPrivate;
     }
 
   private:
-    friend FacadeBase;
-    std::set<Key, Cmp, Allocator> mPrivate;
+    friend class FacadeBase<set, container_type>;
+    container_type mPrivate;
   };
 
 

@@ -10,9 +10,9 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   template<class Derived, class Container>
   class OrderedSetFacade: public SetFacade<Derived, Container> {
+    ARX_INHERIT_FACADE_BASE(SetFacade<Derived, Container>);
   public:
-    typedef typename container_type::key_compare key_compare;
-    typedef typename container_type::value_compare value_compare;
+    ARX_INJECT_TYPES(container_type, (key_compare)(value_compare));
 
     key_compare key_comp( ) const {
       return container().key_comp();

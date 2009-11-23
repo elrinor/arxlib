@@ -11,13 +11,10 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   template<class Derived, class Container>
   class SetFacade: public ContainerFacade<Derived, Container> {
+    ARX_INHERIT_FACADE_BASE(ContainerFacade<Derived, Container>);
   public:
-#define ARX_INJECT(T)                                                           \
-    typedef typename container_type::T T
-    ARX_INJECT(key_compare);
-    ARX_INJECT(key_type);
-    ARX_INJECT(value_compare);
-#undef ARX_INJECT
+    ARX_INJECT_TYPES(base_type, (size_type)(const_iterator)(iterator)(value_type))
+    ARX_INJECT_TYPES(container_type, (key_compare)(key_type)(value_compare));
 
     size_type count(const key_type& key) const {
       return container().count(key);

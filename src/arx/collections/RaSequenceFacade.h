@@ -10,7 +10,10 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   template<class Derived, class Container>
   class RaSequenceFacade: public SequenceFacade<Derived, Container> {
+    ARX_INHERIT_FACADE_BASE(SequenceFacade<Derived, Container>)
   public:
+    ARX_INJECT_TYPES(base_type, (reference)(const_reference)(size_type));
+
     reference at(size_type pos) {
       return container().at(pos);
     }

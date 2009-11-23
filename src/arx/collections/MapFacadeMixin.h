@@ -9,6 +9,7 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   template<class Base>
   class MapFacadeMixin: public Base {
+    ARX_INHERIT_FACADE_BASE(Base);
   public:
     typedef typename Base::container_type::mapped_type mapped_type;
 

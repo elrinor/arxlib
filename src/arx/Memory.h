@@ -63,7 +63,7 @@ namespace arx {
     char* p = reinterpret_cast<char*>(reinterpret_cast<intptr_t>(ptr + align - 1) & -align);
     if(p - ptr < sizeof(char*))
       p += align;
-    *(static_cast<char **>(p) - 1) = ptr;
+    *(reinterpret_cast<char**>(p) - 1) = ptr;
     
     return p;
 #endif
@@ -85,7 +85,7 @@ namespace arx {
 #else
     if(ptr == NULL)
       return;
-    free(*(static_cast<char **>(ptr) - 1));
+    free(*(static_cast<char**>(ptr) - 1));
 #endif
   }
 

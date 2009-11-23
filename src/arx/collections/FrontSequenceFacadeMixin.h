@@ -9,6 +9,7 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   template<class Base>
   class FrontSequenceFacadeMixin: public Base {
+    ARX_INHERIT_FACADE_BASE(Base);
   public:
     void pop_front() {
       container().pop_front();

@@ -16,15 +16,6 @@ namespace arx {
   template<class Base>
   class ReverseView: public ViewBase<Base> {
   public:
-#define ARX_INJECT(T)                                                           \
-    typedef typename base_type::T T
-    ARX_INJECT(iterator);
-    ARX_INJECT(pointer);
-    ARX_INJECT(reference);
-    ARX_INJECT(difference_type);
-    ARX_INJECT(size_type);
-    ARX_INJECT(value_type);
-#undef ARX_INJECT
 
 
 
