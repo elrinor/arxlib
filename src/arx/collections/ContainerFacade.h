@@ -110,13 +110,6 @@ namespace arx {
     friend bool operator>= (const derived_type& l, const derived_type& r) {
       return l.this_type::container() >= r.this_type::container();
     }
-
-    /* Additional mutators. */
-
-    derived_type& operator<< (const value_type& value) {
-      insert(end(), value);
-      return derived();
-    }
   };
 
 } // namespace arx

@@ -178,15 +178,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\arx\config.h"
-				>
-			</File>
-			<File
 				RelativePath="..\src\arx\Foreach.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\arx\HasTypedXxx.h"
+				RelativePath="..\src\arx\HasXxx.h"
 				>
 			</File>
 			<File
@@ -226,6 +222,14 @@
 				>
 				<File
 					RelativePath="..\src\arx\collections\Algorithm.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\arx\collections\config.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\arx\config.h"
 					>
 				</File>
 				<File
@@ -283,24 +287,12 @@
 						RelativePath="..\src\arx\collections\MapFacadeMixin.h"
 						>
 					</File>
-					<File
-						RelativePath="..\src\arx\collections\MapObserverMixin.h"
-						>
-					</File>
-					<File
-						RelativePath="..\src\arx\collections\SetObserverMixin.h"
-						>
-					</File>
 				</Filter>
 				<Filter
 					Name="old"
 					>
 					<File
 						RelativePath="..\src\arx\collections\Forward.h"
-						>
-					</File>
-					<File
-						RelativePath="..\src\arx\collections\ReverseView.h"
 						>
 					</File>
 					<File
@@ -316,11 +308,47 @@
 					Name="views"
 					>
 					<File
+						RelativePath="..\src\arx\collections\ReverseView.h"
+						>
+					</File>
+					<File
 						RelativePath="..\src\arx\collections\ViewBase.h"
 						>
 					</File>
 					<File
 						RelativePath="..\src\arx\collections\ViewTraits.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="extenders"
+					>
+					<File
+						RelativePath="..\src\arx\collections\ContainsExtender.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\collections\Extender.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\collections\ExtenderBase.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\collections\MapBrackExtender.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\collections\PushBackExtender.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\collections\PushFrontExtender.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\collections\WriteExtender.h"
 						>
 					</File>
 				</Filter>

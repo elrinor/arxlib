@@ -62,11 +62,17 @@ namespace arx {
       return facade_base_type::derived();                                       \
     }
 
-#define ARX_INJECT_TYPES_I(r, from, e)                                          \
-  typedef typename from::e e;
+#define ARX_INJECT_TYPES_I(r, from, e)                                         \
+  typedef from::e e;
 
 #define ARX_INJECT_TYPES(from, type_list)                                       \
   BOOST_PP_SEQ_FOR_EACH(ARX_INJECT_TYPES_I, from, type_list)
+
+#define ARX_INJECT_TYPES_TPL_I(r, from, e)                                      \
+  typedef typename from::e e;
+
+#define ARX_INJECT_TYPES_TPL(from, type_list)                                   \
+  BOOST_PP_SEQ_FOR_EACH(ARX_INJECT_TYPES_TPL_I, from, type_list)
 
 } // namespace arx
 

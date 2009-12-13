@@ -19,11 +19,6 @@ namespace arx {
       container().push_front(value);
     }
 
-    /* Additional mutators. */
-
-    void push_front() {
-      push_front(value_type());
-    }
   };
 
 } // namespace arx
