@@ -5,7 +5,7 @@
 #include <boost/preprocessor/cat.hpp>
 
 /**
- * Defines a new static counter with initial value of 0.
+ * Defines a new static counter with initial value of 0. For a newly created counter ARX_GET_COUNTER will return 0. 
  *
  * @param id identifier for a new counter. Must be either a number or a well-formed c++ identifier.
  */

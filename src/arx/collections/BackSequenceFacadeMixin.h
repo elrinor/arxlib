@@ -19,11 +19,6 @@ namespace arx {
       container().push_back(value);
     }
 
-    /* Additional mutators. */
-
-    void push_back() {
-      push_back(typename Base::value_type());
-    }
   };
 
 } // namespace arx
