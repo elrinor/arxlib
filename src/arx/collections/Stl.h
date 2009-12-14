@@ -32,7 +32,7 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   template<class T, class Allocator = std::allocator<T> >
   class vector: public Extender<std::vector<T, Allocator>, vector<T, Allocator> > {
-    typedef Extender base_type;
+    typedef Extender<std::vector<T, Allocator>, vector<T, Allocator> > base_type;
     typedef std::vector<T, Allocator> container_type;
 
   public:
@@ -65,7 +65,7 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   template<class Key, class Type, class Cmp = std::less<Key>, class Allocator = std::allocator<std::pair<const Key, Type> > >
   class map: public Extender<std::map<Key, Type, Cmp, Allocator>, map<Key, Type, Cmp, Allocator> > {
-    typedef Extender base_type;
+    typedef Extender<std::map<Key, Type, Cmp, Allocator>, map<Key, Type, Cmp, Allocator> > base_type;
     typedef std::map<Key, Type, Cmp, Allocator> container_type; 
 
   public:
@@ -97,7 +97,7 @@ namespace arx {
 // -------------------------------------------------------------------------- //
   template<class Key, class Cmp = std::less<Key>, class Allocator = std::allocator<Key> >
   class set: public Extender<std::set<Key, Cmp, Allocator>, set<Key, Cmp, Allocator> > {
-    typedef Extender base_type;
+    typedef Extender<std::set<Key, Cmp, Allocator>, set<Key, Cmp, Allocator> > base_type;
     typedef std::set<Key, Cmp, Allocator> container_type; 
     
   public:

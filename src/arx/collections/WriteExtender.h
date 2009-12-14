@@ -15,8 +15,8 @@ namespace arx {
     ARX_FORWARD_CONSTRUCTOR(WriteExtender, (ARX_FWD_TEXT(Base))(ARX_FWD_ARGS())(ARX_FWD_TEXT({})));
 
     typename Base::derived_type& operator<< (const typename Base::value_type& value) {
-      insert(end(), value);
-      return *static_cast<Base::derived_type*>(this);
+      insert(Base::end(), value);
+      return *static_cast<typename Base::derived_type*>(this);
     }
   };
 

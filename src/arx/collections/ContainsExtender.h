@@ -16,7 +16,7 @@ namespace arx {
     ARX_FORWARD_CONSTRUCTOR(ContainsExtender, (ARX_FWD_TEXT(Base))(ARX_FWD_ARGS())(ARX_FWD_TEXT({})));
 
     bool contains(const typename Base::key_type& key) const {
-      return find(key) != end();
+      return find(key) != Base::end();
     }
   };
 
