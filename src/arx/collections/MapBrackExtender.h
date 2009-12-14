@@ -18,7 +18,7 @@ namespace arx {
     using Base::operator [];
 
     const typename Base::mapped_type& operator[] (const typename Base::key_type& key) const {
-      assert(find(key) != end());
+      assert(find(key) != Base::end());
 
       return find(key)->second;
     }
