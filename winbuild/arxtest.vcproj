@@ -178,6 +178,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\arx\config.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\arx\Foreach.h"
 				>
 			</File>
@@ -229,22 +233,26 @@
 					>
 				</File>
 				<File
-					RelativePath="..\src\arx\config.h"
-					>
-				</File>
-				<File
 					RelativePath="..\src\arx\collections\Stl.h"
 					>
 				</File>
 				<Filter
-					Name="proxies"
+					Name="facades"
 					>
 					<File
-						RelativePath="..\src\arx\collections\ContainerFacade.h"
+						RelativePath="..\src\arx\collections\AllocatorAwareFacade.h"
 						>
 					</File>
 					<File
-						RelativePath="..\src\arx\collections\ContinuousSequenceFacade.h"
+						RelativePath="..\src\arx\collections\AssociativeFacade.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\collections\BackFrontFacades.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\collections\Facade.h"
 						>
 					</File>
 					<File
@@ -252,11 +260,27 @@
 						>
 					</File>
 					<File
-						RelativePath="..\src\arx\collections\OrderedSetFacade.h"
+						RelativePath="..\src\arx\collections\IndexFacades.h"
 						>
 					</File>
 					<File
-						RelativePath="..\src\arx\collections\RaSequenceFacade.h"
+						RelativePath="..\src\arx\collections\MapFacade.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\collections\PushPopableFacades.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\collections\RangeFacades.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\collections\ReservableFacade.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\collections\ReversibleFacades.h"
 						>
 					</File>
 					<File
@@ -264,39 +288,31 @@
 						>
 					</File>
 					<File
-						RelativePath="..\src\arx\collections\SetFacade.h"
-						>
-					</File>
-					<File
-						RelativePath="..\src\arx\collections\UnorderedSetFacade.h"
+						RelativePath="..\src\arx\collections\UnorderedFacade.h"
 						>
 					</File>
 				</Filter>
 				<Filter
-					Name="mixins"
+					Name="utils"
 					>
 					<File
-						RelativePath="..\src\arx\collections\BackSequenceFacadeMixin.h"
+						RelativePath="..\src\arx\collections\ExtenderFacade.h"
 						>
 					</File>
-					<File
-						RelativePath="..\src\arx\collections\FrontSequenceFacadeMixin.h"
-						>
-					</File>
-					<File
-						RelativePath="..\src\arx\collections\MapFacadeMixin.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="old"
-					>
 					<File
 						RelativePath="..\src\arx\collections\Forward.h"
 						>
 					</File>
 					<File
+						RelativePath="..\src\arx\collections\Injection.h"
+						>
+					</File>
+					<File
 						RelativePath="..\src\arx\collections\Shared.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\collections\Traits.h"
 						>
 					</File>
 					<File

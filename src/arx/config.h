@@ -33,10 +33,12 @@
 #endif
 
 
+
 // -------------------------------------------------------------------------- //
 // Derived defines
 // -------------------------------------------------------------------------- //
 #ifdef ARX_DISABLE_EXCEPTIONS
+#  include <boost/preprocessor/stringize.hpp>
 #  define ARX_TRY        {{
 #  define ARX_CATCH_ALL  } if(0) {
 #  define ARX_CATCH(X)   } if(0) {
@@ -44,7 +46,7 @@
 #  define ARX_THROW(X)   
 #  define ARX_TRY_END    }}
 #  define ARX_ASSERT_OR_THROW(CONDITION, HANDLER)                               \
-  assert(CONDITION);
+  assert((CONDITION) && BOOST_PP_STRINGIZE(HANDLER));
 #else
 #  define ARX_TRY        try {
 #  define ARX_CATCH_ALL  } catch(...) {
