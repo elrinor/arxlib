@@ -2,11 +2,7 @@
 #define __ARX_COLLECTIONS_EXTENDER_H__
 
 #include "config.h"
-#include <boost/range.hpp> /* for boost::range_value */
-#include <boost/mpl/if.hpp>
 #include <boost/mpl/eval_if.hpp>
-#include <boost/mpl/and.hpp>
-#include <boost/mpl/or.hpp>
 #include <boost/mpl/identity.hpp>
 #include "ExtenderBase.h"
 #include "Forward.h"

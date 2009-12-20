@@ -5,8 +5,8 @@
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/or.hpp>
 #include "Forward.h"
+#include "Traits.h"
 #include "../StaticCounter.h"
-#include "../Preprocessor.h"
 #include "../HasXxx.h"
 
 namespace arx {
@@ -15,14 +15,6 @@ namespace arx {
     struct RegisteredExtender;
 
     ARX_NEW_COUNTER(extender_count);
-
-    ARX_HAS_TYPE_XXX_TRAIT_DEF(mapped_type);
-    ARX_HAS_TYPE_XXX_TRAIT_DEF(key_type);
-    ARX_HAS_FUNC_XXX_TRAIT_DEF(find);
-    ARX_HAS_FUNC_XXX_TRAIT_DEF(insert);
-    ARX_HAS_FUNC_XXX_TRAIT_DEF(push_front);
-    ARX_HAS_FUNC_XXX_TRAIT_DEF(push_back);
-
   } // namespace detail
 
 

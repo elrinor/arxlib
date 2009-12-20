@@ -2,31 +2,35 @@
 #define __ARX_COLLECTIONS_FACADE_BASE_H__
 
 #include "config.h"
-#include <boost/preprocessor.hpp> /* for BOOST_PP_SEQ_FOR_EACH */
+#include "Injection.h"
+#include "Traits.h"
+#include "../StaticCounter.h"
+#include "../HasXxx.h"
 
 namespace arx {
+  namespace detail {
+    template<int n>
+    struct RegisteredFacade;
+
+    ARX_NEW_COUNTER(facade_count);
+  } // namespace detail
+
+
 // -------------------------------------------------------------------------- //
 // FacadeBase
 // -------------------------------------------------------------------------- //
-  template<class Derived, class Container>
+  template<class Container, class Derived>
   class FacadeBase {
   protected:
-    typedef FacadeBase facade_base_type;
-    typedef Derived derived_type;
     typedef Container container_type;
-
-  protected:    
-    /* 
-    container_type& crtpContainer();
-    const container_type& crtpContainer() const;
-    */
+    typedef Derived derived_type;
 
     container_type& container() {
-      return derived().crtpContainer();
+      return derived().container();
     }
 
     const container_type& container() const {
-      return derived().crtpContainer();
+      return derived().container();
     }
 
     derived_type& derived() {
@@ -38,42 +42,46 @@ namespace arx {
     }
   };
 
-
-#define ARX_INHERIT_FACADE_BASE(...)                                            \
-  protected:                                                                    \
-    typedef __VA_ARGS__ base_type;                                              \
-    typedef typename base_type::facade_base_type facade_base_type;              \
-    typedef typename facade_base_type::container_type container_type;           \
-    typedef typename facade_base_type::derived_type derived_type;               \
-                                                                                \
-    container_type& container() {                                               \
-      return facade_base_type::container();                                     \
-    }                                                                           \
-                                                                                \
-    const container_type& container() const {                                   \
-      return facade_base_type::container();                                     \
-    }                                                                           \
-                                                                                \
-    derived_type& derived() {                                                   \
-      return facade_base_type::derived();                                       \
-    }                                                                           \
-                                                                                \
-    const derived_type& derived() const {                                       \
-      return facade_base_type::derived();                                       \
-    }
-
-#define ARX_INJECT_TYPES_I(r, from, e)                                         \
-  typedef from::e e;
-
-#define ARX_INJECT_TYPES(from, type_list)                                       \
-  BOOST_PP_SEQ_FOR_EACH(ARX_INJECT_TYPES_I, from, type_list)
-
-#define ARX_INJECT_TYPES_TPL_I(r, from, e)                                      \
-  typedef typename from::e e;
-
-#define ARX_INJECT_TYPES_TPL(from, type_list)                                   \
-  BOOST_PP_SEQ_FOR_EACH(ARX_INJECT_TYPES_TPL_I, from, type_list)
-
 } // namespace arx
+
+
+// -------------------------------------------------------------------------- //
+// Helpers
+// -------------------------------------------------------------------------- //
+#define ARX_INHERITED_FACADE(from)                                              \
+  protected:                                                                    \
+    ARX_INJECT_TYPES(from, (derived_type)(container_type))
+
+#define ARX_INHERITED_FACADE_TPL(from)                                          \
+  protected:                                                                    \
+    ARX_INJECT_TYPES_TPL(from, (derived_type)(container_type))
+
+
+// -------------------------------------------------------------------------- //
+// Registration
+// -------------------------------------------------------------------------- //
+#define ARX_REGISTER_FACADE(name, ... /* requirements */)                       \
+namespace arx {                                                                 \
+  ARX_REGISTER_FACADE_IN_ARX_NS(name, __VA_ARGS__)                              \
+}
+
+#define ARX_REGISTER_FACADE_IN_ARX_NS(name, ... /* requirements */)             \
+  namespace detail {                                                            \
+    template<>                                                                  \
+    struct RegisteredFacade<ARX_GET_COUNTER(facade_count)> {                    \
+      template<class Base>                                                      \
+      struct apply {                                                            \
+        typedef name<Base> type;                                                \
+      };                                                                        \
+                                                                                \
+      template<class T>                                                         \
+      struct applicable_to {                                                    \
+        typedef __VA_ARGS__ type;                                               \
+      };                                                                        \
+    };                                                                          \
+                                                                                \
+    ARX_INC_COUNTER(facade_count);                                              \
+  }
+
 
 #endif // __ARX_COLLECTIONS_FACADE_BASE_H__
