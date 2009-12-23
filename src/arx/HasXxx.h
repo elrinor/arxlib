@@ -1,5 +1,5 @@
-#ifndef __ARX_HAS_XXX__
-#define __ARX_HAS_XXX__
+#ifndef __ARX_HAS_XXX_H__
+#define __ARX_HAS_XXX_H__
 
 #include "config.h"
 #include <boost/mpl/has_xxx.hpp>
@@ -88,4 +88,4 @@ struct trait_name<T, false>: public boost::mpl::false_ {};
 #define ARX_HAS_FUNC_XXX_TRAIT_DEF(member_name)                                 \
   ARX_HAS_FUNC_XXX_TRAIT_NAMED_DEF(BOOST_PP_CAT(has_, member_name), member_name)
 
-#endif // __ARX_HAS_XXX__
+#endif // __ARX_HAS_XXX_H__
