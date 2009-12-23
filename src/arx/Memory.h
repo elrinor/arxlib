@@ -11,7 +11,9 @@
 #include <malloc.h>
 #include <memory>
 #include <boost/static_assert.hpp>
+#include <boost/mpl/and.hpp>
 #include "Utility.h"
+#include "HasXxx.h"
 
 
 /**
@@ -120,6 +122,13 @@ namespace arx {
   };
 
 
+  namespace detail {
+    namespace has_new_delete_ns {
+      ARX_HAS_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF(has_operator_new, operator new, static, void*, (std::size_t))
+      ARX_HAS_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF(has_operator_delete, operator delete, static, void, (void*))
+    }
+  }
+
   /** Replacement for std::allocator that calls overloaded operator new if one
    * is present. */
   template<class T> class classnew_allocator {
@@ -150,16 +159,16 @@ namespace arx {
       return addressof(ref); 
     }
 
-    pointer allocate(size_t size, const void* hint = 0) { 
+    pointer allocate(size_type size, const void* hint = 0) { 
       return impl_type::allocate(size, hint);
     }
 
-    void deallocate(pointer ptr, size_t size) { 
+    void deallocate(pointer ptr, size_type size) { 
       impl_type::deallocate(ptr, size);
     }
     
-    size_t max_size() const { 
-      return size_t(-1) / sizeof(T); 
+    size_type max_size() const { 
+      return size_type(-1) / sizeof(T); 
     }
 
     void construct(pointer ptr, const value_type& refObj) { 
@@ -181,23 +190,7 @@ namespace arx {
     }
 
   private:
-    /* This one is probably buggy. */ /* TODO:replace with has_xxx */
-    template<class Y> 
-    struct has_operator_new {
-      typedef char true_type;
-      struct false_type { true_type dummy[2]; };
-      template<void* (*func)(size_t)> struct nothing {};
-
-      template<class U>
-      static true_type has_member(U*, nothing<&U::operator new>* = 0);
-      static false_type has_member(void*);
-
-      enum {
-        value = sizeof(has_operator_new<Y>::has_member(static_cast<Y*>(NULL))) == sizeof(true_type)
-      };
-    };
-
-    template<class U, bool has_new = has_operator_new<U>::value> 
+    template<class U, bool has_new_delete = boost::mpl::and_<detail::has_new_delete_ns::has_operator_new<U>, detail::has_new_delete_ns::has_operator_delete<U> >::value> 
     struct allocator_impl {
       enum { HAS_NEW = true };
 
