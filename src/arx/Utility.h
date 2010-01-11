@@ -3,8 +3,10 @@
 
 #include "config.h"
 #include <boost/static_assert.hpp>
+#include <boost/preprocessor/stringize.hpp>
 #include <functional>  /* for std::less. */
 #include <utility>     /* for std::pair. */
+#include <exception>   /* for std::runtime_error. */
 
 #if 0
 // -------------------------------------------------------------------------- //
@@ -35,7 +37,7 @@ namespace std {
 
 #define STATIC_ASSERT BOOST_STATIC_ASSERT
 
-#define Unreachable() {assert(!!"Unreachable code executed."); ARX_THROW(0);}
+#define Unreachable() {assert(!"Unreachable code executed."); ARX_THROW(::std::runtime_error(__FILE__ ":" BOOST_PP_STRINGIZE(__LINE__) ": Unreachable code executed."));} 
 
 namespace arx {
 // -------------------------------------------------------------------------- //
