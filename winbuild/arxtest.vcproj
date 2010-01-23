@@ -369,6 +369,18 @@
 					</File>
 				</Filter>
 			</Filter>
+			<Filter
+				Name="ext"
+				>
+				<File
+					RelativePath="..\src\arx\ext\config.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\arx\ext\Vigra.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="test"
