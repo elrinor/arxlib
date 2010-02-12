@@ -36,7 +36,7 @@ namespace vigra {
   template <class RGBAValue>
   class RGBAToRGBAccessor {
   public:
-    typedef typename RGBValue<typename RGBAValue::value_type> value_type;
+    typedef RGBValue<typename RGBAValue::value_type> value_type;
 
     template<class Iterator>
     value_type operator()(Iterator const & i) const {
