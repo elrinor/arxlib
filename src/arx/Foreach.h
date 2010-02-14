@@ -5,6 +5,11 @@
 #include <boost/typeof/typeof.hpp>
 #include <boost/preprocessor/cat.hpp>
 
+/* Undefine qt foreach. */
+#ifdef foreach
+#  undef foreach
+#endif
+
 #define foreach BOOST_FOREACH
 
 #define reverse_foreach BOOST_REVERSE_FOREACH

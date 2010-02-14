@@ -175,7 +175,9 @@ namespace arx {
       ::new(ptr) T(refObj); 
     }
     
-    void destroy(pointer ptr) { 
+    void destroy(pointer ptr) {
+      (void) ptr; /* This one fixes a bogus MSVC warning (C4100: 'ptr' unreferenced formal parameter). */
+
       ptr->~T(); 
     }
 

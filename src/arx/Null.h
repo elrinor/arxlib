@@ -61,6 +61,7 @@ namespace arx {
     return !(l == r);                                                           \
   }                                                                             \
 
+//#define ARX_IS_NULL(NULL_CHECK_EXPR)
 
 /* TODO: think NULL_ASSIGNABLE / NULL_CONSTRUCTIBLE */
 

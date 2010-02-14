@@ -5,7 +5,6 @@
 
 #include <vigra/basicimage.hxx>
 #include <vigra/stdimage.hxx>
-#include <vigra/impex.hxx>
 
 namespace vigra {
   typedef BasicImage<TinyVector<UInt8, 4> > BRGBAImage;
@@ -31,9 +30,29 @@ namespace vigra {
 
 
 // -------------------------------------------------------------------------- //
+// GrayToRGBAAccessor
+// -------------------------------------------------------------------------- //
+  template<class Value>
+  class GrayToRGBAAccessor {
+  public:
+    typedef TinyVector<Value, 4> value_type;
+
+    template<class Iterator>
+    value_type operator()(Iterator const & i) const {
+      return value_type(*i, *i, *i, 0);
+    }
+
+    template <class Iterator, class Difference>
+    value_type operator()(Iterator const & i, Difference d) const {
+      return operator() (i + d);
+    }
+  };
+
+
+// -------------------------------------------------------------------------- //
 // RGBAToRGBAccessor
 // -------------------------------------------------------------------------- //
-  template <class RGBAValue>
+  template<class RGBAValue>
   class RGBAToRGBAccessor {
   public:
     typedef RGBValue<typename RGBAValue::value_type> value_type;
@@ -49,6 +68,26 @@ namespace vigra {
     }
   };
 
+
+// -------------------------------------------------------------------------- //
+// RGBAToRGBAccessor
+// -------------------------------------------------------------------------- //
+  template<class RGBValue>
+  class RGBToRGBAAccessor {
+  public:
+    typedef TinyVector<typename RGBValue::value_type, 4> value_type;
+
+    template<class Iterator>
+    value_type operator()(Iterator const & i) const {
+      return value_type((*i)[0], (*i)[1], (*i)[2], 0);
+    }
+
+    template <class Iterator, class Difference>
+    value_type operator()(Iterator const & i, Difference d) const {
+      return operator() (i + d);
+    }
+  };
+
   template<class PixelType, class Alloc, class Color>
   inline void checkedSetPixel(BasicImage<PixelType, Alloc>& image, int x, int y, const Color& value) {
     typename BasicImage<PixelType, Alloc>::difference_type coord(x, y);
@@ -56,39 +95,6 @@ namespace vigra {
       image[coord] = value;
   }
 
-  template<class PixelType, class Alloc>
-  inline void importGrayscaleImage(BasicImage<PixelType, Alloc>& out, const std::string& fileName) {
-    ImageImportInfo info(fileName.c_str());
-    out.resize(info.width(), info.height());
-    if(info.isGrayscale()) {
-      importImage(info, destImage(out));
-    } else if(info.numBands() == 4) {
-      BRGBAImage rgbaImage(info.width(), info.height());
-      importImage(info, destImage(rgbaImage));
-      copyImage(srcImageRange(rgbaImage, RGBAToGrayAccessor<BRGBAImage::value_type>()), destImage(out));
-    } else {
-      BRGBImage rgbImage(info.width(), info.height());
-      importImage(info, destImage(rgbImage));
-      copyImage(srcImageRange(rgbImage, RGBToGrayAccessor<BRGBImage::value_type>()), destImage(out));
-    }
-  }
-
-  template<class PixelType, class Alloc>
-  inline void importRgbImage(BasicImage<PixelType, Alloc>& out, const std::string& fileName) {
-    ImageImportInfo info(fileName.c_str());
-    out.resize(info.width(), info.height());
-    if(info.isGrayscale()) {
-      BImage bImage(info.width(), info.height());
-      importImage(info, destImage(bImage));
-      copyImage(srcImageRange(bImage, GrayToRGBAccessor<BImage::value_type>()), destImage(out));
-    } else if(info.numBands() == 4) {
-      BRGBAImage rgbaImage(info.width(), info.height());
-      importImage(info, destImage(rgbaImage));
-      copyImage(srcImageRange(rgbaImage, RGBAToRGBAccessor<BRGBAImage::value_type>()), destImage(out));
-    } else {
-      importImage(info, destImage(out));
-    }
-  }
 
   template<class PixelType, class Alloc, class Color>
   inline void drawLine(BasicImage<PixelType, Alloc>& image, int x1, int y1, int x2, int y2, const Color& value) {
