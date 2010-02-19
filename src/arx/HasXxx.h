@@ -34,14 +34,14 @@
 #define ARX_HAS_FUNC_XXX_TRAIT_FUNCTYPE_POINTER_DECL(func_type)                  \
   BOOST_PP_CAT(ARX_HAS_FUNC_XXX_TRAIT_FUNCTYPE_POINTER_DECL_, func_type)
 
-#define ARX_HAS_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF_I(trait_name, func_name, func_return_type, func_params, decl_prefix_macro, pointer_decl_macro) \
+#define ARX_HAS_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF_I(trait_name, func_name, func_return_type, func_return_statement, func_params, decl_prefix_macro, pointer_decl_macro) \
 struct BOOST_PP_CAT(trait_name, _helper) {                                      \
   typedef char true_type;                                                       \
   struct false_type { true_type dummy[2]; };                                    \
   template<class T, T> struct wrapper {};                                       \
                                                                                 \
   struct mixin {                                                                \
-    decl_prefix_macro() func_return_type func_name func_params {}               \
+    decl_prefix_macro() func_return_type func_name func_params { func_return_statement; } \
   };                                                                            \
                                                                                 \
   template<class T> struct mixed {                                              \
@@ -70,20 +70,22 @@ struct trait_name<T, false>: public boost::mpl::false_ {};
  * @param trait_name                   Trait name.
  * @param func_name                    Name of a function to check.
  * @param func_type                    Type of a function, must be either static or normal.
- * @param func_return_type             Return type of a checking function. Is meaningful only if C++ constrains the possible return type of the function being cheched (as in case of operator new).
+ * @param func_return_type             Return type of the checking function. Is meaningful only if C++ constrains the possible return type of the function being cheched (as in case of operator new).
+ * @param func_return_statement        Return statement of the checking function.
  * @param func_params                  Parameters of a checking function, in parentheses. */
-#define ARX_HAS_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF(trait_name, func_name, func_type, func_return_type, func_params) \
+#define ARX_HAS_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF(trait_name, func_name, func_type, func_return_type, func_return_statement, func_params) \
   ARX_HAS_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF_I(                                  \
     trait_name,                                                                 \
     func_name,                                                                  \
     func_return_type,                                                           \
+    func_return_statement,                                                      \
     func_params,                                                                \
     ARX_HAS_FUNC_XXX_TRAIT_FUNCTYPE_DELC_PREFIX(func_type),                     \
     ARX_HAS_FUNC_XXX_TRAIT_FUNCTYPE_POINTER_DECL(func_type)                     \
   )
 
 #define ARX_HAS_FUNC_XXX_TRAIT_NAMED_DEF(trait_name, func_name)                 \
-  ARX_HAS_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF(trait_name, func_name, normal, void, ())
+  ARX_HAS_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF(trait_name, func_name, normal, void, return, ())
 
 #define ARX_HAS_FUNC_XXX_TRAIT_DEF(member_name)                                 \
   ARX_HAS_FUNC_XXX_TRAIT_NAMED_DEF(BOOST_PP_CAT(has_, member_name), member_name)
