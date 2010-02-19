@@ -28,7 +28,7 @@ namespace arx {
     ARX_HAS_FUNC_XXX_TRAIT_DEF(back);
     ARX_HAS_FUNC_XXX_TRAIT_DEF(front);
 
-    ARX_HAS_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF(has_operator_brack, operator[], normal, void, (int));
+    ARX_HAS_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF(has_operator_brack, operator[], normal, void, return, (int));
 
     ARX_HAS_FUNC_XXX_TRAIT_DEF(reserve);
     ARX_HAS_FUNC_XXX_TRAIT_DEF(capacity);
