@@ -1,5 +1,5 @@
-#ifndef __ARX_LIB_VIGRA_H__
-#define __ARX_LIB_VIGRA_H__
+#ifndef __ARX_EXT_VIGRA_H__
+#define __ARX_EXT_VIGRA_H__
 
 #include "config.h"
 
@@ -125,4 +125,16 @@ namespace vigra {
 
 } // namespace vigra
 
-#endif // __ARX_LIB_VIGRA_H__
+
+// -------------------------------------------------------------------------- //
+// Inter-lib defines
+// -------------------------------------------------------------------------- //
+#ifndef ARX_USE_VIGRA
+#  define ARX_USE_VIGRA
+#endif
+
+#ifdef ARX_USE_MAGICK
+#  include "VigraMagick.h"
+#endif
+
+#endif // __ARX_EXT_VIGRA_H__
