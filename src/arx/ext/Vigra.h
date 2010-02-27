@@ -2,12 +2,28 @@
 #define __ARX_EXT_VIGRA_H__
 
 #include "config.h"
-
+#include <boost/type_traits/is_same.hpp>
 #include <vigra/basicimage.hxx>
 #include <vigra/stdimage.hxx>
 
 namespace vigra {
   typedef BasicImage<TinyVector<UInt8, 4> > BRGBAImage;
+
+  namespace detail {
+// -------------------------------------------------------------------------- //
+// ToRGBAAccessorBase
+// -------------------------------------------------------------------------- //
+    class ToRGBAAccessorBase {
+    protected:
+      template<class Value>
+      Value opaque() const {
+        return boost::is_same<NumericTraits<Value>::isIntegral, VigraTrueType>::value ? 
+          vigra::NumericTraits<Value>::max() : 
+          vigra::NumericTraits<Value>::one();
+      }
+    };
+
+  } // namespace detail
 
 // -------------------------------------------------------------------------- //
 // RGBAToGrayAccessor
@@ -33,13 +49,13 @@ namespace vigra {
 // GrayToRGBAAccessor
 // -------------------------------------------------------------------------- //
   template<class Value>
-  class GrayToRGBAAccessor {
+  class GrayToRGBAAccessor: private detail::ToRGBAAccessorBase {
   public:
     typedef TinyVector<Value, 4> value_type;
 
     template<class Iterator>
     value_type operator()(Iterator const & i) const {
-      return value_type(*i, *i, *i, 0);
+      return value_type(*i, *i, *i, opaque<Value>());
     }
 
     template <class Iterator, class Difference>
@@ -73,13 +89,13 @@ namespace vigra {
 // RGBAToRGBAccessor
 // -------------------------------------------------------------------------- //
   template<class RGBValue>
-  class RGBToRGBAAccessor {
+  class RGBToRGBAAccessor: private detail::ToRGBAAccessorBase {
   public:
     typedef TinyVector<typename RGBValue::value_type, 4> value_type;
 
     template<class Iterator>
     value_type operator()(Iterator const & i) const {
-      return value_type((*i)[0], (*i)[1], (*i)[2], 0);
+      return value_type((*i)[0], (*i)[1], (*i)[2], opaque<typename RGBValue::value_type>());
     }
 
     template <class Iterator, class Difference>
