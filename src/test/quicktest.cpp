@@ -6,7 +6,12 @@
 
 #include <arx/collections/ExtenderFacade.h>
 
+#include <arx/Utility.h>
+
 int main() {
+  try {
+  Unreachable();
+
   typedef std::map<int, int> T;
 
   T v;
@@ -17,6 +22,10 @@ int main() {
 
 
   std::cout << f.size() << f[0] << std::endl;
+
+  } catch (std::runtime_error& e) {
+    int a = 1;
+  }
 
   return 0;
 }

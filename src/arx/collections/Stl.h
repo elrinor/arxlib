@@ -60,7 +60,7 @@ namespace arx {
 
     map(const key_compare& cmp, const allocator_type& allocator): base_type(cmp, allocator) {}
 
-    map(const map& other): base_type(other.mPrivate) {}
+    map(const map& other): base_type(other) {}
 
     map(const container_type& other): base_type(other) {}
 
