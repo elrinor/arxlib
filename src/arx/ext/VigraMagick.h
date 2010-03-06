@@ -156,12 +156,12 @@ namespace arx {
 // Quantization
 // -------------------------------------------------------------------------- //
   template<class PixelType>
-  void quantize(BasicImage<PixelType>& vigraImage, unsigned colors) {
+  void quantize(vigra::BasicImage<PixelType>& vigraImage, unsigned colors) {
     Magick::Image magickImage;
     convert(vigraImage, magickImage);
 
     magickImage.quantizeColors(colors);
-    magickImage.quantizeColorSpace(RGBColorspace);
+    magickImage.quantizeColorSpace(Magick::RGBColorspace);
     magickImage.quantizeDither(false);
     magickImage.quantize();
 

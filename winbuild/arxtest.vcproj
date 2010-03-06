@@ -377,9 +377,49 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\arx\ext\Magick.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\arx\ext\OpenCV.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\arx\ext\Qt.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\arx\ext\Vigra.h"
 					>
 				</File>
+				<File
+					RelativePath="..\src\arx\ext\VigraMagick.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\arx\ext\VigraOpenCV.h"
+					>
+				</File>
+				<Filter
+					Name="qt"
+					>
+					<File
+						RelativePath="..\src\arx\ext\qt\config.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\ext\qt\FormGenerator.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\ext\qt\FormPrinter.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\arx\ext\qt\FormPrinter.pri"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter

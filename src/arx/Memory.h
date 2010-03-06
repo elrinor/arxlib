@@ -129,6 +129,10 @@ namespace arx {
     }
   }
 
+
+// -------------------------------------------------------------------------- //
+// classnew_allocator
+// -------------------------------------------------------------------------- //
   /** Replacement for std::allocator that calls overloaded operator new if one
    * is present. */
   template<class T> class classnew_allocator {
