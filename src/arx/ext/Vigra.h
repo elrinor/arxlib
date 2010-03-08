@@ -220,4 +220,8 @@ namespace vigra {
 #  include "VigraMagick.h"
 #endif
 
+#ifdef ARX_USE_OPENCV
+#  include "VigraOpenCV.h"
+#endif
+
 #endif // __ARX_EXT_VIGRA_H__

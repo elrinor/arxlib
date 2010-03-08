@@ -33,7 +33,7 @@ namespace arx {
     struct opencv_channels<vigra::RGBValue<ChannelType, redIndex, greenIndex, blueIndex> >: boost::mpl::int_<3> {};
 
     template<class ChannelType> 
-    struct opencv_data_type<vigra::TinyVector<ChannelType, 4> >: boost::mpl::int_<4> {};
+    struct opencv_channels<vigra::TinyVector<ChannelType, 4> >: boost::mpl::int_<4> {};
   
   } // namespace detail
 
@@ -53,8 +53,8 @@ namespace arx {
       memcpy(pixels, vigraImage.data(), size);
 
       cvImage = cv::Mat(
-        vigraImage.width(), 
         vigraImage.height(), 
+        vigraImage.width(), 
         CV_MAKETYPE(detail::opencv_data_type<PixelType>::value, detail::opencv_channels<PixelType>::value), 
         pixels
       );
@@ -117,10 +117,17 @@ namespace arx {
 
 
 // -------------------------------------------------------------------------- //
-// Segmentation
+// Clusterization
 // -------------------------------------------------------------------------- //
+  /**
+   * @param vigraImage                 source image.
+   * @param vigraDestImage             destination image.
+   * @param level                      maximal level of the pyramid for segmentation, source image size must be a multiple of level.
+   * @param linkThreshold              threshold for establishing links.
+   * @param clusterThreshold           threshold for the segments clustering.
+   */
   template<class PixelType, class DestPixelType>
-  void pyramidSegment(const BasicImage<PixelType>& vigraImage, BasicImage<DestPixelType>& vigraDestImage, int level, double threshold1, double threshold2) {
+  void pyramidClusterize(const vigra::BasicImage<PixelType>& vigraImage, vigra::BasicImage<DestPixelType>& vigraDestImage, int level, double linkThreshold, double clusterThreshold) {
     cv::Mat cvImage;
     convert(vigraImage, cvImage);
 
@@ -128,18 +135,21 @@ namespace arx {
     IplImage iplImage = cvImage, iplDestImage = cvDestImage;
     CvMemStorage* storage = cvCreateMemStorage(1024);
     CvSeq* comp = cvCreateSeq(0, sizeof(CvSeq), sizeof(CvPoint), storage);
-    cvPyrSegmentation(&iplImage, &iplDestImage, storage, &comp, level, threshold1, threshold2);
+
+    ARX_OPENCV_CALL(cvPyrSegmentation(&iplImage, &iplDestImage, storage, &comp, level, linkThreshold, clusterThreshold));
 
     convert(cvDestImage, vigraDestImage);
   }
 
 } // namespace arx
 
+
 // -------------------------------------------------------------------------- //
 // Export defined symbols to enable ADL
 // -------------------------------------------------------------------------- //
 namespace vigra {
   using arx::convert;
+  using arx::pyramidClusterize;
 }
 
 namespace cv {
