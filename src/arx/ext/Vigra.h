@@ -8,6 +8,8 @@
 #include <boost/lexical_cast.hpp>
 #include <vigra/basicimage.hxx>
 #include <vigra/stdimage.hxx>
+#include <vigra/transformimage.hxx>
+#include <arx/Collections.h>
 
 namespace vigra {
   typedef BasicImage<TinyVector<UInt8, 4> > BRGBAImage;
@@ -20,7 +22,7 @@ namespace vigra {
     protected:
       template<class Value>
       Value opaque() const {
-        return boost::is_same<NumericTraits<Value>::isIntegral, VigraTrueType>::value ? 
+        return boost::is_same<typename NumericTraits<Value>::isIntegral, VigraTrueType>::value ? 
           vigra::NumericTraits<Value>::max() : 
           vigra::NumericTraits<Value>::one();
       }
@@ -158,7 +160,7 @@ namespace vigra {
     /* Match. */
     boost::smatch match;
     if(!regex_match(s, match, boost::regex("(\\d+):(\\d+)")))
-      throw validation_error("Invalid size format (\"w:h\" expected).");
+      throw validation_error(std::string("Invalid size format (\"w:h\" expected)."));
     int w = boost::lexical_cast<int>(match[1]);
     int h = boost::lexical_cast<int>(match[2]);
 
@@ -168,7 +170,7 @@ namespace vigra {
 
   /** Validation function for vigra::Rect2D command line parameter. 
    * Expects the rectangle to be in the format x:y:w:h. Negative or zero 
-   * width and height must be additionally processed with fitRect2D function. */
+   * width and height must be additionally processed with fixNegativeSize function. */
   inline void validate(boost::any& v, const std::vector<std::string>& values, Rect2D* /* target_type */, int) {
     using namespace boost::program_options;
 
@@ -179,7 +181,7 @@ namespace vigra {
     /* Match. */
     boost::smatch match;
     if(!regex_match(s, match, boost::regex("(\\d+):(\\d+):(-?\\d+):(-?\\d+)")))
-      throw validation_error("Invalid region format (\"x:y:w:h\" expected).");
+      throw validation_error(std::string("Invalid region format (\"x:y:w:h\" expected)."));
     int x = boost::lexical_cast<int>(match[1]);
     int y = boost::lexical_cast<int>(match[2]);
     int w = boost::lexical_cast<int>(match[3]);
@@ -190,7 +192,7 @@ namespace vigra {
   }
 
   /** Adjusts the negative or zero width and height of the input rectangle. */
-  inline void fitRect2D(Rect2D* rect, const Size2D& size) {
+  inline void fixNegativeSize(Rect2D* rect, const Size2D& size) {
     int newWidth = rect->width();
     if(newWidth <= 0)
       newWidth = size.width() - rect->left() + newWidth;
@@ -202,8 +204,57 @@ namespace vigra {
     rect->setSize(newWidth, newHeight);
   }
 
-  inline void fitRect2D(Rect2D* rect, int width, int height) {
-    fitRect2D(rect, Size2D(width, height));
+  inline void fixNegativeSize(Rect2D* rect, int width, int height) {
+    fixNegativeSize(rect, Size2D(width, height));
+  }
+
+
+// -------------------------------------------------------------------------- //
+// kMeansBinarize
+// -------------------------------------------------------------------------- //
+  void kMeansBinarize(const BImage& src, BImage& dst) {
+    /* Skip empty images. */
+    if(src.width() <= 0 || src.height() <= 0)
+      return;
+
+    /* Create hystogram. */
+    arx::vector<int> hystogram;
+    hystogram.resize(256, 0);
+    for(int y = 0; y < src.height(); y++)
+      for(int x = 0; x < src.width(); x++)
+        hystogram[src(x, y)]++;
+
+    /* Apply K-means. */
+    int a = 0, b = 255;
+    while(hystogram[a] == 0)
+      a++;
+    while(hystogram[b] == 0)
+      b--;
+    while(true) {
+      assert(a <= b);
+
+      long long aNew = 0, bNew = 0;
+      int aCount = 0, bCount = 0;
+      for(int i = 0; i <= (a + b) / 2; i++) {
+        aCount += hystogram[i];
+        aNew += static_cast<long long>(i) * hystogram[i];
+      }
+      for(int i = (a + b) / 2 + 1; i < 256; i++) {
+        bCount += hystogram[i];
+        bNew += static_cast<long long>(i) * hystogram[i];
+      }
+      aNew = aCount != 0 ? aNew / aCount : a;
+      bNew = bCount != 0 ? bNew / bCount : b;
+
+      if(std::abs(a - static_cast<int>(aNew)) < 1 && std::abs(b - static_cast<int>(bNew)) < 1)
+        break; /* We can't use variables from inner scope in while() conditions... */
+
+      a = aNew;
+      b = bNew;
+    }
+
+    /* Binarize. */
+    transformImage(srcImageRange(src), destImage(dst), vigra::Threshold<vigra::BImage::PixelType, vigra::BImage::PixelType>(0, (a + b) / 2, 255, 0));
   }
 
 } // namespace vigra
