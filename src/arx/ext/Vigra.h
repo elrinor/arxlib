@@ -160,7 +160,7 @@ namespace vigra {
     /* Match. */
     boost::smatch match;
     if(!regex_match(s, match, boost::regex("(\\d+):(\\d+)")))
-      throw validation_error(std::string("Invalid size format (\"w:h\" expected)."));
+      throw invalid_option_value(s);
     int w = boost::lexical_cast<int>(match[1]);
     int h = boost::lexical_cast<int>(match[2]);
 
@@ -181,7 +181,7 @@ namespace vigra {
     /* Match. */
     boost::smatch match;
     if(!regex_match(s, match, boost::regex("(\\d+):(\\d+):(-?\\d+):(-?\\d+)")))
-      throw validation_error(std::string("Invalid region format (\"x:y:w:h\" expected)."));
+      throw invalid_option_value(s);
     int x = boost::lexical_cast<int>(match[1]);
     int y = boost::lexical_cast<int>(match[2]);
     int w = boost::lexical_cast<int>(match[3]);
