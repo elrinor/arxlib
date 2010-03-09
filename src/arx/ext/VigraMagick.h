@@ -70,7 +70,7 @@ namespace arx {
         magickImage.rows(),
         detail::magick_order_map<PixelType>::value(),
         detail::magick_storage_type<PixelType>::value,
-        const_cast<vigra::BasicImage<PixelType>::pointer>(vigraImage.data()) /* We cheat a bit here, but I see no other way that would not degrade performance. */
+        const_cast<typename vigra::BasicImage<PixelType>::pointer>(vigraImage.data()) /* We cheat a bit here, but I see no other way that would not degrade performance. */
       );
     }
   }

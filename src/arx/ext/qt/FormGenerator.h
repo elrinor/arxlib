@@ -9,6 +9,7 @@ namespace arx {
 // -------------------------------------------------------------------------- //
 // FormGenerator
 // -------------------------------------------------------------------------- //
+  /* TODO: use virtual functions to simplify things. */
   template<class Derived>
   class FormGenerator: public FormPrintWorker {
   public:
