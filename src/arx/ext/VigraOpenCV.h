@@ -5,7 +5,7 @@
 #include <cassert>
 #include <boost/mpl/int.hpp>
 #include <arx/Utility.h>
-#include "Vigra.h"
+#include "vigra/MetaFunctions.h"
 #include "OpenCV.h"
 
 namespace arx {
@@ -13,36 +13,18 @@ namespace arx {
 // -------------------------------------------------------------------------- //
 // opencv_data_type
 // -------------------------------------------------------------------------- //
-    template<class PixelType> struct opencv_data_type: public boost::mpl::int_<cv::DataDepth<PixelType>::value> {
+    template<class PixelType> struct opencv_data_type: boost::mpl::int_<cv::DataDepth<typename channel_type<PixelType>::type>::value> {
       STATIC_ASSERT((value != -1));
     };
 
-    template<class ChannelType, unsigned redIndex, unsigned greenIndex, unsigned blueIndex> 
-    struct opencv_data_type<vigra::RGBValue<ChannelType, redIndex, greenIndex, blueIndex> >: opencv_data_type<ChannelType> {};
-
-    template<class ChannelType> 
-    struct opencv_data_type<vigra::TinyVector<ChannelType, 4> >: opencv_data_type<ChannelType> {};
-
-
-// -------------------------------------------------------------------------- //
-// opencv_channels
-// -------------------------------------------------------------------------- //
-    template<class PixelType> struct opencv_channels: boost::mpl::int_<1> {};
-
-    template<class ChannelType, unsigned redIndex, unsigned greenIndex, unsigned blueIndex> 
-    struct opencv_channels<vigra::RGBValue<ChannelType, redIndex, greenIndex, blueIndex> >: boost::mpl::int_<3> {};
-
-    template<class ChannelType> 
-    struct opencv_channels<vigra::TinyVector<ChannelType, 4> >: boost::mpl::int_<4> {};
-  
   } // namespace detail
 
 
 // -------------------------------------------------------------------------- //
 // Image conversion
 // -------------------------------------------------------------------------- //
-  template<class PixelType>
-  void convert(const vigra::BasicImage<PixelType>& vigraImage, cv::Mat& cvImage) {
+  template<class PixelType, class Alloc>
+  void convert(const vigra::BasicImage<PixelType, Alloc>& vigraImage, cv::Mat& cvImage) {
     if(vigraImage.width() == 0 || vigraImage.width() == 0) {
       cvImage = cv::Mat();
     } else {
@@ -55,19 +37,19 @@ namespace arx {
       cvImage = cv::Mat(
         vigraImage.height(), 
         vigraImage.width(), 
-        CV_MAKETYPE(detail::opencv_data_type<PixelType>::value, detail::opencv_channels<PixelType>::value), 
+        CV_MAKETYPE(detail::opencv_data_type<PixelType>::value, channels<PixelType>::value), 
         pixels
       );
     }
   }
 
-  template<class PixelType>
-  void convert(const cv::Mat& cvImage, vigra::BasicImage<PixelType>& vigraImage) {
+  template<class PixelType, class Alloc>
+  void convert(const cv::Mat& cvImage, vigra::BasicImage<PixelType, Alloc>& vigraImage) {
     if(cvImage.rows == 0 || cvImage.cols == 0) { 
-      vigraImage = vigra::BasicImage<PixelType>();
+      vigraImage = vigra::BasicImage<PixelType, Alloc>();
     } else {
       int sourceChannels = cvImage.channels();
-      int targetChannels = detail::opencv_channels<PixelType>::value;
+      int targetChannels = detail::channels<PixelType>::value;
       int targetType = CV_MAKETYPE(detail::opencv_data_type<PixelType>::value, targetChannels);
 
       /* Convert channels. */
@@ -107,10 +89,10 @@ namespace arx {
 
       /* Copy back. */
       assert(cvTargetImage.flags & cv::Mat::CONTINUOUS_FLAG);
-      vigraImage = vigra::BasicImage<PixelType>(
+      vigraImage = vigra::BasicImage<PixelType, Alloc>(
         cvTargetImage.cols, 
         cvTargetImage.rows, 
-        reinterpret_cast<vigra::BasicImage<PixelType>::const_pointer>(cvTargetImage.data)
+        reinterpret_cast<vigra::BasicImage<PixelType, Alloc>::const_pointer>(cvTargetImage.data)
       );
     }
   }
@@ -126,8 +108,8 @@ namespace arx {
    * @param linkThreshold              threshold for establishing links.
    * @param clusterThreshold           threshold for the segments clustering.
    */
-  template<class PixelType, class DestPixelType>
-  void pyramidClusterize(const vigra::BasicImage<PixelType>& vigraImage, vigra::BasicImage<DestPixelType>& vigraDestImage, int level, double linkThreshold, double clusterThreshold) {
+  template<class SrcPixelType, class SrcAlloc, class DstPixelType, class DstAlloc>
+  void pyramidClusterize(const vigra::BasicImage<SrcPixelType, SrcAlloc>& vigraImage, vigra::BasicImage<DstPixelType, DstAlloc>& vigraDestImage, int level, double linkThreshold, double clusterThreshold) {
     cv::Mat cvImage;
     convert(vigraImage, cvImage);
 

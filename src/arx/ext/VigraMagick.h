@@ -5,27 +5,28 @@
 #include <boost/mpl/integral_c.hpp>
 #include <cassert>
 #include <fstream>
-#include "Vigra.h"
+#include "vigra/MetaFunctions.h"
 #include "Magick.h"
 
 namespace arx {
   namespace detail {
 // -------------------------------------------------------------------------- //
+// magick_storage_type_impl
+// -------------------------------------------------------------------------- //
+    template<class T> struct magick_storage_type_impl;
+    template<> struct magick_storage_type_impl<unsigned char>:  boost::mpl::integral_c<Magick::StorageType, Magick::CharPixel> {};
+    template<> struct magick_storage_type_impl<double>:         boost::mpl::integral_c<Magick::StorageType, Magick::DoublePixel> {};
+    template<> struct magick_storage_type_impl<float>:          boost::mpl::integral_c<Magick::StorageType, Magick::FloatPixel> {};
+    template<> struct magick_storage_type_impl<unsigned int>:   boost::mpl::integral_c<Magick::StorageType, Magick::IntegerPixel> {};
+    // template<> struct magick_storage_type_impl<unsigned long>:  boost::mpl::integral_c<Magick::StorageType, Magick::LongPixel> {}; /* MSVC chokes here for no apparent reason. */
+    template<> struct magick_storage_type_impl<unsigned short>: boost::mpl::integral_c<Magick::StorageType, Magick::ShortPixel> {};
+
+
+// -------------------------------------------------------------------------- //
 // magick_storage_type
 // -------------------------------------------------------------------------- //
-    template<class T> struct magick_storage_type;
-    template<> struct magick_storage_type<unsigned char>:  boost::mpl::integral_c<Magick::StorageType, Magick::CharPixel> {};
-    template<> struct magick_storage_type<double>:         boost::mpl::integral_c<Magick::StorageType, Magick::DoublePixel> {};
-    template<> struct magick_storage_type<float>:          boost::mpl::integral_c<Magick::StorageType, Magick::FloatPixel> {};
-    template<> struct magick_storage_type<unsigned int>:   boost::mpl::integral_c<Magick::StorageType, Magick::IntegerPixel> {};
-    // template<> struct magick_storage_type<unsigned long>:  boost::mpl::integral_c<Magick::StorageType, Magick::LongPixel> {}; /* MSVC chokes here for no apparent reason. */
-    template<> struct magick_storage_type<unsigned short>: boost::mpl::integral_c<Magick::StorageType, Magick::ShortPixel> {};
-    
-    template<class ChannelType, unsigned redIndex, unsigned greenIndex, unsigned blueIndex> 
-    struct magick_storage_type<vigra::RGBValue<ChannelType, redIndex, greenIndex, blueIndex> >: magick_storage_type<ChannelType> {};
-
-    template<class ChannelType> 
-    struct magick_storage_type<vigra::TinyVector<ChannelType, 4> >: magick_storage_type<ChannelType> {};
+    template<class PixelType>
+    struct magick_storage_type: magick_storage_type_impl<typename vigra::channel_type<PixelType>::type> {};
 
 
 // -------------------------------------------------------------------------- //
@@ -42,8 +43,8 @@ namespace arx {
 // -------------------------------------------------------------------------- //
 // Image conversion
 // -------------------------------------------------------------------------- //
-  template<class PixelType>
-  void convert(const vigra::BasicImage<PixelType>& vigraImage, Magick::Image& magickImage) {
+  template<class PixelType, class Alloc>
+  void convert(const vigra::BasicImage<PixelType, Alloc>& vigraImage, Magick::Image& magickImage) {
     if(vigraImage.width() == 0 || vigraImage.height() == 0) {
       magickImage = Magick::Image();
     } else {
@@ -57,10 +58,10 @@ namespace arx {
     }
   }
 
-  template<class PixelType>
-  void convert(Magick::Image& magickImage, vigra::BasicImage<PixelType>& vigraImage) {
+  template<class PixelType, class Alloc>
+  void convert(Magick::Image& magickImage, vigra::BasicImage<PixelType, Alloc>& vigraImage) {
     if(magickImage.columns() == 0 || magickImage.rows() == 0) {
-      vigraImage = vigra::BasicImage<PixelType>();
+      vigraImage = vigra::BasicImage<PixelType, Alloc>();
     } else {
       vigraImage.resize(magickImage.columns(), magickImage.rows());
       magickImage.write(
@@ -70,7 +71,7 @@ namespace arx {
         magickImage.rows(),
         detail::magick_order_map<PixelType>::value(),
         detail::magick_storage_type<PixelType>::value,
-        const_cast<typename vigra::BasicImage<PixelType>::pointer>(vigraImage.data()) /* We cheat a bit here, but I see no other way that would not degrade performance. */
+        const_cast<typename vigra::BasicImage<PixelType, Alloc>::pointer>(vigraImage.data()) /* We cheat a bit here, but I see no other way that would not degrade performance. */
       );
     }
   }
@@ -108,8 +109,8 @@ namespace arx {
 
   } // namespace detail
 
-  template<class PixelType, class StdString>
-  void importImage(vigra::BasicImage<PixelType>& vigraImage, const StdString& fileName) {
+  template<class PixelType, class Alloc, class StdString>
+  void importImage(vigra::BasicImage<PixelType, Alloc>& vigraImage, const StdString& fileName) {
     Magick::Image magickImage;
     detail::importMagickImage(magickImage, fileName);
     convert(magickImage, vigraImage);
@@ -144,8 +145,8 @@ namespace arx {
 
   } // namespace detail
 
-  template<class PixelType, class StdString>
-  void exportImage(const vigra::BasicImage<PixelType>& vigraImage, const StdString& fileName) {
+  template<class PixelType, class Alloc, class StdString>
+  void exportImage(const vigra::BasicImage<PixelType, Alloc>& vigraImage, const StdString& fileName) {
     Magick::Image magickImage;
     convert(vigraImage, magickImage);
     detail::exportMagickImage(magickImage, fileName);
@@ -155,8 +156,8 @@ namespace arx {
 // -------------------------------------------------------------------------- //
 // Quantization
 // -------------------------------------------------------------------------- //
-  template<class PixelType>
-  void quantize(vigra::BasicImage<PixelType>& vigraImage, unsigned colors) {
+  template<class PixelType, class Alloc>
+  void quantize(vigra::BasicImage<PixelType, Alloc>& vigraImage, unsigned colors) {
     Magick::Image magickImage;
     convert(vigraImage, magickImage);
 
