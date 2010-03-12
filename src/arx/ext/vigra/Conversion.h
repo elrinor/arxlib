@@ -4,6 +4,7 @@
 #include "config.h"
 #include <boost/type_traits/is_same.hpp>
 #include <vigra/rgbvalue.hxx>
+#include <vigra/basicimage.hxx>
 #include <arx/Utility.h> /* for STATIC_ASSERT() */
 #include "MetaFunctions.h"
 #include "Accessor.h"
