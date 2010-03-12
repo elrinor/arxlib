@@ -3,17 +3,32 @@
 
 #include "config.h"
 #include <boost/type_traits/is_same.hpp>
-#include <vigra/rgbvalue.hxx>
+#include "MetaFunctions.h"
 
 namespace vigra {
+// -------------------------------------------------------------------------- //
+// ColorTraits
+// -------------------------------------------------------------------------- //
+  template<class PixelType>
+  struct ColorTraits {
+    static PixelType white() {
+      return boost::is_same<typename NumericTraits<PixelType>::isIntegral, VigraTrueType>::value ? 
+        PixelType(vigra::NumericTraits<channel_type<PixelType>::type>::max()) :
+        vigra::NumericTraits<PixelType>::one();
+    }
+
+    static PixelType black() {
+      return NumericTraits<PixelType>::zero();
+    }
+  };
+
+
 // -------------------------------------------------------------------------- //
 // white
 // -------------------------------------------------------------------------- //
   template<class PixelType>
   PixelType white() {
-    return boost::is_same<typename NumericTraits<PixelType>::isIntegral, VigraTrueType>::value ? 
-      vigra::NumericTraits<PixelType>::max() : 
-      vigra::NumericTraits<PixelType>::one();
+    return ColorTraits<PixelType>::white();
   }
 
 
@@ -22,9 +37,8 @@ namespace vigra {
 // -------------------------------------------------------------------------- //
   template<class PixelType>
   PixelType black() {
-    return NumericTraits<PixelType>::zero();
+    return ColorTraits<PixelType>::black();
   }
-
 
 } // namespace vigra
 
