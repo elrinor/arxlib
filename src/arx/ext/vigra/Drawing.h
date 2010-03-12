@@ -22,7 +22,7 @@ namespace vigra {
     int dx, dy;
 
     if(x1 == x2 && y1 == y2) {
-      checkedSetPixel(image, x1, y1, value);
+      detail::checkedSetPixel(image, x1, y1, value);
     } else if(abs(x2 - x1) > abs(y2 - y1)) {
       if(x1 > x2) {
         std::swap(x1, x2);
@@ -40,7 +40,7 @@ namespace vigra {
       dx = x2 - x1;
       dy = y2 - y1;
       for(int i = y1; i <= y2; i++)
-        checkedSetPixel(image, x1 + (i - y1) * dx / dy, i, value);
+        detail::checkedSetPixel(image, x1 + (i - y1) * dx / dy, i, value);
     }
   }
 
