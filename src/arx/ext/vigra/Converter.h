@@ -195,7 +195,7 @@ namespace vigra {
           scale(src[0]),
           scale(src[1]),
           scale(src[2]),
-          scale(src[3]),
+          scale(src[3])
         );
       }
     };
@@ -209,7 +209,7 @@ namespace vigra {
           scale(src.red()),
           scale(src.green()),
           scale(src.blue()),
-          scale(white<DstChannelType>()),
+          scale(white<DstChannelType>())
         );
       }
     };
