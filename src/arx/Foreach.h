@@ -16,6 +16,7 @@
 
 #define ARX_FOREACH_VAR(NAME) BOOST_PP_CAT(NAME, __LINE__)
 
+/* TODO: break / continue doesn't work! */
 #define map_foreach(KEY, VAL, MAP)                                              \
   BOOST_FOREACH(BOOST_TYPEOF(*(MAP).begin())& pair, MAP)                        \
   for(bool ARX_FOREACH_VAR(stop) = false; !ARX_FOREACH_VAR(stop);)              \
