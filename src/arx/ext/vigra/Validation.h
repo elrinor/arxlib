@@ -21,7 +21,8 @@ namespace vigra {
 
     /* Match. */
     int w, h;
-    if(!parse(s.begin(), s.end(), uint_ >> ':' >> uint_, w, h))
+    std::string::const_iterator begin = s.begin();
+    if(!parse(begin, s.end(), uint_ >> ':' >> uint_, w, h))
       throw invalid_option_value(s);
 
     /* Ok. */
@@ -41,7 +42,8 @@ namespace vigra {
 
     /* Match. */
     int x, y, w, h;
-    if(!parse(s.begin(), s.end(), uint_ >> ':' >> uint_ >> ':' >> int_ >> ':' >> int_, x, y, w, h))
+    std::string::const_iterator begin = s.begin();
+    if(!parse(begin, s.end(), uint_ >> ':' >> uint_ >> ':' >> int_ >> ':' >> int_, x, y, w, h))
       throw invalid_option_value(s);
 
     /* Ok. */

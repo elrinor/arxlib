@@ -2,10 +2,11 @@
 #define __ARX_EXT_VIGRA_H__
 
 #include "config.h"
-#include "vigra/Accessor.h"
+#include "vigra/Accessors.h"
 #include "vigra/Binarization.h"
 #include "vigra/Colors.h"
-#include "vigra/Conversion.h"
+#include "vigra/Convert.h"
+#include "vigra/Converter.h"
 #include "vigra/Drawing.h"
 #include "vigra/MetaFunctions.h"
 #include "vigra/StdImage.h"

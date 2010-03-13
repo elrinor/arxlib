@@ -1,11 +1,11 @@
-#ifndef __ARX_EXT_VIGRA_ACCESSOR_H__
-#define __ARX_EXT_VIGRA_ACCESSOR_H__
+#ifndef __ARX_EXT_VIGRA_ACCESSORS_H__
+#define __ARX_EXT_VIGRA_ACCESSORS_H__
 
 #include "config.h"
 #include <boost/type_traits/is_same.hpp>
 #include <arx/Utility.h> /* for STATIC_ASSERT() */
 #include "MetaFunctions.h"
-#include "Conversion.h"
+#include "Converter.h"
 
 namespace vigra {
 // -------------------------------------------------------------------------- //
@@ -70,4 +70,4 @@ namespace vigra {
 
 } // namespace vigra
 
-#endif // __ARX_EXT_VIGRA_ACCESSOR_H__
+#endif // __ARX_EXT_VIGRA_ACCESSORS_H__

@@ -13,7 +13,7 @@ namespace vigra {
   struct ColorTraits {
     static PixelType white() {
       return boost::is_same<typename NumericTraits<PixelType>::isIntegral, VigraTrueType>::value ? 
-        PixelType(vigra::NumericTraits<channel_type<PixelType>::type>::max()) :
+        PixelType(vigra::NumericTraits<typename channel_type<PixelType>::type>::max()) :
         vigra::NumericTraits<PixelType>::one();
     }
 
