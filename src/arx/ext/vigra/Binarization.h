@@ -3,9 +3,10 @@
 
 #include "config.h"
 #include <boost/type_traits/is_same.hpp>
+#include <vigra/transformimage.hxx> /* for Threshold<> */
 #include <arx/Utility.h> /* for STATIC_ASSERT() */
 #include "MetaFunctions.h"
-#include "Conversion.h"
+#include "Convert.h"
 
 namespace vigra {
 // -------------------------------------------------------------------------- //
@@ -60,8 +61,9 @@ namespace vigra {
     }
 
     /* Binarize. */
-    transformImage(srcImageRange(src), destImage(dst, ConvertingAccessor<UInt8, DstPixelType>()), vigra::Threshold<UInt8, UInt8>(0, (a + b) / 2, 255, 0));
+    transformImage(srcImageRange(src), destImage(dst, ConvertingAccessor<UInt8, DstPixelType>()), Threshold<UInt8, UInt8>(0, (a + b) / 2, 255, 0));
   }
+
 } // namespace vigra
 
 #endif // __ARX_EXT_VIGRA_BINARIZATION_H__
