@@ -2,6 +2,7 @@
 #define __ARX_EXT_VIGRA_BINARIZATION_H__
 
 #include "config.h"
+#include <vector>
 #include <boost/type_traits/is_same.hpp>
 #include <vigra/transformimage.hxx> /* for Threshold<> */
 #include <arx/Utility.h> /* for STATIC_ASSERT() */
@@ -25,7 +26,7 @@ namespace vigra {
       return;
 
     /* Create hystogram. */
-    arx::vector<int> hystogram;
+    std::vector<int> hystogram;
     hystogram.resize(256, 0);
     for(int y = 0; y < src.height(); y++)
       for(int x = 0; x < src.width(); x++)
