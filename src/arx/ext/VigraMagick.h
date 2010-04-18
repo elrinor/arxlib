@@ -5,7 +5,7 @@
 #include <boost/mpl/integral_c.hpp>
 #include <cassert>
 #include <fstream>
-#include "vigra/MetaFunctions.h"
+#include "Vigra.h"
 #include "Magick.h"
 
 namespace arx {
