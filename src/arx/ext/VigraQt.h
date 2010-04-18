@@ -19,7 +19,9 @@ namespace arx {
 
     /* Convert to QImage. */
     qImage = QImage(vigraRgbaImage.width(), vigraRgbaImage.height(), QImage::Format_RGB32);
-    assert(qImage.byteCount() == vigraRgbaImage.width() * vigraRgbaImage.height() * sizeof(vigra::BRGBAImage::value_type));
+
+    /* g++ -Wall issues warning on the next line if we don't use static_cast. */
+    assert(static_cast<int>(qImage.byteCount()) == static_cast<int>(vigraRgbaImage.width() * vigraRgbaImage.height() * sizeof(vigra::BRGBAImage::value_type))); 
     memcpy(qImage.bits(), vigraRgbaImage.data(), qImage.byteCount());
   }
 
