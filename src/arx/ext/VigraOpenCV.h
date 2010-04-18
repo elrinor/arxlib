@@ -5,7 +5,7 @@
 #include <cassert>
 #include <boost/mpl/int.hpp>
 #include <arx/Utility.h>
-#include "vigra/MetaFunctions.h"
+#include "Vigra.h"
 #include "OpenCV.h"
 
 namespace arx {
@@ -13,7 +13,7 @@ namespace arx {
 // -------------------------------------------------------------------------- //
 // opencv_data_type
 // -------------------------------------------------------------------------- //
-    template<class PixelType> struct opencv_data_type: boost::mpl::int_<cv::DataDepth<typename channel_type<PixelType>::type>::value> {
+    template<class PixelType> struct opencv_data_type: boost::mpl::int_<cv::DataDepth<typename vigra::channel_type<PixelType>::type>::value> {
       STATIC_ASSERT((value != -1));
     };
 
@@ -37,7 +37,7 @@ namespace arx {
       cvImage = cv::Mat(
         vigraImage.height(), 
         vigraImage.width(), 
-        CV_MAKETYPE(detail::opencv_data_type<PixelType>::value, channels<PixelType>::value), 
+        CV_MAKETYPE(detail::opencv_data_type<PixelType>::value, vigra::channels<PixelType>::value), 
         pixels
       );
     }
@@ -49,7 +49,7 @@ namespace arx {
       vigraImage = vigra::BasicImage<PixelType, Alloc>();
     } else {
       int sourceChannels = cvImage.channels();
-      int targetChannels = detail::channels<PixelType>::value;
+      int targetChannels = vigra::channels<PixelType>::value;
       int targetType = CV_MAKETYPE(detail::opencv_data_type<PixelType>::value, targetChannels);
 
       /* Convert channels. */

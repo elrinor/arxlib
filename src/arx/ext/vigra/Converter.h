@@ -7,6 +7,7 @@
 #include <vigra/basicimage.hxx>
 #include <arx/Utility.h> /* for STATIC_ASSERT() */
 #include "MetaFunctions.h"
+#include "RGBAValue.h"
 #include "Colors.h"
 #include "Accessors.h"
 
@@ -179,50 +180,40 @@ namespace vigra {
         ChannelConverter<SrcChannelType, DstChannelType> scale;
 
         RGBValue<DstChannelType, dstRedIndex, dstGreenIndex, dstBlueIndex> result;
-        result.setRed(scale(src.red()));
-        result.setGreen(scale(src.green()));
-        result.setBlue(scale(src.blue()));
+        result.setRGB(scale(src.red()), scale(src.green()), scale(src.blue()));
         return result;
       }
     };
 
-    template<class SrcChannelType, class DstChannelType>
-    struct ConverterBase<TinyVector<SrcChannelType, 4>, TinyVector<DstChannelType, 4> > {
-      TinyVector<DstChannelType, 4> convert(const TinyVector<SrcChannelType, 4>& src) const {
+    template<class SrcChannelType, unsigned srcRedIndex, unsigned srcGreenIndex, unsigned srcBlueIndex, unsigned srcAlphaIndex, class DstChannelType, unsigned dstRedIndex, unsigned dstGreenIndex, unsigned dstBlueIndex, unsigned dstAlphaIndex>
+    struct ConverterBase<RGBAValue<SrcChannelType, srcRedIndex, srcGreenIndex, srcBlueIndex, srcAlphaIndex>, RGBAValue<DstChannelType, dstRedIndex, dstGreenIndex, dstBlueIndex, dstAlphaIndex> > {
+      RGBAValue<DstChannelType, dstRedIndex, dstGreenIndex, dstBlueIndex, dstAlphaIndex> operator() (const RGBAValue<SrcChannelType, srcRedIndex, srcGreenIndex, srcBlueIndex, srcAlphaIndex>& src) const {
         ChannelConverter<SrcChannelType, DstChannelType> scale;
 
-        return TinyVector<DstChannelType, 4>(
-          scale(src[0]),
-          scale(src[1]),
-          scale(src[2]),
-          scale(src[3])
-        );
+        RGBAValue<DstChannelType, dstRedIndex, dstGreenIndex, dstBlueIndex, dstAlphaIndex> result;
+        result.setRGBA(scale(src.red()), scale(src.green()), scale(src.blue()), scale(src.alpha()));
+        return result;
       }
     };
 
-    template<class SrcChannelType, unsigned srcRedIndex, unsigned srcGreenIndex, unsigned srcBlueIndex, class DstChannelType>
-    struct ConverterBase<RGBValue<SrcChannelType, srcRedIndex, srcGreenIndex, srcBlueIndex>, TinyVector<DstChannelType, 4> > {
-      TinyVector<DstChannelType, 4> convert(const RGBValue<SrcChannelType, srcRedIndex, srcGreenIndex, srcBlueIndex>& src) const {
+    template<class SrcChannelType, unsigned srcRedIndex, unsigned srcGreenIndex, unsigned srcBlueIndex, class DstChannelType, unsigned dstRedIndex, unsigned dstGreenIndex, unsigned dstBlueIndex, unsigned dstAlphaIndex>
+    struct ConverterBase<RGBValue<SrcChannelType, srcRedIndex, srcGreenIndex, srcBlueIndex>, RGBAValue<DstChannelType, dstRedIndex, dstGreenIndex, dstBlueIndex, dstAlphaIndex> > {
+      RGBAValue<DstChannelType, dstRedIndex, dstGreenIndex, dstBlueIndex, dstAlphaIndex> operator() (const RGBValue<SrcChannelType, srcRedIndex, srcGreenIndex, srcBlueIndex>& src) const {
         ChannelConverter<SrcChannelType, DstChannelType> scale;
 
-        return TinyVector<DstChannelType, 4>(
-          scale(src.red()),
-          scale(src.green()),
-          scale(src.blue()),
-          scale(white<DstChannelType>())
-        );
+        RGBAValue<DstChannelType, dstRedIndex, dstGreenIndex, dstBlueIndex, dstAlphaIndex> result;
+        result.setRGBA(scale(src.red()), scale(src.green()), scale(src.blue()), white<DstChannelType>());
+        return result;
       }
     };
 
-    template<class SrcChannelType, class DstChannelType, unsigned dstRedIndex, unsigned dstGreenIndex, unsigned dstBlueIndex>
-    struct ConverterBase<TinyVector<SrcChannelType, 4>, RGBValue<DstChannelType, dstRedIndex, dstGreenIndex, dstBlueIndex> > {
-      RGBValue<DstChannelType, dstRedIndex, dstGreenIndex, dstBlueIndex> convert(const TinyVector<SrcChannelType, 4>& src) const {
+    template<class SrcChannelType, unsigned srcRedIndex, unsigned srcGreenIndex, unsigned srcBlueIndex, unsigned srcAlphaIndex, class DstChannelType, unsigned dstRedIndex, unsigned dstGreenIndex, unsigned dstBlueIndex>
+    struct ConverterBase<RGBAValue<SrcChannelType, srcRedIndex, srcGreenIndex, srcBlueIndex, srcAlphaIndex>, RGBValue<DstChannelType, dstRedIndex, dstGreenIndex, dstBlueIndex> > {
+      RGBValue<DstChannelType, dstRedIndex, dstGreenIndex, dstBlueIndex> operator() (const RGBAValue<SrcChannelType, srcRedIndex, srcGreenIndex, srcBlueIndex, srcAlphaIndex>& src) const {
         ChannelConverter<SrcChannelType, DstChannelType> scale;
 
         RGBValue<DstChannelType, dstRedIndex, dstGreenIndex, dstBlueIndex> result;
-        result.setRed(scale(src[0]));
-        result.setGreen(scale(src[1]));
-        result.setBlue(scale(src[2]));
+        result.setRGBA(scale(src.red()), scale(src.green()), scale(src.blue()), scale(src.alpha()));
         return result;
       }
     };
@@ -239,27 +230,25 @@ namespace vigra {
     template<class SrcChannelType, unsigned srcRedIndex, unsigned srcGreenIndex, unsigned srcBlueIndex, class DstChannelType> 
     struct ConverterBase<RGBValue<SrcChannelType, srcRedIndex, srcGreenIndex, srcBlueIndex>, DstChannelType> {
       DstChannelType operator() (const RGBValue<SrcChannelType, srcRedIndex, srcGreenIndex, srcBlueIndex>& src) const {
-        ChannelConverter<SrcChannelType, DstChannelType> scale;
-
-        return RGBValue<DstChannelType>(scale(src.red()), scale(src.green()), scale(src.blue())).luminance();
+        return ChannelConverter<SrcChannelType, DstChannelType>()(src.luminance());
       }
     };
 
-    template<class SrcChannelType, class DstChannelType> 
-    struct ConverterBase<SrcChannelType, TinyVector<DstChannelType, 4> > {
-      TinyVector<DstChannelType, 4> operator() (const SrcChannelType& src) const {
+    template<class SrcChannelType, class DstChannelType, unsigned dstRedIndex, unsigned dstGreenIndex, unsigned dstBlueIndex, unsigned dstAlphaIndex> 
+    struct ConverterBase<SrcChannelType, RGBAValue<DstChannelType, dstRedIndex, dstGreenIndex, dstBlueIndex, dstAlphaIndex> > {
+      RGBAValue<DstChannelType, dstRedIndex, dstGreenIndex, dstBlueIndex, dstAlphaIndex> operator() (const SrcChannelType& src) const {
         DstChannelType gray = ChannelConverter<SrcChannelType, DstChannelType>()(src);
 
-        return TinyVector<DstChannelType, 4>(gray, gray, gray, white<DstChannelType>());
+        RGBAValue<DstChannelType, dstRedIndex, dstGreenIndex, dstBlueIndex, dstAlphaIndex> result;
+        result.setRGBA(gray, gray, gray, white<DstChannelType>());
+        return result;
       }
     };
 
-    template<class SrcChannelType, class DstChannelType> 
-    struct ConverterBase<TinyVector<SrcChannelType, 4>, DstChannelType> {
-      DstChannelType operator() (const TinyVector<SrcChannelType, 4>& src) const {
-        ChannelConverter<SrcChannelType, DstChannelType> scale;
-
-        return RGBValue<DstChannelType>(scale(src[0]), scale(src[1]), scale(src[2])).luminance();
+    template<class SrcChannelType, unsigned srcRedIndex, unsigned srcGreenIndex, unsigned srcBlueIndex, unsigned srcAlphaIndex, class DstChannelType> 
+    struct ConverterBase<RGBAValue<SrcChannelType, srcRedIndex, srcGreenIndex, srcBlueIndex, srcAlphaIndex>, DstChannelType> {
+      DstChannelType operator() (const RGBAValue<SrcChannelType, srcRedIndex, srcGreenIndex, srcBlueIndex, srcAlphaIndex>& src) const {
+        return return ChannelConverter<SrcChannelType, DstChannelType>()(src.luminance());
       }
     };
 

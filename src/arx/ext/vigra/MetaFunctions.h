@@ -5,6 +5,7 @@
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/identity.hpp>
 #include <vigra/rgbvalue.hxx>
+#include "RGBAValue.h"
 
 namespace vigra {
 // -------------------------------------------------------------------------- //
@@ -15,8 +16,11 @@ namespace vigra {
   template<class ChannelType, unsigned redIndex, unsigned greenIndex, unsigned blueIndex> 
   struct channels<RGBValue<ChannelType, redIndex, greenIndex, blueIndex> >: boost::mpl::int_<3> {};
 
-  template<class ChannelType> 
-  struct channels<TinyVector<ChannelType, 4> >: boost::mpl::int_<4> {};
+  template<class ChannelType, int size> 
+  struct channels<TinyVector<ChannelType, size> >: boost::mpl::int_<size> {};
+
+  template<class ChannelType, unsigned redIndex, unsigned greenIndex, unsigned blueIndex, unsigned alphaIndex>
+  struct channels<RGBAValue<ChannelType, redIndex, greenIndex, blueIndex, alphaIndex> >: boost::mpl::int_<4> {};
 
 
 // -------------------------------------------------------------------------- //
@@ -27,8 +31,11 @@ namespace vigra {
   template<class ChannelType, unsigned redIndex, unsigned greenIndex, unsigned blueIndex> 
   struct channel_type<RGBValue<ChannelType, redIndex, greenIndex, blueIndex> >: boost::mpl::identity<ChannelType> {};
 
-  template<class ChannelType> 
-  struct channel_type<TinyVector<ChannelType, 4> >: boost::mpl::identity<ChannelType> {};
+  template<class ChannelType, int size> 
+  struct channel_type<TinyVector<ChannelType, size> >: boost::mpl::identity<ChannelType> {};
+
+  template<class ChannelType, unsigned redIndex, unsigned greenIndex, unsigned blueIndex, unsigned alphaIndex>
+  struct channel_type<RGBAValue<ChannelType, redIndex, greenIndex, blueIndex, alphaIndex> >: boost::mpl::identity<ChannelType> {};
 
 } // namespace vigra
 

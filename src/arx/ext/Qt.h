@@ -10,4 +10,8 @@
 #  define ARX_USE_QT
 #endif
 
+#ifdef ARX_USE_VIGRA
+#  include "VigraQt.h"
+#endif
+
 #endif // __ARX_EXT_QT_H__

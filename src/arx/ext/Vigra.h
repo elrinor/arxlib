@@ -9,6 +9,7 @@
 #include "vigra/Converter.h"
 #include "vigra/Drawing.h"
 #include "vigra/MetaFunctions.h"
+#include "vigra/RGBAValue.h"
 #include "vigra/StdImage.h"
 #include "vigra/Validation.h"
 
@@ -25,6 +26,10 @@
 
 #ifdef ARX_USE_OPENCV
 #  include "VigraOpenCV.h"
+#endif
+
+#ifdef ARX_USE_QT
+#  include "VigraQt.h"
 #endif
 
 #endif // __ARX_EXT_VIGRA_H__

@@ -13,12 +13,14 @@ namespace arx {
   template<class Derived>
   class FormGenerator: public FormPrintWorker {
   public:
-    FormGenerator(int numPages, QPrinter::Orientation desiredOrientation, unsigned desiredWidth, unsigned desiredHeight): 
-      FormPrintWorker(numPages), mDesiredOrientation(desiredOrientation), mDesiredWidth(desiredWidth), mDesiredHeight(desiredHeight) {}
+    FormGenerator(int numPages, QPrinter::Orientation desiredOrientation, int desiredWidth, int desiredHeight): 
+      FormPrintWorker(numPages), mDesiredOrientation(desiredOrientation), mDesiredWidth(desiredWidth), mDesiredHeight(desiredHeight) {
+      assert(mDesiredHeight > 0 && mDesiredWidth > 0);
+    }
 
     virtual void operator() (QPrinter& printer, QPainter& painter) {
       /* Compute actual sizes. */
-      unsigned actualWidth = mDesiredWidth, actualHeight = mDesiredHeight;
+      int actualWidth = mDesiredWidth, actualHeight = mDesiredHeight;
       if(printer.orientation() != mDesiredOrientation)
         std::swap(actualWidth, actualHeight);
 
@@ -49,11 +51,11 @@ namespace arx {
   protected:
     void drawPage(QPainter&, int);
 
-    unsigned width() const {
+    int width() const {
       return mDesiredWidth;
     }
 
-    unsigned height() const {
+    int height() const {
       return mDesiredHeight;
     }
 
@@ -67,7 +69,7 @@ namespace arx {
     }
 
     QPrinter::Orientation mDesiredOrientation;
-    unsigned mDesiredWidth, mDesiredHeight;
+    int mDesiredWidth, mDesiredHeight;
   };
 
 } // namespace arx
