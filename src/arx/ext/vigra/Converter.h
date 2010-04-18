@@ -248,7 +248,7 @@ namespace vigra {
     template<class SrcChannelType, unsigned srcRedIndex, unsigned srcGreenIndex, unsigned srcBlueIndex, unsigned srcAlphaIndex, class DstChannelType> 
     struct ConverterBase<RGBAValue<SrcChannelType, srcRedIndex, srcGreenIndex, srcBlueIndex, srcAlphaIndex>, DstChannelType> {
       DstChannelType operator() (const RGBAValue<SrcChannelType, srcRedIndex, srcGreenIndex, srcBlueIndex, srcAlphaIndex>& src) const {
-        return return ChannelConverter<SrcChannelType, DstChannelType>()(src.luminance());
+        return ChannelConverter<SrcChannelType, DstChannelType>()(src.luminance());
       }
     };
 
