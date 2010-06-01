@@ -9,36 +9,20 @@
 #include <utility>     /* for std::pair. */
 #include <exception>   /* for std::runtime_error. */
 
-#if 0
-// -------------------------------------------------------------------------- //
-// std::tr1::hash<std::pair<*> >
-// -------------------------------------------------------------------------- //
-namespace std {
-  namespace tr1 {
-    template<class T1, class T2>
-    class hash<std::pair<T1, T2> >: public std::unary_function<std::pair<T1, T2>, size_t> {
-    public:
-      result_type operator()(const argument_type& pair) const {
-        return hash<T1>()(pair.first) ^ hash<T2>()(pair.second);
-      }
-    };
-
-  } // namespace tr1
-} // namespace std
-#endif // currently disabled
 
 // -------------------------------------------------------------------------- //
 // Some useful defines
 // -------------------------------------------------------------------------- //
 #ifdef ARX_MSVC
 #  define FORCEINLINE __forceinline
-# else
+#else
 #  define FORCEINLINE inline
 #endif
 
 #define STATIC_ASSERT BOOST_STATIC_ASSERT
 
 #define Unreachable() {assert(!"Unreachable code executed."); ARX_THROW(::std::runtime_error(__FILE__ ":" BOOST_PP_STRINGIZE(__LINE__) ": Unreachable code executed."));} 
+
 
 namespace arx {
 // -------------------------------------------------------------------------- //
