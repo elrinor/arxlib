@@ -1,5 +1,5 @@
-#ifndef __ARX_EXT_QT_FORM_PRINTER_H__
-#define __ARX_EXT_QT_FORM_PRINTER_H__
+#ifndef ARX_EXT_QT_FORM_PRINTER_H
+#define ARX_EXT_QT_FORM_PRINTER_H
 
 #include "config.h"
 #include <cassert>
@@ -126,4 +126,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_EXT_QT_FORM_PRINTER_H__
+#endif // ARX_EXT_QT_FORM_PRINTER_H

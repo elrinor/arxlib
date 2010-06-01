@@ -1,5 +1,5 @@
-#ifndef __ARX_CONFIG_H__
-#define __ARX_CONFIG_H__
+#ifndef ARX_CONFIG_H
+#define ARX_CONFIG_H
 
 // -------------------------------------------------------------------------- //
 // Config: General & Global
@@ -58,4 +58,4 @@
   }
 #endif
 
-#endif // __ARX_CONFIG_H__
+#endif // ARX_CONFIG_H

@@ -1,5 +1,5 @@
-#ifndef __ARX_STATICCOUNTER_H__
-#define __ARX_STATICCOUNTER_H__
+#ifndef ARX_STATICCOUNTER_H
+#define ARX_STATICCOUNTER_H
 
 #include "config.h"
 #include <boost/preprocessor/cat.hpp>
@@ -26,4 +26,4 @@
  */
 #define ARX_INC_COUNTER(id) char (*arx_test_counter(const BOOST_PP_CAT(counter, id)<ARX_GET_COUNTER(id) + 1>*))[ARX_GET_COUNTER(id) + 2];
 
-#endif // __ARX_STATICCOUNTER_H__
+#endif // ARX_STATICCOUNTER_H

@@ -103,6 +103,7 @@
     <ClInclude Include="..\src\arx\Null.h" />
     <ClInclude Include="..\src\arx\ObjectPool.h" />
     <ClInclude Include="..\src\arx\Preprocessor.h" />
+    <ClInclude Include="..\src\arx\Range.h" />
     <ClInclude Include="..\src\arx\StaticBlock.h" />
     <ClInclude Include="..\src\arx\StaticCounter.h" />
     <ClInclude Include="..\src\arx\Utility.h" />

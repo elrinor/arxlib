@@ -1,5 +1,5 @@
-#ifndef __ARX_EXT_MAGICK_H__
-#define __ARX_EXT_MAGICK_H__
+#ifndef ARX_EXT_MAGICK_H
+#define ARX_EXT_MAGICK_H
 
 #include "config.h"
 #include <Magick++.h>
@@ -15,4 +15,4 @@
 #  include "VigraMagick.h"
 #endif
 
-#endif // __ARX_EXT_MAGICK_H__
+#endif // ARX_EXT_MAGICK_H

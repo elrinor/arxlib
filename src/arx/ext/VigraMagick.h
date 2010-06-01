@@ -1,5 +1,5 @@
-#ifndef __ARX_EXT_VIGRA_MAGICK_H__
-#define __ARX_EXT_VIGRA_MAGICK_H__
+#ifndef ARX_EXT_VIGRA_MAGICK_H
+#define ARX_EXT_VIGRA_MAGICK_H
 
 #include "config.h"
 #include <boost/mpl/integral_c.hpp>
@@ -187,6 +187,6 @@ namespace Magick {
 }
 
 
-#endif // __ARX_EXT_VIGRA_MAGICK_H__
+#endif // ARX_EXT_VIGRA_MAGICK_H
 
 

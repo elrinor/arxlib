@@ -1,5 +1,5 @@
-#ifndef __ARX_EXT_VIGRA_OPENCV_H__
-#define __ARX_EXT_VIGRA_OPENCV_H__
+#ifndef ARX_EXT_VIGRA_OPENCV_H
+#define ARX_EXT_VIGRA_OPENCV_H
 
 #include "config.h"
 #include <cassert>
@@ -138,4 +138,4 @@ namespace cv {
   using arx::convert;
 }
 
-#endif // __ARX_EXT_VIGRA_OPENCV_H__
+#endif // ARX_EXT_VIGRA_OPENCV_H

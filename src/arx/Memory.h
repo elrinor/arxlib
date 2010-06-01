@@ -2,8 +2,8 @@
  *
  * Includes some routines for aligned memory manipulations.
  */
-#ifndef __ARX_MEMORY_H__
-#define __ARX_MEMORY_H__
+#ifndef ARX_MEMORY_H
+#define ARX_MEMORY_H
 
 #include "config.h"
 #include <cstdlib>
@@ -227,4 +227,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_MEMORY_H__
+#endif // ARX_MEMORY_H

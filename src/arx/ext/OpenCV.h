@@ -1,5 +1,5 @@
-#ifndef __ARX_EXT_OPENCV_H__
-#define __ARX_EXT_OPENCV_H__
+#ifndef ARX_EXT_OPENCV_H
+#define ARX_EXT_OPENCV_H
 
 #include "config.h"
 #include <exception>
@@ -72,4 +72,4 @@ namespace arx {
 #  include "VigraOpenCV.h"
 #endif
 
-#endif // __ARX_EXT_OPENCV_H__
+#endif // ARX_EXT_OPENCV_H

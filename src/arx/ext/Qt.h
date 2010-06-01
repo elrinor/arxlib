@@ -1,5 +1,5 @@
-#ifndef __ARX_EXT_QT_H__
-#define __ARX_EXT_QT_H__
+#ifndef ARX_EXT_QT_H
+#define ARX_EXT_QT_H
 
 #include "config.h"
 
@@ -14,4 +14,4 @@
 #  include "VigraQt.h"
 #endif
 
-#endif // __ARX_EXT_QT_H__
+#endif // ARX_EXT_QT_H

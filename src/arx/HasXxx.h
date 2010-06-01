@@ -1,5 +1,5 @@
-#ifndef __ARX_HAS_XXX_H__
-#define __ARX_HAS_XXX_H__
+#ifndef ARX_HAS_XXX_H
+#define ARX_HAS_XXX_H
 
 #include "config.h"
 #include <boost/mpl/has_xxx.hpp>
@@ -70,7 +70,9 @@ struct trait_name<T, false>: public boost::mpl::false_ {};
  * @param trait_name                   Trait name.
  * @param func_name                    Name of a function to check.
  * @param func_type                    Type of a function, must be either static or normal.
- * @param func_return_type             Return type of the checking function. Is meaningful only if C++ constrains the possible return type of the function being cheched (as in case of operator new).
+ * @param func_return_type             Return type of the checking function. 
+ *                                     Is meaningful only if C++ constrains the possible return type 
+ *                                     of the function being checked (as in case of operator new).
  * @param func_return_statement        Return statement of the checking function.
  * @param func_params                  Parameters of a checking function, in parentheses. */
 #define ARX_HAS_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF(trait_name, func_name, func_type, func_return_type, func_return_statement, func_params) \
@@ -90,4 +92,4 @@ struct trait_name<T, false>: public boost::mpl::false_ {};
 #define ARX_HAS_FUNC_XXX_TRAIT_DEF(member_name)                                 \
   ARX_HAS_FUNC_XXX_TRAIT_NAMED_DEF(BOOST_PP_CAT(has_, member_name), member_name)
 
-#endif // __ARX_HAS_XXX_H__
+#endif // ARX_HAS_XXX_H

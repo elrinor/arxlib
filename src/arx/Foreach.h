@@ -1,5 +1,5 @@
-#ifndef __ARX_FOREACH_H__
-#define __ARX_FOREACH_H__
+#ifndef ARX_FOREACH_H
+#define ARX_FOREACH_H
 
 #include <boost/foreach.hpp>
 #include <boost/typeof/typeof.hpp>
@@ -23,4 +23,4 @@
   for(KEY = pair.first; !ARX_FOREACH_VAR(stop);)                                \
   for(VAL = pair.second; !ARX_FOREACH_VAR(stop); ARX_FOREACH_VAR(stop) = true)
 
-#endif // __ARX_FOREACH_H__
+#endif // ARX_FOREACH_H
