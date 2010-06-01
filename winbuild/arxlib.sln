@@ -1,9 +1,9 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "arxtest", "arxtest.vcproj", "{41057D88-2C8A-45B6-83F6-550F56220F33}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "arxtest", "arxtest.vcxproj", "{41057D88-2C8A-45B6-83F6-550F56220F33}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "quicktest", "quicktest.vcproj", "{97BD64AA-FCC5-4BDF-8EC2-50C5F6362C16}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "quicktest", "quicktest.vcxproj", "{97BD64AA-FCC5-4BDF-8EC2-50C5F6362C16}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

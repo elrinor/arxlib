@@ -1,5 +1,5 @@
-#ifndef __ARX_STATICBLOCK_H__
-#define __ARX_STATICBLOCK_H__
+#ifndef ARX_STATICBLOCK_H
+#define ARX_STATICBLOCK_H
 
 #include <boost/preprocessor/cat.hpp>
 
@@ -34,4 +34,4 @@
 #define ARX_STATIC_BLOCK(FILE_ID)                                               \
   ARX_STATIC_BLOCK_I(BOOST_PP_CAT(StaticBlock, BOOST_PP_CAT(FILE_ID, __LINE__)))
 
-#endif // __ARX_STATICBLOCK_H__
+#endif // ARX_STATICBLOCK_H

@@ -1,7 +1,8 @@
-#ifndef __ARX_UTILITY_H__
-#define __ARX_UTILITY_H__
+#ifndef ARX_UTILITY_H
+#define ARX_UTILITY_H
 
 #include "config.h"
+#include <cassert>
 #include <boost/static_assert.hpp>
 #include <boost/preprocessor/stringize.hpp>
 #include <functional>  /* for std::less. */
@@ -107,4 +108,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_UTILITY_H__
+#endif // ARX_UTILITY_H

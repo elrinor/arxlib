@@ -1,5 +1,5 @@
-#ifndef __ARX_NULL_H__
-#define __ARX_NULL_H__
+#ifndef ARX_NULL_H
+#define ARX_NULL_H
 
 #include <boost/noncopyable.hpp>
 #include <boost/utility.hpp>            /* for boost::addressof */
@@ -65,4 +65,4 @@ namespace arx {
 
 /* TODO: think NULL_ASSIGNABLE / NULL_CONSTRUCTIBLE */
 
-#endif // __ARX_NULL_H__
+#endif // ARX_NULL_H

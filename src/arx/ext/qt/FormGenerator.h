@@ -1,5 +1,5 @@
-#ifndef __ARX_EXT_QT_FORM_GENERATOR_H__
-#define __ARX_EXT_QT_FORM_GENERATOR_H__
+#ifndef ARX_EXT_QT_FORM_GENERATOR_H
+#define ARX_EXT_QT_FORM_GENERATOR_H
 
 #include "config.h"
 #include <algorithm> /* for std::swap(). */
@@ -74,4 +74,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_EXT_QT_FORM_GENERATOR_H__
+#endif // ARX_EXT_QT_FORM_GENERATOR_H

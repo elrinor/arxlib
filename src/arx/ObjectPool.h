@@ -1,5 +1,5 @@
-#ifndef __ARX_OBJECTPOOL_H__
-#define __ARX_OBJECTPOOL_H__
+#ifndef ARX_OBJECTPOOL_H
+#define ARX_OBJECTPOOL_H
 
 #include <vector>
 #include <algorithm>     /* for std::find that is used in assertions. */
@@ -180,4 +180,4 @@ namespace arx {
 
 } // namespace arx
 
-#endif // __ARX_OBJECTPOOL_H__
+#endif // ARX_OBJECTPOOL_H

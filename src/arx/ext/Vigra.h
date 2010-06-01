@@ -1,5 +1,5 @@
-#ifndef __ARX_EXT_VIGRA_H__
-#define __ARX_EXT_VIGRA_H__
+#ifndef ARX_EXT_VIGRA_H
+#define ARX_EXT_VIGRA_H
 
 #include "config.h"
 #include "vigra/Accessors.h"
@@ -32,4 +32,4 @@
 #  include "VigraQt.h"
 #endif
 
-#endif // __ARX_EXT_VIGRA_H__
+#endif // ARX_EXT_VIGRA_H
