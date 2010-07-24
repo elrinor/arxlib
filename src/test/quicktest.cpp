@@ -8,24 +8,14 @@
 
 #include <arx/Utility.h>
 
+#include <arx/ext/vigra/RGBAValue.h>
+
+#include <arx/ext/Vigra.h>
+
 int main() {
-  try {
-  Unreachable();
 
-  typedef std::map<int, int> T;
-
-  T v;
-
-  arx::ExtenderFacade<T> f(v);
-
-  f[0] = 1;
-
-
-  std::cout << f.size() << f[0] << std::endl;
-
-  } catch (std::runtime_error& e) {
-    int a = 1;
-  }
+  vigra::RGBValue<char> v;
+  -v;
 
   return 0;
 }

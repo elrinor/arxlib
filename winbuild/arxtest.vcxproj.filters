@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="arx">
+      <UniqueIdentifier>{9549cfce-531b-4559-81ec-3d23b969dca9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="arx\ext">
+      <UniqueIdentifier>{c3f47e33-70f8-4dfa-8195-cd6355c5e91a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="arx\ext\qt">
+      <UniqueIdentifier>{514d0a5a-4796-4ff1-8294-045aba875e41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test">
+      <UniqueIdentifier>{97a416ed-756b-44bf-ac49-0ad3b7bccfb8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\arx\config.h">
+      <Filter>arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\Foreach.h">
+      <Filter>arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\HasXxx.h">
+      <Filter>arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\LambdaHack.h">
+      <Filter>arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\Memory.h">
+      <Filter>arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\Null.h">
+      <Filter>arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ObjectPool.h">
+      <Filter>arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\Preprocessor.h">
+      <Filter>arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\StaticBlock.h">
+      <Filter>arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\StaticCounter.h">
+      <Filter>arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\Utility.h">
+      <Filter>arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\config.h">
+      <Filter>arx\ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\Magick.h">
+      <Filter>arx\ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\OpenCV.h">
+      <Filter>arx\ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\Qt.h">
+      <Filter>arx\ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\Vigra.h">
+      <Filter>arx\ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\VigraMagick.h">
+      <Filter>arx\ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\VigraOpenCV.h">
+      <Filter>arx\ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\config.h">
+      <Filter>arx\ext\qt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\FormGenerator.h">
+      <Filter>arx\ext\qt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\FormPrinter.h">
+      <Filter>arx\ext\qt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\Range.h">
+      <Filter>arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\HashHack.h">
+      <Filter>arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\VigraQt.h">
+      <Filter>arx\ext</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\arx\ext\qt\FormPrinter.pri">
+      <Filter>arx\ext\qt</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\test\arxtest.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

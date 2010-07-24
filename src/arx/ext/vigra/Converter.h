@@ -157,7 +157,7 @@ namespace vigra {
 // -------------------------------------------------------------------------- //
   template<class SrcPixelType, class DstPixelType>
   struct ChannelConverter: detail::ChannelConverterBase<SrcPixelType, DstPixelType> {
-    STATIC_ASSERT((channels<SrcPixelType>::value == 1 && channels<DstPixelType>::value == 1));
+    static_assert(channels<SrcPixelType>::value == 1 && channels<DstPixelType>::value == 1, "Source and target pixel types must have one channel.");
 
     typedef DstPixelType result_type;
   };
