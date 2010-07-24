@@ -101,8 +101,8 @@ namespace arx {
    */
   template<int align>
   struct WithAlignedOperatorNew {
-    STATIC_ASSERT(((align & (align - 1)) == 0)); /* is a power of 2 */
-    STATIC_ASSERT(((align & (sizeof(void*) - 1)) == 0)); /* is a multiple of sizeof(void*) */
+    static_assert((align & (align - 1)) == 0, "Align must be a power of 2.");
+    static_assert(align % sizeof(void*) == 0, "Align must be a multiple of sizeof(void*).");
 
     void* operator new(std::size_t size) throw() {
       return aligned_malloc(size, align);

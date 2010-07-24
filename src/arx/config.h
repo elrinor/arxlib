@@ -5,14 +5,42 @@
 // Config: General & Global
 // -------------------------------------------------------------------------- //
 /** @def ARX_DISABLE_THREADS
+ *
  * Define to disable thread support and thread safety in ArX library. May result in
- * faster code for single-threaded applications. */
+ * faster code for single-threaded applications. 
+ */
 
 /** @def ARX_DISABLE_EXCEPTIONS
+ *
  * Define to disable exception handling in ArX Library. When defined, ArX library
  * won't throw exceptions, but also won't try handle exceptions in user code. 
  * Note that in this case all the error will become non-interceptable, since
- * error handling code will revert to assertions instead of exceptions. */
+ * error handling code will revert to assertions instead of exceptions. 
+ */
+
+
+// -------------------------------------------------------------------------- //
+// Config: Image import & export
+// -------------------------------------------------------------------------- //
+/** @def ARX_USE_QT_IMAGE_IMPORT_EXPORT
+ * 
+ * If defined, Qt image manipulation routines are used for loading and saving
+ * of vigra images.
+ */
+
+/** @def ARX_USE_MAGICK_IMAGE_IMPORT_EXPORT
+ * 
+ * If defined, ImageMagick image manipulation routines are used for loading and
+ * saving of vigra images.
+ */
+
+#if !defined(ARX_USE_QT_IMAGE_IMPORT_EXPORT) && !defined(ARX_USE_MAGICK_IMAGE_IMPORT_EXPORT)
+#  define ARX_USE_QT_IMAGE_IMPORT_EXPORT
+#endif
+
+#if defined(ARX_USE_QT_IMAGE_IMPORT_EXPORT) && defined(ARX_USE_MAGICK_IMAGE_IMPORT_EXPORT)
+#  error Both ARX_USE_QT_IMAGE_IMPORT_EXPORT and ARX_USE_MAGICK_IMAGE_IMPORT_EXPORT are defined.
+#endif
 
 
 // -------------------------------------------------------------------------- //
@@ -31,7 +59,6 @@
 #elif defined _MSC_VER
 #  define ARX_MSVC
 #endif
-
 
 
 // -------------------------------------------------------------------------- //
@@ -57,5 +84,6 @@
     THROW_EXPRESSION;                                                           \
   }
 #endif
+
 
 #endif // ARX_CONFIG_H
