@@ -77,7 +77,7 @@ namespace arx {
   }
 
 
-#ifdef ARX_USE_MAGICK_IMAGE_IMPORT_EXPORT
+#ifdef ARX_USE_MAGICK_IMAGE_IO
   namespace detail {
 // -------------------------------------------------------------------------- //
 // Image import
@@ -152,7 +152,7 @@ namespace arx {
     convert(vigraImage, magickImage);
     detail::exportMagickImage(magickImage, fileName);
   }
-#endif // ARX_USE_MAGICK_IMAGE_IMPORT_EXPORT
+#endif // ARX_USE_MAGICK_IMAGE_IO
 
 
 // -------------------------------------------------------------------------- //
@@ -181,10 +181,10 @@ namespace vigra {
   using arx::convert;
   using arx::quantize;
 
-#ifdef ARX_USE_MAGICK_IMAGE_IMPORT_EXPORT
+#ifdef ARX_USE_MAGICK_IMAGE_IO
   using arx::importImage;
   using arx::exportImage;
-#endif // ARX_USE_MAGICK_IMAGE_IMPORT_EXPORT
+#endif // ARX_USE_MAGICK_IMAGE_IO
 }
 
 namespace Magick {

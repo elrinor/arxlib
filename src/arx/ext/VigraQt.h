@@ -40,7 +40,7 @@ namespace arx {
   }
 
 
-#ifdef ARX_USE_QT_IMAGE_IMPORT_EXPORT
+#ifdef ARX_USE_QT_IMAGE_IO
 // -------------------------------------------------------------------------- //
 // Image import & export
 // -------------------------------------------------------------------------- //
@@ -68,7 +68,7 @@ namespace arx {
     convert(vigraImage, qImage);
     qImage.save(detail::toQString(fileName));
   }
-#endif // ARX_USE_QT_IMAGE_IMPORT_EXPORT
+#endif // ARX_USE_QT_IMAGE_IO
 
 } // namespace arx
 
@@ -79,10 +79,10 @@ namespace arx {
 namespace vigra {
   using arx::convert;
 
-#ifdef ARX_USE_QT_IMAGE_IMPORT_EXPORT
+#ifdef ARX_USE_QT_IMAGE_IO
   using arx::importImage;
   using arx::exportImage;
-#endif // ARX_USE_QT_IMAGE_IMPORT_EXPORT
+#endif // ARX_USE_QT_IMAGE_IO
 }
 
 #endif // __ARX_EXT_VIGRA_QT_H__

@@ -22,24 +22,24 @@
 // -------------------------------------------------------------------------- //
 // Config: Image import & export
 // -------------------------------------------------------------------------- //
-/** @def ARX_USE_QT_IMAGE_IMPORT_EXPORT
+/** @def ARX_USE_QT_IMAGE_IO
  * 
  * If defined, Qt image manipulation routines are used for loading and saving
  * of vigra images.
  */
 
-/** @def ARX_USE_MAGICK_IMAGE_IMPORT_EXPORT
+/** @def ARX_USE_MAGICK_IMAGE_IO
  * 
  * If defined, ImageMagick image manipulation routines are used for loading and
  * saving of vigra images.
  */
 
-#if !defined(ARX_USE_QT_IMAGE_IMPORT_EXPORT) && !defined(ARX_USE_MAGICK_IMAGE_IMPORT_EXPORT)
-#  define ARX_USE_QT_IMAGE_IMPORT_EXPORT
+#if !defined(ARX_USE_QT_IMAGE_IO) && !defined(ARX_USE_MAGICK_IMAGE_IO)
+#  define ARX_USE_QT_IMAGE_IO
 #endif
 
-#if defined(ARX_USE_QT_IMAGE_IMPORT_EXPORT) && defined(ARX_USE_MAGICK_IMAGE_IMPORT_EXPORT)
-#  error Both ARX_USE_QT_IMAGE_IMPORT_EXPORT and ARX_USE_MAGICK_IMAGE_IMPORT_EXPORT are defined.
+#if defined(ARX_USE_QT_IMAGE_IO) && defined(ARX_USE_MAGICK_IMAGE_IO)
+#  error Both ARX_USE_QT_IMAGE_IO and ARX_USE_MAGICK_IMAGE_IO are defined.
 #endif
 
 
