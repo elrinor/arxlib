@@ -1,5 +1,5 @@
-#ifndef ARX_LAMBDAHACK_H
-#define ARX_LAMBDAHACK_H
+#ifndef ARX_LAMBDA_HACK_H
+#define ARX_LAMBDA_HACK_H
 
 #include <boost/tr1/functional.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -58,4 +58,4 @@ BOOST_PP_REPEAT(10, ADAPT_LAMBDA_FOR_RESULT_OF, _)
 } // namespace boost
 #endif
 
-#endif // ARX_LAMBDAHACK_H
+#endif // ARX_LAMBDA_HACK_H
