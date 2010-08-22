@@ -37,22 +37,26 @@
  * Defines a java-like static block of code that resides in a class with the
  * given name. Client code can befriend this class.
  *
+ * @param CLASS_NAME                   Name of the class to create code 
+ *                                     block in.
  * @see ARX_STATIC_BLOCK
  */
-#define ARX_NAMED_STATIC_BLOCK(BLOCK_NAME)                                      \
-  ARX_STATIC_BLOCK_I(BLOCK_NAME, BOOST_PP_CAT(BLOCK_NAME, _DERIVED))
+#define ARX_NAMED_STATIC_BLOCK(CLASS_NAME)                                      \
+  ARX_STATIC_BLOCK_I(CLASS_NAME, BOOST_PP_CAT(BLOCK_NAME, _DERIVED))
 
 
 /**
  * Defines a java-like static block of code. 
  * 
- * It can safely be used in .h files - the code will be executed only once 
- * regardless of the number of translation units the .h file was included into.
+ * It can safely be used in header files - the code will be executed only once 
+ * regardless of the number of translation units the header file was included 
+ * into.
  *
  * It is guaranteed that static block will be executed BEFORE any static
  * initializers that follow it in every translation unit.
  *
- * @param FILE_ID unique identifier used to prevent name clashes.
+ * @param FILE_ID                      unique identifier used to prevent name 
+ *                                     clashes.
  */
 #define ARX_STATIC_BLOCK(FILE_ID)                                               \
   ARX_NAMED_STATIC_BLOCK(BOOST_PP_CAT(StaticBlock, BOOST_PP_CAT(FILE_ID, __LINE__)))
@@ -107,6 +111,8 @@
  * Defines a deinitialization block of code that resides in a class with the
  * given name. Client code can befriend this class.
  *
+ * @param CLASS_NAME                   Name of the class to create code 
+ *                                     block in.
  * @see ARX_STATIC_DEINITIALIZER
  */
 #define ARX_NAMED_STATIC_DEINITIALIZER(CLASS_NAME)                              \
@@ -116,13 +122,15 @@
 /**
  * Defines a deinitialization block of code.
  *
- * It can be safely used in .h files - the code will be executed only once,
- * regardless if the number of translation units the .h file was included into.
+ * It can be safely used in header files - the code will be executed only once,
+ * regardless of the number of translation units the header file was included 
+ * into.
  *
  * It is guaranteed that deinitialization block will be executed AFTER all
- * static initializers that follow it in all translation units.
+ * static deinitializers that follow it in all translation units.
  *
- * @param FILE_ID unique identifier used to prevent name clashes.
+ * @param FILE_ID                      unique identifier used to prevent name 
+ *                                     clashes.
  */
 #define ARX_STATIC_DEINITIALIZER(FILE_ID)                                       \
   ARX_NAMED_STATIC_DEINITIALIZER(BOOST_PP_CAT(StaticDeinitializer, BOOST_PP_CAT(FILE_ID, __LINE__)))
@@ -143,15 +151,16 @@
 
 /**
  * Defines a static variable of the given type. This macro can be safely used
- * in header files without the need to explicitly allocate memory for the
- * variable in the source.
+ * in header files - only one variable will be generated, regardless of the 
+ * number of translation units the header file was included into.
  *
  * Note that created static variable has no protection against static
- * initialization order fiasco.
+ * initialization order fiasco, i.e. in some translation units it may be
+ * initialized after some of the static variables that follow it.
  *
- * @param TYPE                         variable type.
- * @param NAME                         variable name.
- * @param VALUE                        initial variable value.
+ * @param TYPE                         Variable type.
+ * @param NAME                         Variable name.
+ * @param VALUE                        Initial variable value.
  */
 #define ARX_STATIC_VARIABLE(TYPE, NAME, VALUE)                                  \
   ARX_STATIC_VARIABLE_I(TYPE, NAME, VALUE, BOOST_PP_CAT(BOOST_PP_CAT(NAME, _holder_), __LINE__))
