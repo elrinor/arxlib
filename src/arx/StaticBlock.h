@@ -128,4 +128,32 @@
   ARX_NAMED_STATIC_DEINITIALIZER(BOOST_PP_CAT(StaticDeinitializer, BOOST_PP_CAT(FILE_ID, __LINE__)))
 
 
+#define ARX_STATIC_VARIABLE_I(TYPE, NAME, VALUE, CLASS_NAME)                    \
+  template<class T>                                                             \
+  struct CLASS_NAME {                                                           \
+    static TYPE NAME;                                                           \
+  };                                                                            \
+                                                                                \
+  template<class T> TYPE CLASS_NAME<T>::NAME = VALUE;                           \
+                                                                                \
+  namespace {                                                                   \
+    TYPE &NAME = CLASS_NAME<TYPE>::NAME;                                        \
+  }
+
+
+/**
+ * Defines a static variable of the given type. This macro can be safely used
+ * in header files without the need to explicitly allocate memory for the
+ * variable in the source.
+ *
+ * Note that created static variable has no protection against static
+ * initialization order fiasco.
+ *
+ * @param TYPE                         variable type.
+ * @param NAME                         variable name.
+ * @param VALUE                        initial variable value.
+ */
+#define ARX_STATIC_VARIABLE(TYPE, NAME, VALUE)                                  \
+  ARX_STATIC_VARIABLE_I(TYPE, NAME, VALUE, BOOST_PP_CAT(BOOST_PP_CAT(NAME, _holder_), __LINE__))
+
 #endif // ARX_STATIC_BLOCK_H
