@@ -19,7 +19,7 @@
 #include "config.h"
 #include <QtPlugin>
 
-#ifndef ARX_QT_STATIC_PLUGINS
+#ifdef ARX_QT_STATIC_PLUGINS
 Q_IMPORT_PLUGIN(qjpeg);
 Q_IMPORT_PLUGIN(qgif);
 Q_IMPORT_PLUGIN(qtiff);
