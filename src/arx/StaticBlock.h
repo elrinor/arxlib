@@ -42,7 +42,7 @@
     static bool sExecuted;                                                      \
   };                                                                            \
                                                                                 \
-  template<> bool DERIVED_BLOCK_NAME<void>::sExecuted = false;                  \
+  template<class T> bool DERIVED_BLOCK_NAME<T>::sExecuted = false;              \
                                                                                 \
   namespace {                                                                   \
     DERIVED_BLOCK_NAME<void> BOOST_PP_CAT(BLOCK_NAME, _value);                  \
@@ -60,7 +60,7 @@
  * @see ARX_STATIC_BLOCK
  */
 #define ARX_NAMED_STATIC_BLOCK(CLASS_NAME)                                      \
-  ARX_STATIC_BLOCK_I(CLASS_NAME, BOOST_PP_CAT(BLOCK_NAME, _DERIVED))
+  ARX_STATIC_BLOCK_I(CLASS_NAME, BOOST_PP_CAT(CLASS_NAME, _DERIVED))
 
 
 /**
@@ -116,7 +116,7 @@
     static int sCounter;                                                        \
   };                                                                            \
                                                                                 \
-  template<> int DERIVED_BLOCK_NAME<void>::sCounter = 0;                        \
+  template<class T> int DERIVED_BLOCK_NAME<T>::sCounter = 0;                    \
                                                                                 \
   namespace {                                                                   \
     DERIVED_BLOCK_NAME<void> BOOST_PP_CAT(BLOCK_NAME, _value);                  \

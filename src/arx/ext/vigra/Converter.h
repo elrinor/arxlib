@@ -47,7 +47,7 @@ namespace vigra {
     template<> 
     struct ChannelConverterBase<UInt32, UInt8> {
       UInt8 operator() (UInt32 src) const {
-        return (static_cast<unsigned long long>(src) + 8421504u) / 16843009u;
+        return static_cast<UInt8>((static_cast<unsigned long long>(src) + 8421504u) / 16843009u);
       }
     };
 
@@ -61,7 +61,7 @@ namespace vigra {
     template<> 
     struct ChannelConverterBase<UInt32, UInt16> {
       UInt16 operator() (UInt32 src) const {
-        return (static_cast<unsigned long long>(src) + 32768u) / 65537u;
+        return static_cast<UInt16>((static_cast<unsigned long long>(src) + 32768u) / 65537u);
       }
     };
 
@@ -75,7 +75,7 @@ namespace vigra {
     template<> 
     struct ChannelConverterBase<float, UInt8> {
       UInt8 operator() (float src) const {
-        return src * 255.0f + 0.5f;
+        return static_cast<UInt8>(src * 255.0f + 0.5f);
       }
     };
 
@@ -89,7 +89,7 @@ namespace vigra {
     template<> 
     struct ChannelConverterBase<double, UInt8> {
       UInt8 operator() (double src) const {
-        return src * 255.0 + 0.5;
+        return static_cast<UInt8>(src * 255.0 + 0.5);
       }
     };
 
@@ -103,7 +103,7 @@ namespace vigra {
     template<> 
     struct ChannelConverterBase<float, UInt16> {
       UInt16 operator() (float src) const {
-        return src * 65535.0f + 0.5f;
+        return static_cast<UInt16>(src * 65535.0f + 0.5f);
       }
     };
 
@@ -117,21 +117,21 @@ namespace vigra {
     template<> 
     struct ChannelConverterBase<double, UInt16> {
       UInt16 operator() (double src) const {
-        return src * 65535.0 + 0.5;
+        return static_cast<UInt16>(src * 65535.0 + 0.5);
       }
     };
 
     template<> 
     struct ChannelConverterBase<UInt32, float> {
       float operator() (UInt32 src) const {
-        return src / 4294967296.0;
+        return static_cast<float>(src / 4294967296.0);
       }
     };
 
     template<> 
     struct ChannelConverterBase<float, UInt32> {
       UInt32 operator() (float src) const {
-        return src * 4294967296.0 + 0.5;
+        return static_cast<UInt32>(src * 4294967296.0 + 0.5);
       }
     };
 
@@ -145,7 +145,7 @@ namespace vigra {
     template<> 
     struct ChannelConverterBase<double, UInt32> {
       UInt32 operator() (double src) const {
-        return src * 4294967296.0 + 0.5;
+        return static_cast<UInt32>(src * 4294967296.0 + 0.5);
       }
     };
   
@@ -213,7 +213,7 @@ namespace vigra {
         ChannelConverter<SrcChannelType, DstChannelType> scale;
 
         RGBValue<DstChannelType, dstRedIndex, dstGreenIndex, dstBlueIndex> result;
-        result.setRGBA(scale(src.red()), scale(src.green()), scale(src.blue()), scale(src.alpha()));
+        result.setRGB(scale(src.red()), scale(src.green()), scale(src.blue()));
         return result;
       }
     };
