@@ -46,7 +46,7 @@
 #  include "VigraOpenCV.h"
 #endif
 
-#ifdef ARX_USE_QT
+#if defined(ARX_USE_QT) && defined(ARX_VIGRA_QT_PRI_INCLUDED)
 #  include "VigraQt.h"
 #endif
 

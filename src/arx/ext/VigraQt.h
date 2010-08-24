@@ -27,6 +27,10 @@
 #include "Vigra.h"
 #include "Qt.h"
 
+#ifndef ARX_VIGRA_QT_PRI_INCLUDED
+#  error Include VigraQt.pri into your .pro file before including this file
+#endif
+
 namespace arx {
 // -------------------------------------------------------------------------- //
 // Image conversion

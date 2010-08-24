@@ -122,8 +122,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\arx\ext\qt\FormPrinter.pri" />
+    <None Include="..\src\arx\ext\VigraQt.pri" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\arx\ext\qt\VigraQtStaticPlugins.cpp" />
     <ClCompile Include="..\src\test\arxtest.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
