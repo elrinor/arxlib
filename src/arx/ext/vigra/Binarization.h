@@ -17,7 +17,7 @@ namespace vigra {
   template<class SrcPixelType, class SrcAlloc, class DstPixelType, class DstAlloc>
   void kMeansBinarize(const BasicImage<SrcPixelType, SrcAlloc>& givenSrc, BasicImage<DstPixelType, DstAlloc>& dst) {
     /* Check channel count. */
-    STATIC_ASSERT((channels<SrcPixelType>::value == 1));
+    static_assert(channels<SrcPixelType>::value == 1, "Can binarize only single-channel images");
 
     BasicImage<UInt8, SrcAlloc> tmp;
     const BasicImage<UInt8, SrcAlloc>& src = convert_nocopy(givenSrc, tmp);
@@ -58,8 +58,8 @@ namespace vigra {
       if(std::abs(a - static_cast<int>(aNew)) < 1 && std::abs(b - static_cast<int>(bNew)) < 1)
         break; /* We can't use variables from inner scope in while() conditions... */
 
-      a = aNew;
-      b = bNew;
+      a = static_cast<int>(aNew);
+      b = static_cast<int>(bNew);
     }
 
     /* Binarize. */
