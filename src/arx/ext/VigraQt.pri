@@ -15,10 +15,16 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
 # 
-# $Id$
-QT += gui
+# $Id: FormPrinter.pri 112 2010-08-22 12:52:58Z ru.elric $
+SOURCES += $$PWD/qt/QtStaticPlugins.cpp
 
-HEADERS += $$PWD/FormPrinter.h $$PWD/FormGenerator.h
+contains(CONFIG, static) {
+  QTPLUGIN += qjpeg qgif qmng qico qtiff
+  DEFINES  += ARX_QT_STATIC_PLUGINS
+}
 
-INCLUDEPATH += $$PWD/../..
-DEPENDPATH  += $$PWD/../..
+DEFINES     += ARX_VIGRA_QT_PRI_INCLUDED
+
+INCLUDEPATH += $$PWD/..
+DEPENDPATH  += $$PWD/..
+

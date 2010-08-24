@@ -92,10 +92,16 @@
     <None Include="..\src\arx\ext\qt\FormPrinter.pri">
       <Filter>arx\ext\qt</Filter>
     </None>
+    <None Include="..\src\arx\ext\VigraQt.pri">
+      <Filter>arx\ext</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\test\arxtest.cpp">
       <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\arx\ext\qt\VigraQtStaticPlugins.cpp">
+      <Filter>arx\ext\qt</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

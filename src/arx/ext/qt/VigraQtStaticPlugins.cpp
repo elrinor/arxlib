@@ -16,20 +16,13 @@
  * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
  * 
  * $Id$ */
-#ifndef ARX_EXT_QT_H
-#define ARX_EXT_QT_H
-
 #include "config.h"
+#include <QtPlugin>
 
-// -------------------------------------------------------------------------- //
-// Inter-lib defines
-// -------------------------------------------------------------------------- //
-#ifndef ARX_USE_QT
-#  define ARX_USE_QT
-#endif
-
-#if defined(ARX_USE_VIGRA) && defined(ARX_VIGRA_QT_PRI_INCLUDED)
-#  include "VigraQt.h"
-#endif
-
-#endif // ARX_EXT_QT_H
+#ifndef ARX_QT_STATIC_PLUGINS
+Q_IMPORT_PLUGIN(qjpeg);
+Q_IMPORT_PLUGIN(qgif);
+Q_IMPORT_PLUGIN(qtiff);
+Q_IMPORT_PLUGIN(qmng);
+Q_IMPORT_PLUGIN(qico);
+#endif // ARX_QT_STATIC_PLUGINS
