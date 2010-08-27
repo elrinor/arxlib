@@ -96,7 +96,22 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\src\arx\config.h" />
+    <ClInclude Include="..\src\arx\ext\qt\XmlDataBinder.h" />
+    <ClInclude Include="..\src\arx\ext\qt\XmlDataBinding.h" />
+    <ClInclude Include="..\src\arx\ext\qt\XmlDataBindingContext.h" />
+    <ClInclude Include="..\src\arx\ext\qt\XmlProperties.h" />
     <ClInclude Include="..\src\arx\ext\VigraQt.h" />
+    <ClInclude Include="..\src\arx\ext\vigra\Accessors.h" />
+    <ClInclude Include="..\src\arx\ext\vigra\Binarization.h" />
+    <ClInclude Include="..\src\arx\ext\vigra\Colors.h" />
+    <ClInclude Include="..\src\arx\ext\vigra\config.h" />
+    <ClInclude Include="..\src\arx\ext\vigra\Convert.h" />
+    <ClInclude Include="..\src\arx\ext\vigra\Converter.h" />
+    <ClInclude Include="..\src\arx\ext\vigra\Drawing.h" />
+    <ClInclude Include="..\src\arx\ext\vigra\MetaFunctions.h" />
+    <ClInclude Include="..\src\arx\ext\vigra\RGBAValue.h" />
+    <ClInclude Include="..\src\arx\ext\vigra\StdImage.h" />
+    <ClInclude Include="..\src\arx\ext\vigra\Validation.h" />
     <ClInclude Include="..\src\arx\Foreach.h" />
     <ClInclude Include="..\src\arx\HashHack.h" />
     <ClInclude Include="..\src\arx\HasXxx.h" />
@@ -122,10 +137,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\arx\ext\qt\FormPrinter.pri" />
+    <None Include="..\src\arx\ext\qt\XmlDataBinder.pri" />
     <None Include="..\src\arx\ext\VigraQt.pri" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\arx\ext\qt\VigraQtStaticPlugins.cpp" />
+    <ClCompile Include="..\src\arx\ext\qt\XmlDataBinder.cpp" />
+    <ClCompile Include="..\src\arx\ext\qt\XmlDataBinding.cpp" />
     <ClCompile Include="..\src\test\arxtest.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
