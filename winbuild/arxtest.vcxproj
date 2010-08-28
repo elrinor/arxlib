@@ -96,10 +96,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\src\arx\config.h" />
+    <ClInclude Include="..\src\arx\ext\qt\DefaultNodeWalker.h" />
+    <ClInclude Include="..\src\arx\ext\qt\XmlQDom.h" />
     <ClInclude Include="..\src\arx\ext\qt\XmlDataBinder.h" />
     <ClInclude Include="..\src\arx\ext\qt\XmlDataBinding.h" />
     <ClInclude Include="..\src\arx\ext\qt\XmlDataBindingContext.h" />
-    <ClInclude Include="..\src\arx\ext\qt\XmlProperties.h" />
+    <ClInclude Include="..\src\arx\ext\qt\XmlPath.h" />
     <ClInclude Include="..\src\arx\ext\VigraQt.h" />
     <ClInclude Include="..\src\arx\ext\vigra\Accessors.h" />
     <ClInclude Include="..\src\arx\ext\vigra\Binarization.h" />
@@ -120,6 +122,7 @@
     <ClInclude Include="..\src\arx\Null.h" />
     <ClInclude Include="..\src\arx\ObjectPool.h" />
     <ClInclude Include="..\src\arx\Preprocessor.h" />
+    <ClInclude Include="..\src\arx\Properties.h" />
     <ClInclude Include="..\src\arx\Range.h" />
     <ClInclude Include="..\src\arx\StaticBlock.h" />
     <ClInclude Include="..\src\arx\StaticCounter.h" />
