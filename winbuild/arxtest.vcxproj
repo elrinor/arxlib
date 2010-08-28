@@ -97,9 +97,12 @@
   <ItemGroup>
     <ClInclude Include="..\src\arx\config.h" />
     <ClInclude Include="..\src\arx\ext\qt\DefaultNodeWalker.h" />
+    <ClInclude Include="..\src\arx\ext\qt\StandardXmlBindings.h" />
     <ClInclude Include="..\src\arx\ext\qt\XmlBinding.h" />
+    <ClInclude Include="..\src\arx\ext\qt\XmlErrorData.h" />
     <ClInclude Include="..\src\arx\ext\qt\XmlQDom.h" />
     <ClInclude Include="..\src\arx\ext\qt\XmlPath.h" />
+    <ClInclude Include="..\src\arx\ext\qt\XmlUserData.h" />
     <ClInclude Include="..\src\arx\ext\VigraQt.h" />
     <ClInclude Include="..\src\arx\ext\vigra\Accessors.h" />
     <ClInclude Include="..\src\arx\ext\vigra\Binarization.h" />

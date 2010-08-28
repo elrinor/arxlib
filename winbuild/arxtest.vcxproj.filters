@@ -147,6 +147,15 @@
     <ClInclude Include="..\src\arx\ext\qt\XmlBinding.h">
       <Filter>arx\ext\qt\xml</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\StandardXmlBindings.h">
+      <Filter>arx\ext\qt\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\XmlErrorData.h">
+      <Filter>arx\ext\qt\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\XmlUserData.h">
+      <Filter>arx\ext\qt\xml</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\arx\ext\VigraQt.pri">
