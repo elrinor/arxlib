@@ -132,15 +132,6 @@
     <ClInclude Include="..\src\arx\ext\qt\FormPrinter.h">
       <Filter>arx\ext\qt\form_printer</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\arx\ext\qt\XmlDataBinder.h">
-      <Filter>arx\ext\qt\xml</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\arx\ext\qt\XmlDataBinding.h">
-      <Filter>arx\ext\qt\xml</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\arx\ext\qt\XmlDataBindingContext.h">
-      <Filter>arx\ext\qt\xml</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\arx\ext\qt\XmlPath.h">
       <Filter>arx\ext\qt\xml</Filter>
     </ClInclude>
@@ -174,12 +165,6 @@
     </ClCompile>
     <ClCompile Include="..\src\arx\ext\qt\VigraQtStaticPlugins.cpp">
       <Filter>arx\ext\qt\vigra_qt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\arx\ext\qt\XmlDataBinder.cpp">
-      <Filter>arx\ext\qt\xml</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\arx\ext\qt\XmlDataBinding.cpp">
-      <Filter>arx\ext\qt\xml</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

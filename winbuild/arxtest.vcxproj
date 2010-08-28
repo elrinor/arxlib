@@ -99,9 +99,6 @@
     <ClInclude Include="..\src\arx\ext\qt\DefaultNodeWalker.h" />
     <ClInclude Include="..\src\arx\ext\qt\XmlBinding.h" />
     <ClInclude Include="..\src\arx\ext\qt\XmlQDom.h" />
-    <ClInclude Include="..\src\arx\ext\qt\XmlDataBinder.h" />
-    <ClInclude Include="..\src\arx\ext\qt\XmlDataBinding.h" />
-    <ClInclude Include="..\src\arx\ext\qt\XmlDataBindingContext.h" />
     <ClInclude Include="..\src\arx\ext\qt\XmlPath.h" />
     <ClInclude Include="..\src\arx\ext\VigraQt.h" />
     <ClInclude Include="..\src\arx\ext\vigra\Accessors.h" />
@@ -146,8 +143,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\arx\ext\qt\VigraQtStaticPlugins.cpp" />
-    <ClCompile Include="..\src\arx\ext\qt\XmlDataBinder.cpp" />
-    <ClCompile Include="..\src\arx\ext\qt\XmlDataBinding.cpp" />
     <ClCompile Include="..\src\test\arxtest.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
