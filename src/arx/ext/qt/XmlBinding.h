@@ -1,0 +1,6 @@
+#ifndef ARX_EXT_QT_XML_BINDING_H
+#define ARX_EXT_QT_XML_BINDING_H
+
+
+
+#endif // ARX_EXT_QT_XML_BINDING_H

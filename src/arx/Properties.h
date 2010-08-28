@@ -61,11 +61,21 @@ namespace arx {
 
 
     /**
+     * Property key tag for empty property map.
+     */
+    struct no_properties_tag {};
+
+
+    /**
      * Proto transform (and proto grammar) that builds a fusion cons of 
      * fusion pairs from a property expression.
      */
     struct property_to_cons_transform:
       proto::or_<
+        proto::when<
+          proto::terminal<property_key_wrapper<no_properties_tag> >,
+          proto::_state
+        >,
         proto::when<
           proto::comma<property_to_cons_transform, property_to_cons_transform>,
           proto::fold<proto::_, proto::_state, property_to_cons_transform>
@@ -315,17 +325,19 @@ namespace arx {
  * Value of this variable can be extracted from property expression using 
  * the given key tag.
  *
- * @param key_tag                      Tag of the key.
- * @param key_name                     Name of the key variable.
+ * @param KEY_TAG                      Tag of the key.
+ * @param KEY_NAME                     Name of the key variable.
  */
-#define ARX_DEFINE_PROPERTY_KEY(key_tag, key_name)                              \
+#define ARX_DEFINE_PROPERTY_KEY(KEY_TAG, KEY_NAME)                              \
   namespace {                                                                   \
     arx::detail::property_expression<                                           \
       boost::proto::terminal<                                                   \
-        arx::detail::property_key_wrapper<key_tag>                              \
+        arx::detail::property_key_wrapper<KEY_TAG>                              \
       >::type                                                                   \
-    > key_name = {{{}}};                                                        \
+    > KEY_NAME = {{{}}};                                                        \
   }
+
+  ARX_DEFINE_PROPERTY_KEY(detail::no_properties_tag, no_properties);
 
 } // namespace arx
 

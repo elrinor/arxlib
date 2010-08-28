@@ -97,6 +97,7 @@
   <ItemGroup>
     <ClInclude Include="..\src\arx\config.h" />
     <ClInclude Include="..\src\arx\ext\qt\DefaultNodeWalker.h" />
+    <ClInclude Include="..\src\arx\ext\qt\XmlBinding.h" />
     <ClInclude Include="..\src\arx\ext\qt\XmlQDom.h" />
     <ClInclude Include="..\src\arx\ext\qt\XmlDataBinder.h" />
     <ClInclude Include="..\src\arx\ext\qt\XmlDataBinding.h" />

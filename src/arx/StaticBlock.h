@@ -155,15 +155,15 @@
 
 
 #define ARX_STATIC_VARIABLE_I(TYPE, NAME, VALUE, CLASS_NAME)                    \
-  template<class T>                                                             \
+  template<class Dummy>                                                         \
   struct CLASS_NAME {                                                           \
     static TYPE NAME;                                                           \
   };                                                                            \
                                                                                 \
-  template<class T> TYPE CLASS_NAME<T>::NAME = VALUE;                           \
+  template<class Dummy> TYPE CLASS_NAME<Dummy>::NAME = VALUE;                   \
                                                                                 \
   namespace {                                                                   \
-    TYPE &NAME = CLASS_NAME<TYPE>::NAME;                                        \
+    TYPE &NAME = CLASS_NAME<void>::NAME;                                        \
   }
 
 
