@@ -16,6 +16,15 @@
     <Filter Include="arx\ext\vigra">
       <UniqueIdentifier>{23145901-7de0-404f-a567-b761b5632045}</UniqueIdentifier>
     </Filter>
+    <Filter Include="arx\ext\qt\vigra_qt">
+      <UniqueIdentifier>{12d303b1-02de-4839-8af5-efb34c52c61d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="arx\ext\qt\form_printer">
+      <UniqueIdentifier>{95c17d88-6f85-4683-be69-5cdd185bc48e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="arx\ext\qt\xml">
+      <UniqueIdentifier>{ef908052-844e-46c0-a3c3-5369411db4a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\arx\config.h">
@@ -75,12 +84,6 @@
     <ClInclude Include="..\src\arx\ext\qt\config.h">
       <Filter>arx\ext\qt</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\arx\ext\qt\FormGenerator.h">
-      <Filter>arx\ext\qt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\arx\ext\qt\FormPrinter.h">
-      <Filter>arx\ext\qt</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\arx\Range.h">
       <Filter>arx</Filter>
     </ClInclude>
@@ -123,28 +126,43 @@
     <ClInclude Include="..\src\arx\ext\vigra\Validation.h">
       <Filter>arx\ext\vigra</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\FormGenerator.h">
+      <Filter>arx\ext\qt\form_printer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\FormPrinter.h">
+      <Filter>arx\ext\qt\form_printer</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\arx\ext\qt\XmlDataBinder.h">
-      <Filter>arx\ext\qt</Filter>
+      <Filter>arx\ext\qt\xml</Filter>
     </ClInclude>
     <ClInclude Include="..\src\arx\ext\qt\XmlDataBinding.h">
-      <Filter>arx\ext\qt</Filter>
+      <Filter>arx\ext\qt\xml</Filter>
     </ClInclude>
     <ClInclude Include="..\src\arx\ext\qt\XmlDataBindingContext.h">
-      <Filter>arx\ext\qt</Filter>
+      <Filter>arx\ext\qt\xml</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\arx\ext\qt\XmlProperties.h">
-      <Filter>arx\ext\qt</Filter>
+    <ClInclude Include="..\src\arx\ext\qt\XmlPath.h">
+      <Filter>arx\ext\qt\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\DefaultNodeWalker.h">
+      <Filter>arx\ext\qt\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\XmlQDom.h">
+      <Filter>arx\ext\qt\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\Properties.h">
+      <Filter>arx</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\src\arx\ext\qt\FormPrinter.pri">
-      <Filter>arx\ext\qt</Filter>
-    </None>
     <None Include="..\src\arx\ext\VigraQt.pri">
       <Filter>arx\ext</Filter>
     </None>
+    <None Include="..\src\arx\ext\qt\FormPrinter.pri">
+      <Filter>arx\ext\qt\form_printer</Filter>
+    </None>
     <None Include="..\src\arx\ext\qt\XmlDataBinder.pri">
-      <Filter>arx\ext\qt</Filter>
+      <Filter>arx\ext\qt\xml</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -152,13 +170,13 @@
       <Filter>test</Filter>
     </ClCompile>
     <ClCompile Include="..\src\arx\ext\qt\VigraQtStaticPlugins.cpp">
-      <Filter>arx\ext\qt</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\arx\ext\qt\XmlDataBinding.cpp">
-      <Filter>arx\ext\qt</Filter>
+      <Filter>arx\ext\qt\vigra_qt</Filter>
     </ClCompile>
     <ClCompile Include="..\src\arx\ext\qt\XmlDataBinder.cpp">
-      <Filter>arx\ext\qt</Filter>
+      <Filter>arx\ext\qt\xml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\arx\ext\qt\XmlDataBinding.cpp">
+      <Filter>arx\ext\qt\xml</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
