@@ -30,8 +30,9 @@
 #define ARX_STRIP_I(...) __VA_ARGS__
 #define ARX_STRIP(ARG) ARX_STRIP_I ARG
 
+#define ARX_CAT BOOST_PP_CAT
 #define ARX_CAT_3(a, b, c) BOOST_PP_CAT(BOOST_PP_CAT(a, b), c)
-#define ARX_CAT_4(a, b, c, d) ARX_CAT_3(BOOST_PP_CAT(a, b), c, d)
+#define ARX_CAT_4(a, b, c, d) BOOST_PP_CAT(BOOST_PP_CAT(a, b), BOOST_PP_CAT(c, d))
 
 
 #define ARX_NUMERIC_FOR_OP(R, STATE)                                            \
@@ -52,7 +53,7 @@
   BOOST_PP_TUPLE_ELEM(4, 3, STATE)(R, BOOST_PP_TUPLE_ELEM(4, 2, STATE), BOOST_PP_TUPLE_ELEM(4, 0, STATE))
 
 /**
- * Performs a horizontal repetition which can best be described with the
+ * Performs a horizontal repetition that can be best described with the
  * following pseudocode:
  *
  * for(int i = MIN; i != MAX; i++)
