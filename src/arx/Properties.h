@@ -21,6 +21,9 @@
 
 #include "config.h"
 #include <boost/mpl/identity.hpp>
+#include <boost/mpl/and.hpp>
+#include <boost/mpl/not.hpp>
+#include <boost/mpl/if.hpp>
 #include <boost/proto/proto.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/remove_reference.hpp>
@@ -28,6 +31,7 @@
 #include <boost/fusion/include/find_if.hpp>
 #include <boost/fusion/include/pair.hpp>
 #include <boost/utility/result_of.hpp>
+#include <boost/utility/enable_if.hpp>
 
 namespace arx {
 
@@ -91,6 +95,17 @@ namespace arx {
     {};
 
 
+    /**
+     * Proto transform that returns a key tag given a key terminal.
+     */
+    struct property_get_key_tag_transform:
+      proto::when<
+        proto::terminal<property_key_wrapper<proto::_> >,
+        unwrap_property_key<proto::_value>()
+      >
+    {};
+
+
     typedef property_to_cons_transform property_grammar;
 
 
@@ -116,13 +131,20 @@ namespace arx {
 
       BOOST_PROTO_EXTENDS(Expr, this_type, property_domain);
 
-      template<bool is_property = proto::matches<Expr, property_grammar>::value>
-      struct get_impl {
-        typedef typename boost::result_of<
-          property_to_cons_transform(this_type, fusion::nil)
-        >::type seq;
+      template<class KeyTag, class DefaultValue>
+      struct get_by_tag_impl {
+        /**
+         * Fusion sequence corresponding to the current expression.
+         */
+        typedef 
+          typename boost::result_of<
+            property_to_cons_transform(this_type, fusion::nil)
+          >::type 
+        seq;
 
-        template<class KeyTag>
+        /**
+         * Predicate for searching the given key tag in the sequence.
+         */
         struct pred {
           template<class Pair>
           struct apply: 
@@ -130,56 +152,131 @@ namespace arx {
           {};
         };
 
-        template<class KeyTag>
+        /**
+         * Metafuction that returns a fusion iterator which determines 
+         * position of the given key in the sequence.
+         */
         struct key_pos: 
-          fusion::result_of::find_if<
-            seq, 
-            pred<KeyTag>
-          >
+          fusion::result_of::find_if<seq, pred>
         {};
 
-        template<class KeyTag>
+        /**
+         * Metafunction that returns true if the sequence contains the 
+         * given key.
+         */
         struct has_key: 
           boost::mpl::not_<
             boost::is_same<
-              typename key_pos<KeyTag>::type, 
+              typename key_pos::type, 
               typename fusion::result_of::end<seq>::type
             >
           > 
         {};
 
-        template<class KeyTag, class DefaultValue, bool contains = has_key<KeyTag>::value>
-        struct getter {
+        /**
+         * Implementation of the getter for the case when the sequence contains
+         * the given key.
+         */
+        template<bool contains = has_key::value>
+        struct getter_impl {
           typedef 
             const typename fusion::result_of::second<
               typename boost::remove_reference<
-                typename fusion::result_of::deref<typename key_pos<KeyTag>::type>::type
+                typename fusion::result_of::deref<typename key_pos::type>::type
               >::type
             >::type &
           result_type;
 
-          result_type operator() (const this_type &expr, const DefaultValue &) const {
-            return (*fusion::find_if<pred<KeyTag> >(property_to_cons_transform()(expr, fusion::nil()))).second;
+          result_type operator()(const this_type &expr, const DefaultValue &) const {
+            return (*fusion::find_if<pred>(property_to_cons_transform()(expr, fusion::nil()))).second;
           }
         };
 
-        template<class KeyTag, class DefaultValue>
-        struct getter<KeyTag, DefaultValue, false> {
+        /**
+         * Implementation of the getter for the case when the sequence does
+         * not contain the given key.
+         */
+        template<>
+        struct getter_impl<false> {
           typedef DefaultValue result_type;
 
-          result_type operator() (const this_type &, const DefaultValue &defaultValue) const {
+          result_type operator()(const this_type &, const DefaultValue &defaultValue) const {
             return defaultValue;
           }
         };
 
+        /**
+         * Getter implementation.
+         */
+        struct getter: getter_impl<> {};
+
+        /**
+         * Getter return type.
+         */
+        typedef typename getter::result_type type;
       };
 
-      template<>
-      struct get_impl<false> {
-        template<class KeyTag, class DefaultValue>
-        struct getter {
-          typedef void result_type;
-        };
+      /**
+       * Metafuction that returns true if get operation is applicable to this
+       * expression.
+       */
+      struct is_gettable: 
+        proto::matches<Expr, property_grammar> 
+      {};
+
+      /**
+       * Metafunction that returns result type of get-by-tag operation for the
+       * given parameter types.
+       */
+      template<class KeyTag, class DefaultValue>
+      struct get_by_tag_result {
+        typedef 
+          typename mpl::if_<
+            is_gettable,
+            get_by_tag_impl<KeyTag, DefaultValue>,
+            mpl::identity<void>
+          >::type::type
+        type;
+      };
+
+      /**
+       * Metafuction that returns true if the given type is a valid key type
+       * (e.g. generated via ARX_DEFINE_PROPERTY_KEY).
+       */
+      template<class Key>
+      struct is_key:
+        mpl::and_<
+          proto::is_expr<Key>, 
+          proto::matches<Key, property_get_key_tag_transform> 
+        >
+      {};
+
+      struct not_a_key {};
+
+      /**
+       * Metafuction that returns key tag for the given key type, or not_a_key
+       * in case the given type is not a key type.
+       */
+      template<class Key>
+      struct key_tag {
+        typedef 
+          typename mpl::if_<
+            is_key<Key>,
+            boost::result_of<property_get_key_tag_transform(Key)>,
+            mpl::identity<not_a_key>
+          >::type::type 
+        type;
+      };
+
+      /**
+       * Metafuction that returns result of get-by-key operation for the given
+       * parameter types.
+       */
+      template<class Key, class DefaultValue>
+      struct get_by_key_result {
+        typedef 
+          typename get_by_tag_result<typename key_tag<Key>::type, DefaultValue>::type 
+        type;
       };
 
       /**
@@ -189,9 +286,21 @@ namespace arx {
        *                               value for the given tag.
        */
       template<class KeyTag, class DefaultValue>
-      typename get_impl<>::template getter<KeyTag, DefaultValue>::result_type 
+      typename boost::enable_if<
+        is_gettable,
+        get_by_tag_result<KeyTag, DefaultValue>
+      >::type::type
       get(const DefaultValue &defaultValue) const {
-        return get_impl<>::template getter<KeyTag, DefaultValue>()(*this, defaultValue);
+        return get_by_tag_impl<KeyTag, DefaultValue>::getter()(*this, defaultValue);
+      }
+
+      template<class Key, class DefaultValue>
+      typename boost::enable_if<
+        mpl::and_<is_gettable, is_key<Key> >, 
+        get_by_key_result<Key, DefaultValue>
+      >::type::type
+      get(const Key &, const DefaultValue &defaultValue) const {
+        return get<typename key_tag<Key>::type>(defaultValue);
       }
 
     };
@@ -211,9 +320,9 @@ namespace arx {
  */
 #define ARX_DEFINE_PROPERTY_KEY(key_tag, key_name)                              \
   namespace {                                                                   \
-    arx::xml::detail::property_expression<                                      \
+    arx::detail::property_expression<                                           \
       boost::proto::terminal<                                                   \
-        arx::xml::detail::property_key_wrapper<key_tag>                         \
+        arx::detail::property_key_wrapper<key_tag>                              \
       >::type                                                                   \
     > key_name = {{{}}};                                                        \
   }
