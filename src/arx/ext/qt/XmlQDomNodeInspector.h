@@ -23,7 +23,7 @@
 #include <cassert>
 #include <QString>
 #include <QDomNode>
-#include "XmlNodeInspector.h"
+#include <arx/xml/NodeInspector.h>
 
 namespace arx { namespace xml {
 // -------------------------------------------------------------------------- //

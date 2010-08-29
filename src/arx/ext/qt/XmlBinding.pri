@@ -18,7 +18,7 @@
 # $Id: FormPrinter.pri 114 2010-08-24 14:33:46Z ru.elric $
 QT += xml
 
-HEADERS += 
+HEADERS += \
   $$PWD/XmlBinding.h \
   $$PWD/XmlQDomNodeInspector.h \
   $$PWD/XmlQDomNodeWalker.h \
