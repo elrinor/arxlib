@@ -16,13 +16,13 @@
  * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
  * 
  * $Id$ */
-#ifndef ARX_EXT_QT_XML_STRING_PROCESSOR_H
-#define ARX_EXT_QT_XML_STRING_PROCESSOR_H
+#ifndef ARX_XML_STRING_PROCESSOR_H
+#define ARX_XML_STRING_PROCESSOR_H
 
 #include "config.h"
 
 namespace arx { namespace xml {
-  namespace xml_string_processor_detail {
+  namespace string_processor_detail {
 // -------------------------------------------------------------------------- //
 // Wrappers
 // -------------------------------------------------------------------------- //
@@ -43,7 +43,7 @@ namespace arx { namespace xml {
       return append_attribute(path, attributeName);
     }
   
-  } // namespace xml_string_processor_detail
+  } // namespace string_processor_detail
 
 
 // -------------------------------------------------------------------------- //
@@ -53,19 +53,19 @@ namespace arx { namespace xml {
   public:
     template<class PathElement>
     auto to_string(const PathElement &pathElement) const -> 
-      decltype(xml_string_processor_detail::to_string_wrapper(pathElement)) 
+      decltype(string_processor_detail::to_string_wrapper(pathElement)) 
     {
-      return xml_string_processor_detail::to_string_wrapper(pathElement);
+      return string_processor_detail::to_string_wrapper(pathElement);
     }
 
     template<class String>
     String append_element(const String &path, const String &elementName) const {
-      return xml_string_processor_detail::append_element_wrapper(path, elementName);
+      return string_processor_detail::append_element_wrapper(path, elementName);
     }
 
     template<class String>
     String append_attribute(const String &path, const String &attributeName) const {
-      return xml_string_processor_detail::append_attribute_wrapper(path, attributeName);
+      return string_processor_detail::append_attribute_wrapper(path, attributeName);
     }
   };
 
@@ -89,4 +89,4 @@ namespace arx { namespace xml {
 
 }} // namespace arx::xml
 
-#endif // ARX_EXT_QT_XML_STRING_PROCESSOR_H
+#endif // ARX_XML_STRING_PROCESSOR_H

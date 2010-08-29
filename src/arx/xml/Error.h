@@ -16,8 +16,8 @@
  * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
  * 
  * $Id$ */
-#ifndef ARX_EXT_QT_XML_ERROR_DATA_H
-#define ARX_EXT_QT_XML_ERROR_DATA_H
+#ifndef ARX_XML_ERROR_H
+#define ARX_XML_ERROR_H
 
 #include "config.h"
 
@@ -109,4 +109,4 @@ namespace arx { namespace xml {
 
 }} // namespace arx::xml
 
-#endif // ARX_EXT_QT_XML_ERROR_DATA_H
+#endif // ARX_XML_ERROR_H

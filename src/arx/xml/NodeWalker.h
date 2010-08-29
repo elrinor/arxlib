@@ -16,13 +16,13 @@
  * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
  * 
  * $Id$ */
-#ifndef ARX_EXT_QT_XML_NODE_WALKER_H
-#define ARX_EXT_QT_XML_NODE_WALKER_H
+#ifndef ARX_XML_NODE_WALKER_H
+#define ARX_XML_NODE_WALKER_H
 
 #include "config.h"
 
 namespace arx { namespace xml {
-  namespace xml_node_walker_detail {
+  namespace node_walker_detail {
 // -------------------------------------------------------------------------- //
 // Wrappers
 // -------------------------------------------------------------------------- //
@@ -51,7 +51,7 @@ namespace arx { namespace xml {
       return create_element(node, name);
     }
   
-  } // namespace xml_node_walker_detail
+  } // namespace node_walker_detail
 
 
 // -------------------------------------------------------------------------- //
@@ -61,27 +61,27 @@ namespace arx { namespace xml {
   public:
     template<class Node>
     bool is_null(const Node &node) const {
-      return xml_node_walker_detail::is_null_wrapper(node);
+      return node_walker_detail::is_null_wrapper(node);
     }
 
     template<class Node, class String>
     Node attribute(const Node &node, const String &name) const {
-      return xml_node_walker_detail::attribute_wrapper(node, name);
+      return node_walker_detail::attribute_wrapper(node, name);
     }
 
     template<class Node, class String>
     Node element(const Node &node, const String &name) const {
-      return xml_node_walker_detail::element_wrapper(node, name);
+      return node_walker_detail::element_wrapper(node, name);
     }
 
     template<class Node, class String>
     Node create_attribute(Node &node, const String &name) const {
-      return xml_node_walker_detail::create_attribute_wrapper(node, name);
+      return node_walker_detail::create_attribute_wrapper(node, name);
     }
 
     template<class Node, class String>
     Node create_element(Node &node, const String &name) const {
-      return xml_node_walker_detail::create_element_wrapper(node, name);
+      return node_walker_detail::create_element_wrapper(node, name);
     }
   };
 
@@ -101,4 +101,4 @@ namespace arx { namespace xml {
 
 }} // namespace arx::xml
 
-#endif // ARX_EXT_QT_XML_NODE_WALKER_H
+#endif // ARX_XML_NODE_WALKER_H
