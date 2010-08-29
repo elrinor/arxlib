@@ -35,7 +35,7 @@
 
 namespace arx {
 
-  namespace detail {
+  namespace properties_detail {
     namespace proto = boost::proto;
     namespace fusion = boost::fusion;
     namespace mpl = boost::mpl;
@@ -315,7 +315,7 @@ namespace arx {
 
     };
 
-  } // namespace detail
+  } // namespace properties_detail
 
 
 /**
@@ -330,14 +330,14 @@ namespace arx {
  */
 #define ARX_DEFINE_PROPERTY_KEY(KEY_TAG, KEY_NAME)                              \
   namespace {                                                                   \
-    arx::detail::property_expression<                                           \
+    arx::properties_detail::property_expression<                                \
       boost::proto::terminal<                                                   \
-        arx::detail::property_key_wrapper<KEY_TAG>                              \
+        arx::properties_detail::property_key_wrapper<KEY_TAG>                   \
       >::type                                                                   \
     > KEY_NAME = {{{}}};                                                        \
   }
 
-  ARX_DEFINE_PROPERTY_KEY(detail::no_properties_tag, no_properties);
+  ARX_DEFINE_PROPERTY_KEY(properties_detail::no_properties_tag, no_properties);
 
 } // namespace arx
 
