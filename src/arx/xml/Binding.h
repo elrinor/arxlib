@@ -709,7 +709,7 @@ namespace arx { namespace xml {
   HOLDER_TPL_SPEC_ACC,                                                          \
   TYPE,                                                                         \
   TYPE_TPL,                                                                     \
-  BINDING                                                                       \
+  ... /* BINDING */                                                             \
 )                                                                               \
   ARX_STRIP(NS_START)                                                           \
     ARX_STRIP(NAME_TPL_HEAD)                                                    \
@@ -718,9 +718,9 @@ namespace arx { namespace xml {
     ARX_STRIP(NAME_TPL_SPEC_HEAD)                                               \
     class NAME ARX_STRIP(NAME_TPL_SPEC) {                                       \
     public:                                                                     \
-      typedef decltype(boost::proto::deep_copy(BINDING)) result_type;           \
+      typedef decltype(boost::proto::deep_copy((__VA_ARGS__))) result_type;     \
       result_type operator()() const {                                          \
-        return boost::proto::deep_copy(BINDING);                                \
+        return boost::proto::deep_copy((__VA_ARGS__));                          \
       }                                                                         \
     };                                                                          \
   ARX_STRIP(NS_END)                                                             \
@@ -742,13 +742,13 @@ namespace arx { namespace xml {
   }                                                                             \
                                                                                 \
   ARX_STRIP(TYPE_TPL)                                                           \
-  const ARX_STRIP(NS_PREFIX) NAME ARX_STRIP(NAME_TPL_SPEC_ACC)::result_type &   \
+  inline const ARX_STRIP(NS_PREFIX) NAME ARX_STRIP(NAME_TPL_SPEC_ACC)::result_type & \
   binding(const TYPE *) {                                                       \
     return xml_binding_definition_detail::HOLDER ARX_STRIP(HOLDER_TPL_SPEC_ACC)::binding; \
   }
 
 
-#define ARX_DEFINE_NAMED_XML_BINDING_TPL(NAME, TYPE, TYPE_TPL, BINDING)         \
+#define ARX_DEFINE_NAMED_XML_BINDING_TPL(NAME, TYPE, TYPE_TPL, ... /* BINDING */) \
   ARX_DEFINE_XML_BINDING_I(                                                     \
     (),                                                                         \
     (),                                                                         \
@@ -765,13 +765,13 @@ namespace arx { namespace xml {
     (<void, void>),                                                             \
     TYPE,                                                                       \
     TYPE_TPL,                                                                   \
-    BINDING                                                                     \
+    __VA_ARGS__                                                                 \
   )
 
 #define ARX_DEFINE_NAMED_XML_BINDING(NAME, TYPE, BINDING)                       \
   ARX_DEFINE_NAMED_XML_BINDING_TPL(NAME, TYPE, (), BINDING)
   
-#define ARX_DEFINE_XML_BINDING(TYPE, BINDING)                                   \
+#define ARX_DEFINE_XML_BINDING(TYPE, ... /* BINDING */)                         \
   ARX_DEFINE_XML_BINDING_I(                                                     \
     (namespace xml_binding_definition_detail {),                                \
     (}),                                                                        \
@@ -788,12 +788,11 @@ namespace arx { namespace xml {
     (<TYPE, void>),                                                             \
     TYPE,                                                                       \
     (),                                                                         \
-    BINDING                                                                     \
+    __VA_ARGS__                                                                 \
   )
 
 #define ARX_XML_MEMBER(MEMBER)                                                  \
   decltype(MEMBER), MEMBER
-
 
 }} // namespace arx::xml
 

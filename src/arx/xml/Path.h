@@ -322,10 +322,12 @@ namespace arx { namespace xml {
     };
 
 
-    /**
-     * Starting terminal for xml path expressions.
-     */
-    path_expression<proto::terminal<path_start>::type> self = {{}};
+    namespace {
+      /**
+       * Starting terminal for xml path expressions.
+       */
+      path_expression<proto::terminal<path_start>::type> self = {{}};
+    }
 
   } // namespace path_detail
 
