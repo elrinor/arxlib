@@ -135,25 +135,37 @@
     <ClInclude Include="..\src\arx\ext\qt\XmlPath.h">
       <Filter>arx\ext\qt\xml</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\arx\ext\qt\DefaultNodeWalker.h">
-      <Filter>arx\ext\qt\xml</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\arx\ext\qt\XmlQDom.h">
-      <Filter>arx\ext\qt\xml</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\arx\Properties.h">
       <Filter>arx</Filter>
     </ClInclude>
     <ClInclude Include="..\src\arx\ext\qt\XmlBinding.h">
       <Filter>arx\ext\qt\xml</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\arx\ext\qt\StandardXmlBindings.h">
-      <Filter>arx\ext\qt\xml</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\arx\ext\qt\XmlErrorData.h">
-      <Filter>arx\ext\qt\xml</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\arx\ext\qt\XmlUserData.h">
+      <Filter>arx\ext\qt\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\XmlNodeWalker.h">
+      <Filter>arx\ext\qt\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\XmlNodeInspector.h">
+      <Filter>arx\ext\qt\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\XmlQDomNodeWalker.h">
+      <Filter>arx\ext\qt\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\XmlQDomNodeInspector.h">
+      <Filter>arx\ext\qt\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\XmlError.h">
+      <Filter>arx\ext\qt\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\XmlStringProcessor.h">
+      <Filter>arx\ext\qt\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\XmlQStringProcessor.h">
+      <Filter>arx\ext\qt\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\XmlQtBindings.h">
       <Filter>arx\ext\qt\xml</Filter>
     </ClInclude>
   </ItemGroup>

@@ -96,12 +96,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\src\arx\config.h" />
-    <ClInclude Include="..\src\arx\ext\qt\DefaultNodeWalker.h" />
-    <ClInclude Include="..\src\arx\ext\qt\StandardXmlBindings.h" />
     <ClInclude Include="..\src\arx\ext\qt\XmlBinding.h" />
-    <ClInclude Include="..\src\arx\ext\qt\XmlErrorData.h" />
-    <ClInclude Include="..\src\arx\ext\qt\XmlQDom.h" />
+    <ClInclude Include="..\src\arx\ext\qt\XmlError.h" />
+    <ClInclude Include="..\src\arx\ext\qt\XmlNodeInspector.h" />
+    <ClInclude Include="..\src\arx\ext\qt\XmlNodeWalker.h" />
     <ClInclude Include="..\src\arx\ext\qt\XmlPath.h" />
+    <ClInclude Include="..\src\arx\ext\qt\XmlQDomNodeInspector.h" />
+    <ClInclude Include="..\src\arx\ext\qt\XmlQDomNodeWalker.h" />
+    <ClInclude Include="..\src\arx\ext\qt\XmlQStringProcessor.h" />
+    <ClInclude Include="..\src\arx\ext\qt\XmlQtBindings.h" />
+    <ClInclude Include="..\src\arx\ext\qt\XmlStringProcessor.h" />
     <ClInclude Include="..\src\arx\ext\qt\XmlUserData.h" />
     <ClInclude Include="..\src\arx\ext\VigraQt.h" />
     <ClInclude Include="..\src\arx\ext\vigra\Accessors.h" />
