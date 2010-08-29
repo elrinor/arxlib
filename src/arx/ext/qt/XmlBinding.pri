@@ -18,8 +18,15 @@
 # $Id: FormPrinter.pri 114 2010-08-24 14:33:46Z ru.elric $
 QT += xml
 
-HEADERS += $$PWD/XmlDataBinder.h
-SOURCES += $$PWD/XmlDataBinder.h
+HEADERS += 
+  $$PWD/XmlBinding.h \
+  $$PWD/XmlQDomNodeInspector.h \
+  $$PWD/XmlQDomNodeWalker.h \
+  $$PWD/XmlQStringProcessor.h \
+
+SOURCES += 
+
+DEFINES     += ARX_XML_BINDING_PRI_INCLUDED
 
 INCLUDEPATH += $$PWD/../..
 DEPENDPATH  += $$PWD/../..

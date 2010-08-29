@@ -147,9 +147,6 @@
     <ClInclude Include="..\src\arx\ext\qt\XmlQStringProcessor.h">
       <Filter>arx\ext\qt\xml</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\arx\ext\qt\XmlQtBindings.h">
-      <Filter>arx\ext\qt\xml</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\arx\xml\Binding.h">
       <Filter>arx\xml</Filter>
     </ClInclude>
@@ -171,6 +168,9 @@
     <ClInclude Include="..\src\arx\xml\UserData.h">
       <Filter>arx\xml</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\XmlBinding.h">
+      <Filter>arx\ext\qt\xml</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\arx\ext\VigraQt.pri">
@@ -179,7 +179,7 @@
     <None Include="..\src\arx\ext\qt\FormPrinter.pri">
       <Filter>arx\ext\qt\form_printer</Filter>
     </None>
-    <None Include="..\src\arx\ext\qt\XmlDataBinder.pri">
+    <None Include="..\src\arx\ext\qt\XmlBinding.pri">
       <Filter>arx\ext\qt\xml</Filter>
     </None>
   </ItemGroup>
