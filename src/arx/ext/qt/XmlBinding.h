@@ -16,22 +16,26 @@
  * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
  * 
  * $Id$ */
-#ifndef ARX_EXT_QT_XML_QT_BINDINGS_H
-#define ARX_EXT_QT_XML_QT_BINDINGS_H
+#ifndef ARX_EXT_QT_XML_BINDING_H
+#define ARX_EXT_QT_XML_BINDING_H
 
 #include "config.h"
 #include <cassert>
 #include <limits>
 #include <QString>
 #include <QDomNode>
-#include "XmlBinding.h"
-#include "XmlError.h"
+#include <arx/xml/Binding.h>
 #include "XmlQDomNodeInspector.h"
 #include "XmlQDomNodeWalker.h"
 #include "XmlQStringProcessor.h"
 
+#ifndef ARX_XML_BINDING_PRI_INCLUDED
+#  error Include XmlBinding.pri into your qmake project file before including this file
+#endif
+
+
 namespace arx { namespace xml {
-  namespace standard_xml_bindings_detail {
+  namespace qt_xml_binding_detail {
     /**
      * Serialization function for QStrings.
      */
@@ -140,7 +144,7 @@ namespace arx { namespace xml {
 #undef ARX_DESERIALIZATION_FUNC
     };
 
-  } // namespace standard_xml_bindings_detail
+  } // namespace qt_xml_binding_detail
 
 
 #define ARX_STANDARD_BINDING(TYPE)                                              \
@@ -148,8 +152,8 @@ namespace arx { namespace xml {
     TYPE,                                                                       \
     functional(                                                                 \
       self,                                                                     \
-      standard_xml_bindings_detail::Serializer(),                               \
-      standard_xml_bindings_detail::Deserializer()                              \
+      qt_xml_binding_detail::Serializer(),                                      \
+      qt_xml_binding_detail::Deserializer()                                     \
     )                                                                           \
   );
 
@@ -171,4 +175,4 @@ namespace arx { namespace xml {
 
 }} // namespace arx::xml
 
-#endif // ARX_EXT_QT_XML_QT_BINDINGS_H
+#endif // ARX_EXT_QT_XML_BINDING_H
