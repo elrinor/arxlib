@@ -20,61 +20,63 @@
 #define ARX_EXT_QT_XML_BINDING_H
 
 #include "config.h"
+#include <cassert>
 #include <boost/mpl/identity.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/type_traits/remove_cv.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/proto/proto.hpp>
-#include <QtGlobal> /* For QtMsgType. */
-#include <QSourceLocation>
-#include <QDomNode>
 #include <arx/Preprocessor.h>
 #include <arx/Properties.h>
 #include "XmlPath.h"
-#include "XmlQDom.h"
+#include "XmlError.h"
 #include "XmlUserData.h"
+#include "XmlNodeInspector.h"
 
 namespace arx { namespace xml {
+
   /**
     * Message handler that simply ignores all incoming messages.
     */
   struct NullMessageHandler {
     template<class ErrorData, class UserData>
-    void operator()(QtMsgType /*severity*/, const ErrorData&, const UserData &, const QSourceLocation &) {
-      return;
+    void operator()(ErrorSeverity severity, const ErrorData&, const UserData &, const ErrorLocation &) {
+      assert(severity == ERROR || severity == WARNING);
+
+      (void) severity; /* Just to make the compiler happy. */
     }
   };
 
-  template<class T>
-  bool serialize(const T &source, QDomNode *target) {
+  template<class T, class Node>
+  bool serialize(const T &source, Node *target) {
     NullMessageHandler handler;
     return serialize(source, handler, no_properties, target);
   }
 
-  template<class T, class MessageHandler>
-  bool serialize(const T &source, MessageHandler &handler, QDomNode *target) {
+  template<class T, class MessageHandler, class Node>
+  bool serialize(const T &source, MessageHandler &handler, Node *target) {
     return serialize(source, handler, no_properties, target);
   }
 
-  template<class T, class MessageHandler, class Params>
-  bool serialize(const T &source, MessageHandler &handler, const Params &params, QDomNode *target) {
+  template<class T, class MessageHandler, class Params, class Node>
+  bool serialize(const T &source, MessageHandler &handler, const Params &params, Node *target) {
     return binding(static_cast<T *>(NULL)).serialize(source, handler, params, target);
   }
 
-  template<class T>
-  bool deserialize(QDomNode &source, T *target) {
+  template<class Node, class T>
+  bool deserialize(const Node &source, T *target) {
     NullMessageHandler handler;
     return deserialize(source, handler, no_properties, target);
   }
 
-  template<class T, class MessageHandler>
-  bool deserialize(QDomNode &source, MessageHandler &handler, T *target) {
+  template<class Node, class T, class MessageHandler>
+  bool deserialize(const Node &source, MessageHandler &handler, T *target) {
     return deserialize(source, handler, no_properties, target);
   }
 
-  template<class T, class MessageHandler, class Params>
-  bool deserialize(QDomNode &source, MessageHandler &handler, const Params &params, T *target) {
+  template<class Node, class T, class MessageHandler, class Params>
+  bool deserialize(const Node &source, MessageHandler &handler, const Params &params, T *target) {
     return binding(static_cast<T *>(NULL)).deserialize(source, handler, params, target);
   }
 
@@ -143,13 +145,18 @@ namespace arx { namespace xml {
         handler(handler), params(params), success(true) {}
 
       template<class ErrorData>
-      void operator()(QtMsgType severity, const ErrorData& errorData, const QSourceLocation &sourceLocation) {
-        assert(severity == QtFatalMsg || severity == QtWarningMsg);
+      void operator()(ErrorSeverity severity, const ErrorData& errorData, const ErrorLocation &location) {
+        assert(severity == ERROR || severity == WARNING);
 
         if(severity == QtFatalMsg)
           success = false;
 
-        handler(severity, errorData, params.get<user_data_tag>(no_user_data()), sourceLocation);
+        handler(severity, errorData, params.get<user_data_tag>(no_user_data()), location);
+      }
+
+      template<class ErrorData, class Node>
+      void operator()(ErrorSeverity severity, const ErrorData& errorData, const Node &node) {
+        operator()(severity, errorData, node_inspector<Node>::type().location(node));
       }
 
       MessageHandler &handler;
@@ -161,6 +168,17 @@ namespace arx { namespace xml {
     MessageTranslator<MessageHandler, Params> create_translator(MessageHandler &handler, const Params &params) {
       return MessageTranslator<MessageHandler, Params>(handler, params);
     }
+
+
+    /**
+     * Null checker that accepts everything.
+     */
+    struct NullChecker {
+      template<class T>
+      bool operator()(const T &) const {
+        return true;
+      }
+    };
 
 
     /**
@@ -258,86 +276,158 @@ namespace arx { namespace xml {
     /**
      * Member binding
      */
-    template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Params>
+    template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker, class Params>
     struct member_binding: binding_base<Path, Params> {
-      member_binding(const Path &path, const Params &params):
-        binding_base(path, params) {}
+      member_binding(const Path &path, const Checker &checker, const Params &params):
+        binding_base(path, params), checker(checker) {}
 
       typedef 
         binding_expression<typename proto::terminal<binding_wrapper<member_binding> >::type>
       expr_type;
+
+      Checker checker;
     };
 
-    template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Params>
-    typename member_binding<MemberPointer, pointer, Delegate, Path, Params>::expr_type
-    member_impl(const Path &path, const Params &params) {
-      typedef member_binding<MemberPointer, pointer, Delegate, Path, Params> binding_type;
-      binding_type::expr_type result = {{{binding_type(path, params)}}};
+    template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker, class Params>
+    typename member_binding<MemberPointer, pointer, Delegate, Path, Checker, Params>::expr_type
+    member_impl(const Path &path, const Checker &checker, const Params &params) {
+      typedef member_binding<MemberPointer, pointer, Delegate, Path, Checker, Params> binding_type;
+      binding_type::expr_type result = {{{binding_type(path, checker, params)}}};
       return result;
+    }
+
+    template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker, class Params>
+    auto checked_member(const Path &path, const Checker &checker, const Params &params) ->
+      decltype(member_impl<MemberPointer, pointer, Delegate>(path, checker, params)) 
+    {
+      return member_impl<MemberPointer, pointer, Delegate>(path, checker, params);
+    }
+
+    template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker>
+    auto checked_member(const Path &path, const Checker &checker) ->
+      decltype(member_impl<MemberPointer, pointer, Delegate>(path, checker, no_properties))
+    {
+      return member_impl<MemberPointer, pointer, Delegate>(path, checker, no_properties);
+    }
+
+    template<class MemberPointer, MemberPointer pointer, class Path, class Checker, class Params>
+    auto checked_member(const Path &path, const Checker &checker, const Params &params) ->
+      decltype(member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, checker, params))
+    {
+      return member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, checker, params);
+    }
+
+    template<class MemberPointer, MemberPointer pointer, class Path, class Checker>
+    auto checked_member(const Path &path, const Checker &checker) ->
+      decltype(member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, checker, no_properties))
+    {
+      return member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, checker, no_properties);
     }
 
     template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Params>
     auto member(const Path &path, const Params &params) ->
-      decltype(member_impl<MemberPointer, pointer, Delegate>(path, params)) 
+      decltype(member_impl<MemberPointer, pointer, Delegate>(path, NullChecker(), params)) 
     {
-      return member_impl<MemberPointer, pointer, Delegate>(path, params);
+      return member_impl<MemberPointer, pointer, Delegate>(path, NullChecker(), params);
     }
 
     template<class MemberPointer, MemberPointer pointer, class Delegate, class Path>
     auto member(const Path &path) ->
-      decltype(member_impl<MemberPointer, pointer, Delegate>(path, no_properties))
+      decltype(member_impl<MemberPointer, pointer, Delegate>(path, NullChecker(), no_properties))
     {
-      return member_impl<MemberPointer, pointer, Delegate>(path, no_properties);
+      return member_impl<MemberPointer, pointer, Delegate>(path, NullChecker(), no_properties);
     }
 
     template<class MemberPointer, MemberPointer pointer, class Path, class Params>
     auto member(const Path &path, const Params &params) ->
-      decltype(member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, params))
+      decltype(member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, NullChecker(), params))
     {
-      return member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, params);
+      return member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, NullChecker(), params);
     }
 
     template<class MemberPointer, MemberPointer pointer, class Path>
     auto member(const Path &path) ->
-      decltype(member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, no_properties))
+      decltype(member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, NullChecker(), no_properties))
     {
-      return member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, no_properties);
+      return member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, NullChecker(), no_properties);
     }
 
 
     /**
      * Accessor binding.
      */
-    template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Params>
+    template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker, class Params>
     struct accessor_binding: binding_base<Path, Params> {
-      accessor_binding(const Path &path, const Params &params):
-        binding_base(path, params) {}
+      accessor_binding(const Path &path, const Checker &checker, const Params &params):
+        binding_base(path, params), checker(checker) {}
 
       typedef 
         binding_expression<typename proto::terminal<binding_wrapper<accessor_binding> >::type>
       expr_type;
+
+      Checker checker;
     };
     
-    template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Params>
-    typename accessor_binding<Getter, getter, Setter, setter, Delegate, Path, Params>::expr_type
-    accessor_impl(const Path &path, const Params &params) {
-      typedef accessor_binding<Getter, getter, Setter, setter, Delegate, Path, Params> binding_type;
-      binding_type::expr_type result = {{{binding_type(path, params)}}};
+    template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker, class Params>
+    typename accessor_binding<Getter, getter, Setter, setter, Delegate, Path, Checker, Params>::expr_type
+    accessor_impl(const Path &path, const Checker &checker, const Params &params) {
+      typedef accessor_binding<Getter, getter, Setter, setter, Delegate, Path, Checker, Params> binding_type;
+      binding_type::expr_type result = {{{binding_type(path, checker, params)}}};
       return result;
+    }
+
+    template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker, class Params>
+    auto checked_accessor(const Path &path, const Checker &checker, const Params &params) ->
+      decltype(accessor_impl<Getter, getter, Setter, setter, Delegate>(path, checker, params)) 
+    {
+      return accessor_impl<Getter, getter, Setter, setter, Delegate>(path, checker, params);
+    }
+
+    template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker, class Params>
+    auto checked_accessor(const Path &path, const Checker &checker) ->
+      decltype(accessor_impl<Getter, getter, Setter, setter, Delegate>(path, checker, no_properties))
+    {
+      return accessor_impl<Getter, getter, Setter, setter, Delegate>(path, checker, no_properties);
+    }
+
+    template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Checker, class Params>
+    auto checked_accessor(const Path &path, const Checker &checker, const Params &params) ->
+      typename boost::enable_if<
+        boost::is_same<
+          typename getter_result<Getter>::type,
+          typename setter_param<Setter>::type
+        >, 
+        decltype(accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, checker, params))
+      >::type
+    {
+      return accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, checker, params);
+    }
+
+    template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Checker>
+    auto checked_accessor(const Path &path, const Checker &checker) ->
+      typename boost::enable_if<
+        boost::is_same<
+          typename getter_result<Getter>::type,
+          typename setter_param<Setter>::type
+        >,
+        decltype(accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, checker, no_properties))
+      >::type
+    {
+      return accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, checker, no_properties);
     }
 
     template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Params>
     auto accessor(const Path &path, const Params &params) ->
-      decltype(accessor_impl<Getter, getter, Setter, setter, Delegate>(path, params)) 
+      decltype(accessor_impl<Getter, getter, Setter, setter, Delegate>(path, NullChecker(), params)) 
     {
-      return accessor_impl<Getter, getter, Setter, setter, Delegate>(path, params);
+      return accessor_impl<Getter, getter, Setter, setter, Delegate>(path, NullChecker(), params);
     }
 
     template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Params>
     auto accessor(const Path &path) ->
-      decltype(accessor_impl<Getter, getter, Setter, setter, Delegate>(path, no_properties))
+      decltype(accessor_impl<Getter, getter, Setter, setter, Delegate>(path, NullChecker(), no_properties))
     {
-      return accessor_impl<Getter, getter, Setter, setter, Delegate>(path, no_properties);
+      return accessor_impl<Getter, getter, Setter, setter, Delegate>(path, NullChecker(), no_properties);
     }
 
     template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Params>
@@ -347,10 +437,10 @@ namespace arx { namespace xml {
           typename getter_result<Getter>::type,
           typename setter_param<Setter>::type
         >, 
-        decltype(accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, params))
+        decltype(accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, NullChecker(), params))
       >::type
     {
-      return accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, params);
+      return accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, NullChecker(), params);
     }
 
     template<class Getter, Getter getter, class Setter, Setter setter, class Path>
@@ -360,10 +450,10 @@ namespace arx { namespace xml {
           typename getter_result<Getter>::type,
           typename setter_param<Setter>::type
         >,
-        decltype(accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, no_properties))
+        decltype(accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, NullChecker(), no_properties))
       >::type
     {
-      return accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, no_properties);
+      return accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, NullChecker(), no_properties);
     }
 
 
@@ -397,38 +487,38 @@ namespace arx { namespace xml {
     /**
      * Serialization context.
      */
-    template<class T, class MessageHandler, class Params>
+    template<class T, class MessageHandler, class Params, class Node>
     struct serialization_context: 
-      common_context<const serialization_context<T, MessageHandler, Params> >
+      common_context<const serialization_context<T, MessageHandler, Params, Node> >
     {
       typedef 
-        common_context<const serialization_context<T, MessageHandler, Params> >
+        common_context<const serialization_context<T, MessageHandler, Params, Node> >
       base_type;
 
       using base_type::operator();
 
-      serialization_context(const T &source, MessageHandler &handler, const Params &params, QDomNode *target): 
+      serialization_context(const T &source, MessageHandler &handler, const Params &params, Node *target): 
         source(source), handler(handler), params(params), target(target) {}
 
       template<class Path, class Serializer, class Deserializer, class Params>
       bool operator()(proto::tag::terminal, const binding_wrapper<functional_binding<Path, Serializer, Deserializer, Params> > &binding) const {
+        auto child = binding.value.path.create(*target);
         auto newParams = (binding.value.params, params);
         auto translator = create_translator(handler, newParams);
-        QDomNode child = binding.value.path.create(*target);
         binding.value.serializer(source, translator, newParams, &child);
         return translator.success;
       }
 
-      template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Params>
-      bool operator()(proto::tag::terminal, const binding_wrapper<member_binding<MemberPointer, pointer, Delegate, Path, Params> > &binding) const {
-        QDomNode child = binding.value.path.create(*target);
+      template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker, class Params>
+      bool operator()(proto::tag::terminal, const binding_wrapper<member_binding<MemberPointer, pointer, Delegate, Path, Checker, Params> > &binding) const {
+        auto child = binding.value.path.create(*target);
         Delegate tmp = static_cast<Delegate>(source.*pointer);
         return serialize(tmp, handler, (binding.value.params, params), &child);
       }
 
-      template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Params>
-      bool operator()(proto::tag::terminal, const binding_wrapper<accessor_binding<Getter, getter, Setter, setter, Delegate, Path, Params> > &binding) const {
-        QDomNode child = binding.value.path.create(*target);
+      template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker, class Params>
+      bool operator()(proto::tag::terminal, const binding_wrapper<accessor_binding<Getter, getter, Setter, setter, Delegate, Path, Checker, Params> > &binding) const {
+        auto child = binding.value.path.create(*target);
         Delegate tmp = static_cast<Delegate>((source.*getter)());
         return serialize(tmp, handler, (binding.value.params, params), &child);
       }
@@ -441,51 +531,86 @@ namespace arx { namespace xml {
       const T &source;
       MessageHandler &handler;
       const Params &params;
-      QDomNode *target;
+      Node *target;
     };
 
 
     /**
      * Deserialization context.
      */
-    template<class T, class MessageHandler, class Params>
+    template<class Node, class MessageHandler, class Params, class T>
     struct deserialization_context:
-      common_context<const deserialization_context<T, MessageHandler, Params> >
+      common_context<const deserialization_context<Node, MessageHandler, Params, T> >
     {
       typedef 
-        common_context<const deserialization_context<T, MessageHandler, Params> >
+        common_context<const deserialization_context<Node, MessageHandler, Params, T> >
       base_type;
 
       using base_type::operator();
 
-      deserialization_context(QDomNode &source, MessageHandler &handler, const Params &params, T *target): 
+      deserialization_context(const Node &source, MessageHandler &handler, const Params &params, T *target): 
         source(source), handler(handler), params(params), target(target) {}
 
       template<class Path, class Serializer, class Deserializer, class Params>
       bool operator()(proto::tag::terminal, const binding_wrapper<functional_binding<Path, Serializer, Deserializer, Params> > &binding) const {
+        auto child = binding.value.path.traverse(source);
         auto newParams = (binding.value.params, params);
         auto translator = create_translator(handler, newParams);
-        binding.value.deserializer(binding.value.path.traverse(source), translator, newParams, target);
+        if(!check_not_null(child, translator, binding.value.path))
+          return false;
+        binding.value.deserializer(child, translator, newParams, target);
         return translator.success;
       }
 
-      template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Params>
-      bool operator()(proto::tag::terminal, const binding_wrapper<member_binding<MemberPointer, pointer, Delegate, Path, Params> > &binding) const {
+      template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker, class Params>
+      bool operator()(proto::tag::terminal, const binding_wrapper<member_binding<MemberPointer, pointer, Delegate, Path, Checker, Params> > &binding) const {
+        typedef member_type<MemberPointer>::type Actual;
+        auto child = binding.value.path.traverse(source);
+        auto newParams = (binding.value.params, params);
+        auto translator = create_translator(handler, newParams);
+        if(!check_not_null(child, translator, binding.value.path))
+          return false;
         Delegate tmp;
-        if(deserialize(binding.value.path.traverse(source), handler, (binding.value.params, params), &tmp)) {
-          (target->*pointer) = static_cast<member_type<MemberPointer>::type>(tmp);
-          return true;
+        if(deserialize(child, handler, newParams, &tmp)) {
+          Actual actualTmp = static_cast<Actual>(tmp);
+          if(!binding.value.checker(actualTmp)) {
+            node_inspector<Node>::type inspector;
+            translator(
+              ERROR, 
+              create_invalid_value_for_type<Actual>(inspector.value(child)), 
+              inspector.location(child)
+            );
+          } else {
+            (target->*pointer) = actualTmp;
+          }
+          return translator.success;
         } else {
           return false;
         }
       }
 
-      template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Params>
-      bool operator()(proto::tag::terminal, const binding_wrapper<accessor_binding<Getter, getter, Setter, setter, Delegate, Path, Params> > &binding) const {
+      template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker, class Params>
+      bool operator()(proto::tag::terminal, const binding_wrapper<accessor_binding<Getter, getter, Setter, setter, Delegate, Path, Checker, Params> > &binding) const {
+        typedef setter_param<Setter>::type Actual;
+        auto child = binding.value.path.traverse(source);
+        auto newParams = (binding.value.params, params);
+        auto translator = create_translator(handler, newParams);
+        if(!check_not_null(child, translator, binding.value.path))
+          return false;
         Delegate tmp;
-        if(deserialize(binding.value.path.traverse(source), handler, (binding.value.params, params), &tmp)) {
-          (target->*setter)(static_cast<setter_param<Setter>::type>(tmp));
-          return true;
+        if(deserialize(child, handler, newParams, &tmp)) {
+          Actual actualTmp = static_cast<Actual>(tmp);
+          if(!binding.value.checker(actualTmp)) {
+            node_inspector<Node>::type inspector;
+            translator(
+              ERROR, 
+              create_invalid_value_for_type<Actual>(inspector.value(child)), 
+              inspector.location(child)
+            );
+          } else {
+            (target->*setter)(actualTmp);
+          }
+          return translator.success;
         } else {
           return false;
         }
@@ -496,7 +621,25 @@ namespace arx { namespace xml {
         return proto::value(pred)(*target) ? proto::eval(l, *this) : proto::eval(r, *this);
       }
 
-      QDomNode &source;
+      template<class Path, class Translator>
+      bool check_not_null(const Node &node, Translator &translator, const Path &path) const {
+        if(node_walker<Node>::type().is_null(node)) {
+          translator(
+            ERROR, 
+            create_node_not_found(
+              path.to_string_process(
+                node_string_processor<Node>::type()
+              )
+            ), 
+            node_inspector<Node>::type().location(node)
+          );
+          return false;
+        } else {
+          return true;
+        }
+      }
+
+      const Node &source;
       MessageHandler &handler;
       const Params &params;
       T *target;
@@ -512,15 +655,15 @@ namespace arx { namespace xml {
 
       BOOST_PROTO_EXTENDS(Expr, this_type, binding_domain);
 
-      template<class T, class MessageHandler, class Params>
-      bool serialize(const T &source, MessageHandler &handler, const Params &params, QDomNode *target) const {
-        serialization_context<T, MessageHandler, Params> ctx(source, handler, params, target);
+      template<class T, class MessageHandler, class Params, class Node>
+      bool serialize(const T &source, MessageHandler &handler, const Params &params, Node *target) const {
+        serialization_context<T, MessageHandler, Params, Node> ctx(source, handler, params, target);
         return proto::eval(*this, ctx);
       }
 
-      template<class T, class MessageHandler, class Params>
-      bool deserialize(QDomNode &source, MessageHandler &handler, const Params &params, T *target) const {
-        deserialization_context<T, MessageHandler, Params> ctx(source, handler, params, target);
+      template<class Node, class T, class MessageHandler, class Params>
+      bool deserialize(const Node &source, MessageHandler &handler, const Params &params, T *target) const {
+        deserialization_context<Node, MessageHandler, Params, T> ctx(source, handler, params, target);
         return proto::eval(*this, ctx);
       }
 
@@ -539,7 +682,9 @@ namespace arx { namespace xml {
   using xml_binding_detail::noop;
   using xml_binding_detail::functional;
   using xml_binding_detail::member;
+  using xml_binding_detail::checked_member;
   using xml_binding_detail::accessor;
+  using xml_binding_detail::checked_accessor;
   using boost::proto::if_else;
 
 

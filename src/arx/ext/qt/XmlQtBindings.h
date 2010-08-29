@@ -1,11 +1,34 @@
-#ifndef ARX_EXT_QT_STANDARD_XML_BINDINGS_H
-#define ARX_EXT_QT_STANDARD_XML_BINDINGS_H
+/* This file is part of ArXLib, a C++ ArX Primitives Library.
+ *
+ * Copyright (C) 2008-2010 Alexander Fokin <apfokin@gmail.com>
+ *
+ * ArXLib is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * ArXLib is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License 
+ * for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
+ * 
+ * $Id$ */
+#ifndef ARX_EXT_QT_XML_QT_BINDINGS_H
+#define ARX_EXT_QT_XML_QT_BINDINGS_H
 
 #include "config.h"
 #include <cassert>
 #include <limits>
+#include <QString>
+#include <QDomNode>
 #include "XmlBinding.h"
-#include "XmlErrorData.h"
+#include "XmlError.h"
+#include "XmlQDomNodeInspector.h"
+#include "XmlQDomNodeWalker.h"
+#include "XmlQStringProcessor.h"
 
 namespace arx { namespace xml {
   namespace standard_xml_bindings_detail {
@@ -40,14 +63,14 @@ namespace arx { namespace xml {
      * QStrings.
      */
     struct Serializer {
-      template<class MessageHandler, class Params>
-      void operator()(const QString &source, MessageHandler &, const Params &, QDomNode *target) const {
+      template<class MessageTranslator, class Params>
+      void operator()(const QString &source, MessageTranslator &, const Params &, QDomNode *target) const {
         serialize(source, target);
       }
 
 #define ARX_SERIALIZATION_FUNC(TYPE, EXPR)                                      \
-      template<class MessageHandler, class Params>                              \
-      void operator()(TYPE x, MessageHandler &, const Params &, QDomNode *target) const { \
+      template<class MessageTranslator, class Params>                           \
+      void operator()(TYPE x, MessageTranslator &, const Params &, QDomNode *target) const { \
         serialize(EXPR, target);                                                \
       }
 
@@ -73,14 +96,14 @@ namespace arx { namespace xml {
      * types and QStrings.
      */
     struct Deserializer {
-      template<class MessageHandler, class Params>
-      void operator()(QDomNode &source, MessageHandler &, const Params &, QString *target) const {
+      template<class MessageTranslator, class Params>
+      void operator()(QDomNode &source, MessageTranslator &, const Params &, QString *target) const {
         *target = deserialize(source);
       }
 
 #define ARX_DESERIALIZATION_FUNC(TYPE, INTERMEDIATE_EXPR, CHECK_EXPR)           \
-      template<class MessageHandler, class Params>                              \
-      void operator()(QDomNode &source, MessageHandler &handler, const Params &, TYPE *target) const { \
+      template<class MessageTranslator, class Params>                           \
+      void operator()(QDomNode &source, MessageTranslator &handler, const Params &, TYPE *target) const { \
         QString s = deserialize(source);                                        \
         bool ok = true;                                                         \
         decltype(INTERMEDIATE_EXPR) x = (INTERMEDIATE_EXPR);                    \
@@ -89,7 +112,7 @@ namespace arx { namespace xml {
         if(ok)                                                                  \
           *target = static_cast<TYPE>(x);                                       \
         else                                                                    \
-          handler(QtFatalMsg, invalid_value_for_type<TYPE>(s), QSourceLocation(QUrl(), source.lineNumber(), source.columnNumber())); \
+          handler(ERROR, create_invalid_value_for_type<TYPE>(s), source);       \
       }
 
       ARX_DESERIALIZATION_FUNC(bool,                       
@@ -148,4 +171,4 @@ namespace arx { namespace xml {
 
 }} // namespace arx::xml
 
-#endif // ARX_EXT_QT_STANDARD_XML_BINDINGS_H
+#endif // ARX_EXT_QT_XML_QT_BINDINGS_H
