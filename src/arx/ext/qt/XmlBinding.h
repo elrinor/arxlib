@@ -24,7 +24,9 @@
 #include <limits>
 #include <QString>
 #include <QDomNode>
+#include <QList>
 #include <arx/xml/Binding.h>
+#include <arx/Foreach.h>
 #include "XmlQDomNodeInspector.h"
 #include "XmlQDomNodeWalker.h"
 #include "XmlQStringProcessor.h"
@@ -63,6 +65,14 @@ namespace arx { namespace xml {
 
 
     /**
+     * Tag for element_name parameter.
+     */
+    struct element_name_tag {};
+
+    ARX_DEFINE_PROPERTY_KEY(element_name_tag, element_name);
+
+
+    /**
      * Serializer functor that implements serialization of basic C++ types and 
      * QStrings.
      */
@@ -92,6 +102,15 @@ namespace arx { namespace xml {
       ARX_SERIALIZATION_FUNC(float,                        QString::number(static_cast<float>(x), 'g', 9));
       ARX_SERIALIZATION_FUNC(double,                       QString::number(x, 'g', 18));
 #undef ARX_SERIALIZATION_FUNC
+    
+      template<class T, class MessageTranslator, class Params>
+      void operator()(const QList<T> &source, MessageTranslator &translator, const Params &params, QDomNode *target) const {
+        QString elementName = QString(params.get<element_name_tag>("elem"));
+        foreach(const T &value, source) {
+          QDomNode element = target->appendChild(target->ownerDocument().createElement(elementName));
+          arx::xml::serialize(value, handler(translator), params, &element);
+        }
+      }
     };
 
 
@@ -142,6 +161,21 @@ namespace arx { namespace xml {
       ARX_DESERIALIZATION_FUNC(float,                      s.toFloat(&ok),      true);
       ARX_DESERIALIZATION_FUNC(double,                     s.toDouble(&ok),     true);
 #undef ARX_DESERIALIZATION_FUNC
+    
+      template<class T, class MessageTranslator, class Params>
+      void operator()(QDomNode &source, MessageTranslator &translator, const Params &params, QList<T> *target) const {
+        QString elementName = QString(params.get<element_name_tag>("elem"));
+        for(QDomNode child = source.firstChildElement(); !child.isNull(); child = child.nextSiblingElement()) {
+          if(child.nodeName() != elementName) {
+            translator(ERROR, create_invalid_name(child.nodeName(), elementName), child);
+          } else {
+            T value;
+            if(arx::xml::deserialize(child, handler(translator), params, &value))
+              target->push_back(value);
+          }
+        }
+      }
+
     };
 
   } // namespace qt_xml_binding_detail
@@ -155,7 +189,7 @@ namespace arx { namespace xml {
       qt_xml_binding_detail::Serializer(),                                      \
       qt_xml_binding_detail::Deserializer()                                     \
     )                                                                           \
-  );
+  ) 
 
   ARX_STANDARD_BINDING(QString);
   ARX_STANDARD_BINDING(bool);
@@ -172,6 +206,19 @@ namespace arx { namespace xml {
   ARX_STANDARD_BINDING(float);
   ARX_STANDARD_BINDING(double);
 #undef ARX_STANDARD_BINDING
+
+  ARX_DEFINE_NAMED_XML_BINDING_TPL(
+    QList_xml_binding, 
+    QList<T>, 
+    (template<class T>), 
+    functional(
+      self, 
+      qt_xml_binding_detail::Serializer(), 
+      qt_xml_binding_detail::Deserializer()
+    )
+  );
+
+  using qt_xml_binding_detail::element_name;
 
 }} // namespace arx::xml
 
