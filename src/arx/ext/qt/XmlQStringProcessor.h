@@ -21,7 +21,7 @@
 
 #include "config.h"
 #include <QString>
-#include "XmlStringProcessor.h"
+#include <arx/xml/StringProcessor.h>
 
 class QDomNode;
 

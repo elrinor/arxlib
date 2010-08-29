@@ -23,7 +23,7 @@
 #include <cassert>
 #include <QString>
 #include <QDomNode>
-#include "XmlNodeWalker.h"
+#include <arx/xml/NodeWalker.h>
 
 namespace arx { namespace xml {
 // -------------------------------------------------------------------------- //
