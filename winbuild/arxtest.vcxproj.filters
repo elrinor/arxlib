@@ -25,6 +25,9 @@
     <Filter Include="arx\ext\qt\xml">
       <UniqueIdentifier>{ef908052-844e-46c0-a3c3-5369411db4a4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="arx\xml">
+      <UniqueIdentifier>{3f32e3ac-7cff-4de6-99da-9f080fec89bc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\arx\config.h">
@@ -132,23 +135,8 @@
     <ClInclude Include="..\src\arx\ext\qt\FormPrinter.h">
       <Filter>arx\ext\qt\form_printer</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\arx\ext\qt\XmlPath.h">
-      <Filter>arx\ext\qt\xml</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\arx\Properties.h">
       <Filter>arx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\arx\ext\qt\XmlBinding.h">
-      <Filter>arx\ext\qt\xml</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\arx\ext\qt\XmlUserData.h">
-      <Filter>arx\ext\qt\xml</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\arx\ext\qt\XmlNodeWalker.h">
-      <Filter>arx\ext\qt\xml</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\arx\ext\qt\XmlNodeInspector.h">
-      <Filter>arx\ext\qt\xml</Filter>
     </ClInclude>
     <ClInclude Include="..\src\arx\ext\qt\XmlQDomNodeWalker.h">
       <Filter>arx\ext\qt\xml</Filter>
@@ -156,17 +144,32 @@
     <ClInclude Include="..\src\arx\ext\qt\XmlQDomNodeInspector.h">
       <Filter>arx\ext\qt\xml</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\arx\ext\qt\XmlError.h">
-      <Filter>arx\ext\qt\xml</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\arx\ext\qt\XmlStringProcessor.h">
-      <Filter>arx\ext\qt\xml</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\arx\ext\qt\XmlQStringProcessor.h">
       <Filter>arx\ext\qt\xml</Filter>
     </ClInclude>
     <ClInclude Include="..\src\arx\ext\qt\XmlQtBindings.h">
       <Filter>arx\ext\qt\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\xml\Binding.h">
+      <Filter>arx\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\xml\Error.h">
+      <Filter>arx\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\xml\NodeInspector.h">
+      <Filter>arx\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\xml\NodeWalker.h">
+      <Filter>arx\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\xml\Path.h">
+      <Filter>arx\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\xml\StringProcessor.h">
+      <Filter>arx\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\arx\xml\UserData.h">
+      <Filter>arx\xml</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

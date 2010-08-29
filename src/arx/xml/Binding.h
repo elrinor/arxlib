@@ -16,8 +16,8 @@
  * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
  * 
  * $Id$ */
-#ifndef ARX_EXT_QT_XML_BINDING_H
-#define ARX_EXT_QT_XML_BINDING_H
+#ifndef ARX_XML_BINDING_H
+#define ARX_XML_BINDING_H
 
 #include "config.h"
 #include <cassert>
@@ -29,10 +29,10 @@
 #include <boost/proto/proto.hpp>
 #include <arx/Preprocessor.h>
 #include <arx/Properties.h>
-#include "XmlPath.h"
-#include "XmlError.h"
-#include "XmlUserData.h"
-#include "XmlNodeInspector.h"
+#include "Path.h"
+#include "Error.h"
+#include "UserData.h"
+#include "NodeInspector.h"
 
 namespace arx { namespace xml {
 
@@ -81,7 +81,7 @@ namespace arx { namespace xml {
   }
 
 
-  namespace xml_binding_detail {
+  namespace binding_detail {
     namespace proto = boost::proto;
     namespace mpl = boost::mpl;
 
@@ -677,14 +677,14 @@ namespace arx { namespace xml {
       binding_expression<proto::terminal<binding_wrapper<noop_binding> >::type> noop = {{{}}};
     }
 
-  } // namespace xml_binding_detail
+  } // namespace binding_detail
 
-  using xml_binding_detail::noop;
-  using xml_binding_detail::functional;
-  using xml_binding_detail::member;
-  using xml_binding_detail::checked_member;
-  using xml_binding_detail::accessor;
-  using xml_binding_detail::checked_accessor;
+  using binding_detail::noop;
+  using binding_detail::functional;
+  using binding_detail::member;
+  using binding_detail::checked_member;
+  using binding_detail::accessor;
+  using binding_detail::checked_accessor;
   using boost::proto::if_else;
 
 
@@ -792,4 +792,4 @@ namespace arx { namespace xml {
 
 }} // namespace arx::xml
 
-#endif // ARX_EXT_QT_XML_BINDING_H
+#endif // ARX_XML_BINDING_H

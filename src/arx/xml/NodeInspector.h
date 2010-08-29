@@ -16,14 +16,14 @@
  * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
  * 
  * $Id$ */
-#ifndef ARX_EXT_QT_XML_NODE_INSPECTOR_H
-#define ARX_EXT_QT_XML_NODE_INSPECTOR_H
+#ifndef ARX_XML_NODE_INSPECTOR_H
+#define ARX_XML_NODE_INSPECTOR_H
 
 #include "config.h"
-#include "XmlError.h"
+#include "Error.h"
 
 namespace arx { namespace xml {
-  namespace xml_node_inspector_detail {
+  namespace node_inspector_detail {
 // -------------------------------------------------------------------------- //
 // Wrappers
 // -------------------------------------------------------------------------- //
@@ -54,7 +54,7 @@ namespace arx { namespace xml {
       return location(node);
     }
 
-  } // namespace xml_node_inspector_detail
+  } // namespace node_inspector_detail
 
 
 // -------------------------------------------------------------------------- //
@@ -63,20 +63,20 @@ namespace arx { namespace xml {
   class DefaultNodeInspector {
   public:
     template<class Node>
-    typename xml_node_inspector_detail::name_type<Node>::type
+    typename node_inspector_detail::name_type<Node>::type
     name(const Node &node) const {
-      return xml_node_inspector_detail::name_wrapper(node);
+      return node_inspector_detail::name_wrapper(node);
     }
 
     template<class Node>
-    typename xml_node_inspector_detail::value_type<Node>::type
+    typename node_inspector_detail::value_type<Node>::type
     value(const Node &node) const {
-      return xml_node_inspector_detail::value_wrapper(node);
+      return node_inspector_detail::value_wrapper(node);
     }
 
     template<class Node>
     ErrorLocation location(const Node &node) const {
-      retunr xml_node_inspector_detail::location_wrapper(node);
+      retunr node_inspector_detail::location_wrapper(node);
     }
 
   };
@@ -96,4 +96,4 @@ namespace arx { namespace xml {
 
 }} // namespace arx::xml
 
-#endif // ARX_EXT_QT_XML_NODE_INSPECTOR_H
+#endif // ARX_XML_NODE_INSPECTOR_H

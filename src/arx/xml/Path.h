@@ -16,8 +16,8 @@
  * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
  * 
  * $Id$ */
-#ifndef ARX_EXT_QT_XML_PATH_H
-#define ARX_EXT_QT_XML_PATH_H
+#ifndef ARX_XML_PATH_H
+#define ARX_XML_PATH_H
 
 #include "config.h"
 #include <boost/mpl/bool.hpp>
@@ -25,11 +25,11 @@
 #include <boost/type_traits/remove_cv.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/proto/proto.hpp>
-#include "XmlNodeWalker.h"
-#include "XmlStringProcessor.h"
+#include "NodeWalker.h"
+#include "StringProcessor.h"
 
 namespace arx { namespace xml {
-  namespace xml_path_detail {
+  namespace path_detail {
     namespace proto = boost::proto;
     namespace mpl = boost::mpl;
 
@@ -327,12 +327,12 @@ namespace arx { namespace xml {
      */
     path_expression<proto::terminal<path_start>::type> self = {{}};
 
-  } // namespace xml_path_detail
+  } // namespace path_detail
 
 
-  using xml_path_detail::self;
+  using path_detail::self;
 
 
 }} // namespace arx::xml
 
-#endif // ARX_EXT_QT_XML_PATH_H
+#endif // ARX_XML_PATH_H
