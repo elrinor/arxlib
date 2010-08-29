@@ -36,52 +36,50 @@
 #include "XmlUserData.h"
 
 namespace arx { namespace xml {
-  namespace detail {
-    /**
-     * Message handler that simply ignores all incoming messages.
-     */
-    struct NullMessageHandler {
-      template<class Data, class UserData>
-      void operator()(QtMsgType severity, const Data& data, const UserData &userData, const QSourceLocation &sourceLocation) {
-        return;
-      }
-    };
-
-  } // namespace detail
-
+  /**
+    * Message handler that simply ignores all incoming messages.
+    */
+  struct NullMessageHandler {
+    template<class ErrorData, class UserData>
+    void operator()(QtMsgType /*severity*/, const ErrorData&, const UserData &, const QSourceLocation &) {
+      return;
+    }
+  };
 
   template<class T>
   bool serialize(const T &source, QDomNode *target) {
-    return serialize(source, detail::NullMessageHandler(), no_properties, target);
+    NullMessageHandler handler;
+    return serialize(source, handler, no_properties, target);
   }
 
   template<class T, class MessageHandler>
-  bool serialize(const T &source, const MessageHandler &handler, QDomNode *target) {
+  bool serialize(const T &source, MessageHandler &handler, QDomNode *target) {
     return serialize(source, handler, no_properties, target);
   }
 
   template<class T, class MessageHandler, class Params>
-  bool serialize(const T &source, const MessageHandler &handler, const Params &params, QDomNode *target) {
+  bool serialize(const T &source, MessageHandler &handler, const Params &params, QDomNode *target) {
     return binding(static_cast<T *>(NULL)).serialize(source, handler, params, target);
   }
 
   template<class T>
   bool deserialize(QDomNode &source, T *target) {
-    return deserialize(source, detail::NullMessageHandler(), no_properties, target);
+    NullMessageHandler handler;
+    return deserialize(source, handler, no_properties, target);
   }
 
   template<class T, class MessageHandler>
-  bool deserialize(QDomNode &source, const MessageHandler &handler, T *target) {
+  bool deserialize(QDomNode &source, MessageHandler &handler, T *target) {
     return deserialize(source, handler, no_properties, target);
   }
 
   template<class T, class MessageHandler, class Params>
-  bool deserialize(QDomNode &source, const MessageHandler &handler, const Params &params, T *target) {
+  bool deserialize(QDomNode &source, MessageHandler &handler, const Params &params, T *target) {
     return binding(static_cast<T *>(NULL)).deserialize(source, handler, params, target);
   }
 
 
-  namespace detail {
+  namespace xml_binding_detail {
     namespace proto = boost::proto;
     namespace mpl = boost::mpl;
 
@@ -141,26 +139,26 @@ namespace arx { namespace xml {
     template<class MessageHandler, class Params>
     struct MessageTranslator {
     public:
-      explicit MessageTranslator(const MessageHandler &handler, const Params &params):
+      explicit MessageTranslator(MessageHandler &handler, const Params &params):
         handler(handler), params(params), success(true) {}
 
-      template<class Data, class UserData>
-      void operator()(QtMsgType severity, const Data& data, const QSourceLocation &sourceLocation) {
+      template<class ErrorData>
+      void operator()(QtMsgType severity, const ErrorData& errorData, const QSourceLocation &sourceLocation) {
         assert(severity == QtFatalMsg || severity == QtWarningMsg);
 
         if(severity == QtFatalMsg)
           success = false;
 
-        handler.message(severity, data, params.get<user_data_tag>(no_user_data()), sourceLocation);
+        handler(severity, errorData, params.get<user_data_tag>(no_user_data()), sourceLocation);
       }
 
-      const MessageHandler &handler;
+      MessageHandler &handler;
       const Params &params;
       bool success;
     };
 
     template<class MessageHandler, class Params>
-    MessageTranslator<MessageHandler, Params> create_translator(const MessageHandler &handler, const Params &params) {
+    MessageTranslator<MessageHandler, Params> create_translator(MessageHandler &handler, const Params &params) {
       return MessageTranslator<MessageHandler, Params>(handler, params);
     }
 
@@ -409,7 +407,7 @@ namespace arx { namespace xml {
 
       using base_type::operator();
 
-      serialization_context(const T &source, const MessageHandler &handler, const Params &params, QDomNode *target): 
+      serialization_context(const T &source, MessageHandler &handler, const Params &params, QDomNode *target): 
         source(source), handler(handler), params(params), target(target) {}
 
       template<class Path, class Serializer, class Deserializer, class Params>
@@ -441,7 +439,7 @@ namespace arx { namespace xml {
       }
 
       const T &source;
-      const MessageHandler &handler;
+      MessageHandler &handler;
       const Params &params;
       QDomNode *target;
     };
@@ -460,7 +458,7 @@ namespace arx { namespace xml {
 
       using base_type::operator();
 
-      deserialization_context(QDomNode &source, const MessageHandler &handler, const Params &params, T *target): 
+      deserialization_context(QDomNode &source, MessageHandler &handler, const Params &params, T *target): 
         source(source), handler(handler), params(params), target(target) {}
 
       template<class Path, class Serializer, class Deserializer, class Params>
@@ -499,7 +497,7 @@ namespace arx { namespace xml {
       }
 
       QDomNode &source;
-      const MessageHandler &handler;
+      MessageHandler &handler;
       const Params &params;
       T *target;
     };
@@ -515,13 +513,13 @@ namespace arx { namespace xml {
       BOOST_PROTO_EXTENDS(Expr, this_type, binding_domain);
 
       template<class T, class MessageHandler, class Params>
-      bool serialize(const T &source, const MessageHandler &handler, const Params &params, QDomNode *target) const {
+      bool serialize(const T &source, MessageHandler &handler, const Params &params, QDomNode *target) const {
         serialization_context<T, MessageHandler, Params> ctx(source, handler, params, target);
         return proto::eval(*this, ctx);
       }
 
       template<class T, class MessageHandler, class Params>
-      bool deserialize(QDomNode &source, const MessageHandler &handler, const Params &params, T *target) const {
+      bool deserialize(QDomNode &source, MessageHandler &handler, const Params &params, T *target) const {
         deserialization_context<T, MessageHandler, Params> ctx(source, handler, params, target);
         return proto::eval(*this, ctx);
       }
@@ -536,43 +534,85 @@ namespace arx { namespace xml {
       binding_expression<proto::terminal<binding_wrapper<noop_binding> >::type> noop = {{{}}};
     }
 
-  } // namespace detail
+  } // namespace xml_binding_detail
 
-  using detail::noop;
-  using detail::functional;
-  using detail::member;
-  using detail::accessor;
+  using xml_binding_detail::noop;
+  using xml_binding_detail::functional;
+  using xml_binding_detail::member;
+  using xml_binding_detail::accessor;
   using boost::proto::if_else;
 
 
-#define ARX_DEFINE_NAMED_XML_BINDING_TPL_I(NAME, HOLDER_NAME, TYPE, TYPE_TPL, BINDING) \
-  class NAME {                                                                  \
-  public:                                                                       \
-    typedef decltype(boost::proto::deep_copy(BINDING)) result_type;             \
-    result_type operator()() const {                                            \
-      return boost::proto::deep_copy(BINDING);                                  \
-    }                                                                           \
-  };                                                                            \
+#define ARX_DEFINE_XML_BINDING_I(                                               \
+  NS_START,                                                                     \
+  NS_END,                                                                       \
+  NS_PREFIX,                                                                    \
+  NAME,                                                                         \
+  NAME_TPL_HEAD,                                                                \
+  NAME_TPL_SPEC_HEAD,                                                           \
+  NAME_TPL_SPEC,                                                                \
+  NAME_TPL_SPEC_ACC,                                                            \
+  HOLDER,                                                                       \
+  HOLDER_TPL_HEAD,                                                              \
+  HOLDER_TPL_SPEC_HEAD,                                                         \
+  HOLDER_TPL_SPEC,                                                              \
+  HOLDER_TPL_SPEC_ACC,                                                          \
+  TYPE,                                                                         \
+  TYPE_TPL,                                                                     \
+  BINDING                                                                       \
+)                                                                               \
+  ARX_STRIP(NS_START)                                                           \
+    ARX_STRIP(NAME_TPL_HEAD)                                                    \
+    class NAME;                                                                 \
                                                                                 \
-  namespace xml_detail {                                                        \
-    template<class Dummy>                                                       \
-    struct HOLDER_NAME {                                                        \
-      static const NAME::result_type binding;                                   \
+    ARX_STRIP(NAME_TPL_SPEC_HEAD)                                               \
+    class NAME ARX_STRIP(NAME_TPL_SPEC) {                                       \
+    public:                                                                     \
+      typedef decltype(boost::proto::deep_copy(BINDING)) result_type;           \
+      result_type operator()() const {                                          \
+        return boost::proto::deep_copy(BINDING);                                \
+      }                                                                         \
+    };                                                                          \
+  ARX_STRIP(NS_END)                                                             \
+                                                                                \
+  namespace xml_binding_definition_detail {                                     \
+    ARX_STRIP(HOLDER_TPL_HEAD)                                                  \
+    struct HOLDER;                                                              \
+                                                                                \
+    ARX_STRIP(HOLDER_TPL_SPEC_HEAD)                                             \
+    struct HOLDER ARX_STRIP(HOLDER_TPL_SPEC) {                                  \
+      static const ARX_STRIP(NS_PREFIX) NAME ARX_STRIP(NAME_TPL_SPEC_ACC)::result_type \
+        binding;                                                                \
     };                                                                          \
                                                                                 \
-    template<class Dummy>                                                       \
-    const typename NAME::result_type HOLDER_NAME<Dummy>::binding = NAME()();    \
+    ARX_STRIP(HOLDER_TPL_SPEC_HEAD)                                             \
+    const typename ARX_STRIP(NS_PREFIX) NAME ARX_STRIP(NAME_TPL_SPEC_ACC)::result_type \
+      HOLDER ARX_STRIP(HOLDER_TPL_SPEC)::binding =                              \
+      ARX_STRIP(NS_PREFIX) NAME ARX_STRIP(NAME_TPL_SPEC_ACC)()();               \
   }                                                                             \
                                                                                 \
   ARX_STRIP(TYPE_TPL)                                                           \
-  const NAME::result_type &binding(const TYPE *) {                              \
-    return xml_detail::HOLDER_NAME<void>::binding;                              \
+  const ARX_STRIP(NS_PREFIX) NAME ARX_STRIP(NAME_TPL_SPEC_ACC)::result_type &   \
+  binding(const TYPE *) {                                                       \
+    return xml_binding_definition_detail::HOLDER ARX_STRIP(HOLDER_TPL_SPEC_ACC)::binding; \
   }
 
+
 #define ARX_DEFINE_NAMED_XML_BINDING_TPL(NAME, TYPE, TYPE_TPL, BINDING)         \
-  ARX_DEFINE_NAMED_XML_BINDING_TPL_I(                                           \
+  ARX_DEFINE_XML_BINDING_I(                                                     \
+    (),                                                                         \
+    (),                                                                         \
+    (),                                                                         \
     NAME,                                                                       \
-    ARX_CAT(ARX_CAT(NAME, _holder_), __LINE__),                                 \
+    (),                                                                         \
+    (),                                                                         \
+    (),                                                                         \
+    (),                                                                         \
+    ARX_CAT_3(NAME, _holder_, __LINE__),                                        \
+    (),                                                                         \
+    (),                                                                         \
+    (),                                                                         \
+    (),                                                                         \
     TYPE,                                                                       \
     TYPE_TPL,                                                                   \
     BINDING                                                                     \
@@ -582,9 +622,22 @@ namespace arx { namespace xml {
   ARX_DEFINE_NAMED_XML_BINDING_TPL(NAME, TYPE, (), BINDING)
   
 #define ARX_DEFINE_XML_BINDING(TYPE, BINDING)                                   \
-  ARX_DEFINE_NAMED_XML_BINDING(                                                 \
-    ARX_CAT(ARX_CAT(TYPE, _binding_), __LINE__),                                \
+  ARX_DEFINE_XML_BINDING_I(                                                     \
+    (namespace xml_binding_definition_detail {),                                \
+    (}),                                                                        \
+    (xml_binding_definition_detail::),                                          \
+    xml_binding_definition,                                                     \
+    (template<class T>),                                                        \
+    (template<>),                                                               \
+    (<TYPE>),                                                                   \
+    (<TYPE>),                                                                   \
+    xml_binding_holder,                                                         \
+    (template<class T, class Dummy>),                                           \
+    (template<class Dummy>),                                                    \
+    (<TYPE, Dummy>),                                                            \
+    (<TYPE, void>),                                                             \
     TYPE,                                                                       \
+    (),                                                                         \
     BINDING                                                                     \
   )
 

@@ -26,7 +26,7 @@
 #include "DefaultNodeWalker.h"
 
 namespace arx { namespace xml {
-  namespace detail {
+  namespace xml_path_detail {
     namespace proto = boost::proto;
     namespace mpl = boost::mpl;
 
@@ -95,7 +95,7 @@ namespace arx { namespace xml {
      * Proto domain for xml path expressions.
      */
     struct path_domain: 
-      proto::domain<proto::generator<path_expression>, path_grammar> 
+      proto::domain<proto::pod_generator<path_expression>, path_grammar> 
     {};
 
 
@@ -191,18 +191,11 @@ namespace arx { namespace xml {
      * Expression wrapper for property expressions.
      */
     template<class Expr>
-    struct path_expression: 
-      proto::extends<Expr, path_expression<Expr>, path_domain>
+    struct path_expression
     {
       typedef path_expression<Expr> this_type;
 
-      typedef
-        proto::extends<Expr, this_type, path_domain>
-      base_type;
-
-      path_expression(const Expr &expr = Expr()): 
-        base_type(expr)
-      {}
+      BOOST_PROTO_EXTENDS(Expr, this_type, path_domain);
 
       enum {
         IS_ATTRIBUTE = boost::result_of<path_is_attribute_transform(Expr)>::type::value,
@@ -243,13 +236,17 @@ namespace arx { namespace xml {
 
     };
 
-  } // namespace detail
+
+    /**
+     * Starting terminal for xml path expressions.
+     */
+    path_expression<proto::terminal<path_start>::type> self = {{}};
+
+  } // namespace xml_path_detail
 
 
-  /**
-   * Starting terminal for xml path expressions.
-   */
-  detail::path_expression<boost::proto::terminal<detail::path_start>::type> self;
+  using xml_path_detail::self;
+
 
 }} // namespace arx::xml
 

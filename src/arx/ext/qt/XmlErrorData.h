@@ -25,8 +25,8 @@ namespace arx { namespace xml {
 
   struct error {};
 
-  struct invalid_value: xml_error {
-    xml_invalid_value(const QString &value): 
+  struct invalid_value: error {
+    invalid_value(const QString &value): 
       value(value) {}
 
     QString value;
@@ -35,7 +35,7 @@ namespace arx { namespace xml {
   template<class T>
   struct invalid_value_for_type: invalid_value {
     invalid_value_for_type(const QString &value):
-      invalid_value(value);
+      invalid_value(value) {};
   };
 
 }} // namespace arx::xml
