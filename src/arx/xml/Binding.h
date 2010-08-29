@@ -169,6 +169,11 @@ namespace arx { namespace xml {
       return MessageTranslator<MessageHandler, Params>(handler, params);
     }
 
+    template<class MessageHandler, class Params>
+    MessageHandler &handler(MessageTranslator<MessageHandler, Params> &translator) {
+      return translator.handler;
+    }
+
 
     /**
      * Null checker that accepts everything.
@@ -754,10 +759,10 @@ namespace arx { namespace xml {
     (),                                                                         \
     (),                                                                         \
     ARX_CAT_3(NAME, _holder_, __LINE__),                                        \
-    (),                                                                         \
-    (),                                                                         \
-    (),                                                                         \
-    (),                                                                         \
+    (template<class Dummy, class Dummy2>),                                      \
+    (template<class Dummy>),                                                    \
+    (<Dummy, void>),                                                            \
+    (<void, void>),                                                             \
     TYPE,                                                                       \
     TYPE_TPL,                                                                   \
     BINDING                                                                     \
