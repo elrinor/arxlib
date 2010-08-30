@@ -184,7 +184,7 @@ namespace arx { namespace xml {
 #define ARX_STANDARD_BINDING(TYPE)                                              \
   ARX_DEFINE_XML_BINDING(                                                       \
     TYPE,                                                                       \
-    functional(                                                                 \
+    ARX_XML_FUNCTIONAL(                                                         \
       self,                                                                     \
       qt_xml_binding_detail::Serializer(),                                      \
       qt_xml_binding_detail::Deserializer()                                     \
