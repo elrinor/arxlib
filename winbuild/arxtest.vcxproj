@@ -117,6 +117,7 @@
     <ClInclude Include="..\src\arx\HasXxx.h" />
     <ClInclude Include="..\src\arx\LambdaHack.h" />
     <ClInclude Include="..\src\arx\Memory.h" />
+    <ClInclude Include="..\src\arx\TypeTraits.h" />
     <ClInclude Include="..\src\arx\Null.h" />
     <ClInclude Include="..\src\arx\ObjectPool.h" />
     <ClInclude Include="..\src\arx\Preprocessor.h" />

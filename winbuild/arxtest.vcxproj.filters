@@ -171,6 +171,9 @@
     <ClInclude Include="..\src\arx\ext\qt\XmlBinding.h">
       <Filter>arx\ext\qt\xml</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\arx\TypeTraits.h">
+      <Filter>arx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\arx\ext\VigraQt.pri">
