@@ -361,7 +361,6 @@ namespace arx {
 
   ARX_DEFINE_PROPERTY_KEY(properties_detail::no_properties_tag, no_properties);
 
-
   using properties_detail::is_property_expression;
 
 } // namespace arx

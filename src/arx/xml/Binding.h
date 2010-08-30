@@ -21,7 +21,10 @@
 
 #include "config.h"
 #include <cassert>
+#include <boost/mpl/bool.hpp>
 #include <boost/mpl/identity.hpp>
+#include <boost/mpl/and.hpp>
+#include <boost/mpl/not.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/type_traits/remove_cv.hpp>
 #include <boost/type_traits/is_same.hpp>
@@ -119,11 +122,6 @@ namespace arx { namespace xml {
       return MessageTranslator<MessageHandler, Params>(handler, params);
     }
 
-    /*template<class MessageHandler, class Params>
-    MessageHandler &handler(MessageTranslator<MessageHandler, Params> &translator) {
-      return translator.handler;
-    }*/
-
 
     /**
      * Null checker that accepts everything.
@@ -134,6 +132,18 @@ namespace arx { namespace xml {
         return true;
       }
     };
+
+
+    /**
+     * Delegation wrapper.
+     */
+    template<class T>
+    struct delegate_wrapper {};
+
+    template<class T>
+    delegate_wrapper<T> delegate(const T & = T()) {
+      return delegate_wrapper<T>();
+    }
 
 
     /**
@@ -197,6 +207,12 @@ namespace arx { namespace xml {
 
 
     /**
+     * Shortcut to empty parameters expression.
+     */
+    typedef decltype(no_properties) NoParams;
+
+
+    /**
      * Functional binding.
      */
     template<class Path, class Serializer, class Deserializer, class Params>
@@ -243,8 +259,27 @@ namespace arx { namespace xml {
       Checker checker;
     };
 
+    template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker, class Params, class Enable = void>
+    struct member_result {};
+
     template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker, class Params>
-    typename member_binding<MemberPointer, pointer, Delegate, Path, Checker, Params>::expr_type
+    struct member_result<
+      MemberPointer, pointer, Delegate, Path, Checker, Params,
+      typename boost::enable_if<
+        mpl::and_<
+          is_path_expression<Path>,
+          is_property_expression<Params>,
+          mpl::not_<is_property_expression<Checker> >
+        >
+      >::type
+    >:
+      mpl::identity<
+        typename member_binding<MemberPointer, pointer, Delegate, Path, Checker, Params>::expr_type
+      >
+    {};
+
+    template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker, class Params>
+    typename member_result<MemberPointer, pointer, Delegate, Path, Checker, Params>::type
     member_impl(const Path &path, const Checker &checker, const Params &params) {
       typedef member_binding<MemberPointer, pointer, Delegate, Path, Checker, Params> binding_type;
       binding_type::expr_type result = {{{binding_type(path, checker, params)}}};
@@ -252,58 +287,50 @@ namespace arx { namespace xml {
     }
 
     template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker, class Params>
-    auto checked_member(const Path &path, const Checker &checker, const Params &params) ->
-      decltype(member_impl<MemberPointer, pointer, Delegate>(path, checker, params)) 
-    {
+    typename member_result<MemberPointer, pointer, Delegate, Path, Checker, Params>::type
+    member(const Path &path, const Checker &checker, const Params &params, const delegate_wrapper<Delegate> & = delegate_wrapper<Delegate>()) {
       return member_impl<MemberPointer, pointer, Delegate>(path, checker, params);
     }
 
     template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker>
-    auto checked_member(const Path &path, const Checker &checker) ->
-      decltype(member_impl<MemberPointer, pointer, Delegate>(path, checker, no_properties))
-    {
+    typename member_result<MemberPointer, pointer, Delegate, Path, Checker, NoParams>::type
+    member(const Path &path, const Checker &checker, const delegate_wrapper<Delegate> & = delegate_wrapper<Delegate>()) {
       return member_impl<MemberPointer, pointer, Delegate>(path, checker, no_properties);
     }
 
     template<class MemberPointer, MemberPointer pointer, class Path, class Checker, class Params>
-    auto checked_member(const Path &path, const Checker &checker, const Params &params) ->
-      decltype(member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, checker, params))
-    {
+    typename member_result<MemberPointer, pointer, typename member_type<MemberPointer>::type, Path, Checker, Params>::type
+    member(const Path &path, const Checker &checker, const Params &params) {
       return member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, checker, params);
     }
 
     template<class MemberPointer, MemberPointer pointer, class Path, class Checker>
-    auto checked_member(const Path &path, const Checker &checker) ->
-      decltype(member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, checker, no_properties))
-    {
+    typename member_result<MemberPointer, pointer, typename member_type<MemberPointer>::type, Path, Checker, NoParams>::type
+    member(const Path &path, const Checker &checker) {
       return member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, checker, no_properties);
     }
 
     template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Params>
-    auto member(const Path &path, const Params &params) ->
-      decltype(member_impl<MemberPointer, pointer, Delegate>(path, NullChecker(), params)) 
-    {
+    typename member_result<MemberPointer, pointer, Delegate, Path, NullChecker, Params>::type
+    member(const Path &path, const Params &params, const delegate_wrapper<Delegate> & = delegate_wrapper<Delegate>()) {
       return member_impl<MemberPointer, pointer, Delegate>(path, NullChecker(), params);
     }
 
     template<class MemberPointer, MemberPointer pointer, class Delegate, class Path>
-    auto member(const Path &path) ->
-      decltype(member_impl<MemberPointer, pointer, Delegate>(path, NullChecker(), no_properties))
-    {
+    typename member_result<MemberPointer, pointer, Delegate, Path, NullChecker, NoParams>::type
+    member(const Path &path, const delegate_wrapper<Delegate> & = delegate_wrapper<Delegate>()) {
       return member_impl<MemberPointer, pointer, Delegate>(path, NullChecker(), no_properties);
     }
 
     template<class MemberPointer, MemberPointer pointer, class Path, class Params>
-    auto member(const Path &path, const Params &params) ->
-      decltype(member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, NullChecker(), params))
-    {
+    typename member_result<MemberPointer, pointer, typename member_type<MemberPointer>::type, Path, NullChecker, Params>::type
+    member(const Path &path, const Params &params) {
       return member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, NullChecker(), params);
     }
 
     template<class MemberPointer, MemberPointer pointer, class Path>
-    auto member(const Path &path) ->
-      decltype(member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, NullChecker(), no_properties))
-    {
+    typename member_result<MemberPointer, pointer, typename member_type<MemberPointer>::type, Path, NullChecker, NoParams>::type
+    member(const Path &path) {
       return member_impl<MemberPointer, pointer, typename member_type<MemberPointer>::type>(path, NullChecker(), no_properties);
     }
 
@@ -313,8 +340,8 @@ namespace arx { namespace xml {
      */
     template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker, class Params>
     struct accessor_binding: binding_base<Path, Params> {
-      accessor_binding(const Path &path, const Checker &checker, const Params &params):
-        binding_base(path, params), checker(checker) {}
+    accessor_binding(const Path &path, const Checker &checker, const Params &params):
+      binding_base(path, params), checker(checker) {}
 
       typedef 
         binding_expression<typename proto::terminal<binding_wrapper<accessor_binding> >::type>
@@ -322,92 +349,87 @@ namespace arx { namespace xml {
 
       Checker checker;
     };
-    
+
+    template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker, class Params, class Enable = void>
+    struct accessor_result {};
+
     template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker, class Params>
-    typename accessor_binding<Getter, getter, Setter, setter, Delegate, Path, Checker, Params>::expr_type
-    accessor_impl(const Path &path, const Checker &checker, const Params &params) {
+    struct accessor_result<
+      Getter, getter, Setter, setter, Delegate, Path, Checker, Params,
+      typename boost::enable_if<
+        mpl::and_<
+          is_path_expression<Path>,
+          is_property_expression<Params>,
+          mpl::not_<is_property_expression<Checker> >
+        >
+      >::type
+    >:
+      mpl::identity<
+        typename accessor_binding<Getter, getter, Setter, setter, Delegate, Path, Checker, Params>::expr_type
+      >
+    {};
+
+    template<class Getter, class Setter>
+    struct accessors_valid: 
+      boost::is_same<
+        typename getter_result<Getter>::type,
+        typename setter_param<Setter>::type
+      >
+    {};
+
+    template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker, class Params>
+    typename accessor_result<Getter, getter, Setter, setter, Delegate, Path, Checker, Params>::type
+      accessor_impl(const Path &path, const Checker &checker, const Params &params) {
       typedef accessor_binding<Getter, getter, Setter, setter, Delegate, Path, Checker, Params> binding_type;
       binding_type::expr_type result = {{{binding_type(path, checker, params)}}};
       return result;
     }
 
     template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker, class Params>
-    auto checked_accessor(const Path &path, const Checker &checker, const Params &params) ->
-      decltype(accessor_impl<Getter, getter, Setter, setter, Delegate>(path, checker, params)) 
-    {
+    typename accessor_result<Getter, getter, Setter, setter, Delegate, Path, Checker, Params>::type
+    accessor(const Path &path, const Checker &checker, const Params &params, const delegate_wrapper<Delegate> & = delegate_wrapper<Delegate>()) {
       return accessor_impl<Getter, getter, Setter, setter, Delegate>(path, checker, params);
     }
 
-    template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker, class Params>
-    auto checked_accessor(const Path &path, const Checker &checker) ->
-      decltype(accessor_impl<Getter, getter, Setter, setter, Delegate>(path, checker, no_properties))
-    {
+    template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker>
+    typename accessor_result<Getter, getter, Setter, setter, Delegate, Path, Checker, NoParams>::type
+    accessor(const Path &path, const Checker &checker, const delegate_wrapper<Delegate> & = delegate_wrapper<Delegate>()) {
       return accessor_impl<Getter, getter, Setter, setter, Delegate>(path, checker, no_properties);
     }
 
     template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Checker, class Params>
-    auto checked_accessor(const Path &path, const Checker &checker, const Params &params) ->
-      typename boost::enable_if<
-        boost::is_same<
-          typename getter_result<Getter>::type,
-          typename setter_param<Setter>::type
-        >, 
-        decltype(accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, checker, params))
-      >::type
-    {
+    typename accessor_result<Getter, getter, Setter, setter, typename getter_result<Getter>::type, Path, Checker, Params>::type
+    accessor(const Path &path, const Checker &checker, const Params &params, const typename boost::enable_if<accessors_valid<Getter, Setter> >::type * = NULL) {
       return accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, checker, params);
     }
 
     template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Checker>
-    auto checked_accessor(const Path &path, const Checker &checker) ->
-      typename boost::enable_if<
-        boost::is_same<
-          typename getter_result<Getter>::type,
-          typename setter_param<Setter>::type
-        >,
-        decltype(accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, checker, no_properties))
-      >::type
-    {
+    typename accessor_result<Getter, getter, Setter, setter, typename getter_result<Getter>::type, Path, Checker, NoParams>::type
+    accessor(const Path &path, const Checker &checker, const typename boost::enable_if<accessors_valid<Getter, Setter> >::type * = NULL) {
       return accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, checker, no_properties);
     }
 
     template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Params>
-    auto accessor(const Path &path, const Params &params) ->
-      decltype(accessor_impl<Getter, getter, Setter, setter, Delegate>(path, NullChecker(), params)) 
-    {
+    typename accessor_result<Getter, getter, Setter, setter, Delegate, Path, NullChecker, Params>::type
+    accessor(const Path &path, const Params &params, const delegate_wrapper<Delegate> & = delegate_wrapper<Delegate>()) {
       return accessor_impl<Getter, getter, Setter, setter, Delegate>(path, NullChecker(), params);
     }
 
-    template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Params>
-    auto accessor(const Path &path) ->
-      decltype(accessor_impl<Getter, getter, Setter, setter, Delegate>(path, NullChecker(), no_properties))
-    {
+    template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path>
+    typename accessor_result<Getter, getter, Setter, setter, Delegate, Path, NullChecker, NoParams>::type
+    accessor(const Path &path, const delegate_wrapper<Delegate> & = delegate_wrapper<Delegate>()) {
       return accessor_impl<Getter, getter, Setter, setter, Delegate>(path, NullChecker(), no_properties);
     }
 
     template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Params>
-    auto accessor(const Path &path, const Params &params) ->
-      typename boost::enable_if<
-        boost::is_same<
-          typename getter_result<Getter>::type,
-          typename setter_param<Setter>::type
-        >, 
-        decltype(accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, NullChecker(), params))
-      >::type
-    {
+    typename accessor_result<Getter, getter, Setter, setter, typename getter_result<Getter>::type, Path, NullChecker, Params>::type
+    accessor(const Path &path, const Params &params, const typename boost::enable_if<accessors_valid<Getter, Setter> >::type * = NULL) {
       return accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, NullChecker(), params);
     }
 
     template<class Getter, Getter getter, class Setter, Setter setter, class Path>
-    auto accessor(const Path &path) ->
-      typename boost::enable_if<
-        boost::is_same<
-          typename getter_result<Getter>::type,
-          typename setter_param<Setter>::type
-        >,
-        decltype(accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, NullChecker(), no_properties))
-      >::type
-    {
+    typename accessor_result<Getter, getter, Setter, setter, typename getter_result<Getter>::type, Path, NullChecker, NoParams>::type
+    accessor(const Path &path, const typename boost::enable_if<accessors_valid<Getter, Setter> >::type * = NULL) {
       return accessor_impl<Getter, getter, Setter, setter, typename getter_result<Getter>::type>(path, NullChecker(), no_properties);
     }
 
@@ -667,11 +689,10 @@ namespace arx { namespace xml {
   } // namespace binding_detail
 
   using binding_detail::noop;
+  using binding_detail::delegate;
   using binding_detail::functional;
   using binding_detail::member;
-  using binding_detail::checked_member;
   using binding_detail::accessor;
-  using binding_detail::checked_accessor;
   using binding_detail::is_binding_expression;
   using boost::proto::if_else;
 
@@ -687,41 +708,58 @@ namespace arx { namespace xml {
     }
   };
 
+
   /* Serialization. */
 
   template<class T, class Node>
-  void serialize(const T &source, Node *target) {
+  void serialize(
+    const T &source, 
+    Node *target
+  ) {
     NullMessageHandler handler;
     serialize(source, handler, no_properties, target);
   }
 
   template<class T, class Params, class Node>
   typename boost::enable_if<is_property_expression<Params>, void>::type
-  serialize(const T &source, Params &params, Node *target) {
+  serialize(
+    const T &source, 
+    Params &params, 
+    Node *target
+  ) {
     NullMessageHandler handler;
     serialize(source, handler, params, target);
   }
 
-  template<class T, class MessageHandler, class TranslatorParams, class Node>
-  void serialize(const T &source, binding_detail::MessageTranslator<MessageHandler, TranslatorParams> &translator, Node *target) {
-    serialize(source, translator.handler, target);
-  }
-
   template<class T, class MessageHandler, class Node>
   typename boost::disable_if<is_property_expression<MessageHandler>, void>::type
-  serialize(const T &source, MessageHandler &handler, Node *target) {
+  serialize(
+    const T &source, 
+    MessageHandler &handler, 
+    Node *target
+  ) {
     serialize(source, handler, no_properties, target);
   }
 
   template<class T, class MessageHandler, class TranslatorParams, class Params, class Node>
   typename boost::enable_if<is_property_expression<Params>, void>::type
-  serialize(const T &source, binding_detail::MessageTranslator<MessageHandler, TranslatorParams> &translator, const Params &params, Node *target) {
+  serialize(
+    const T &source, 
+    binding_detail::MessageTranslator<MessageHandler, TranslatorParams> &translator, 
+    const Params &params, 
+    Node *target
+  ) {
     serialize(source, translator.handler, params, target);
   }
 
   template<class T, class MessageHandler, class Params, class Node>
   typename boost::enable_if<is_property_expression<Params>, void>::type
-  serialize(const T &source, MessageHandler &handler, const Params &params, Node *target) {
+  serialize(
+    const T &source, 
+    MessageHandler &handler, 
+    const Params &params, 
+    Node *target
+  ) {
     binding_detail::serialize_impl(source, handler, params, target);
   }
 
@@ -729,23 +767,49 @@ namespace arx { namespace xml {
   /* Deserialization. */
 
   template<class Node, class T>
-  bool deserialize(const Node &source, T *target) {
+  bool deserialize(
+    const Node &source, 
+    T *target
+  ) {
     NullMessageHandler handler;
     return deserialize(source, handler, no_properties, target);
   }
 
-  /*template<class Node, class T, class Params>
-  bool deserialize(const Node &source, Params &handler, T *target) {
-    return deserialize(source, handler, no_properties, target);
-  }*/
+  template<class Node, class Params, class T>
+  typename boost::enable_if<is_property_expression<Params>, bool>::type
+  deserialize(
+    const Node &source, 
+    Params &params, 
+    T *target
+  ) {
+    NullMessageHandler handler;
+    return deserialize(source, handler, params, target);
+  }
 
-  template<class Node, class T, class MessageHandler>
-  bool deserialize(const Node &source, MessageHandler &handler, T *target) {
+  template<class Node, class MessageHandler, class T>
+  typename boost::disable_if<is_property_expression<MessageHandler>, bool>::type
+  deserialize(
+    const Node &source, 
+    MessageHandler &handler, 
+    T *target
+  ) {
     return deserialize(source, handler, no_properties, target);
   }
 
-  template<class Node, class T, class MessageHandler, class Params>
-  bool deserialize(const Node &source, MessageHandler &handler, const Params &params, T *target) {
+  template<class Node, class MessageHandler, class TranslatorParams, class Params, class T>
+  typename boost::enable_if<is_property_expression<Params>, bool>::type
+  deserialize(
+    const Node &source, 
+    binding_detail::MessageTranslator<MessageHandler, TranslatorParams> &translator, 
+    const Params &params, 
+    T *target
+  ) {
+    return deserialize(source, translator.handler, params, target);
+  }
+
+  template<class Node, class MessageHandler, class Params, class T>
+  typename boost::enable_if<is_property_expression<Params>, bool>::type
+  deserialize(const Node &source, MessageHandler &handler, const Params &params, T *target) {
     T tmp;
     if(binding_detail::deserialize_impl(source, handler, params, &tmp)) {
       *target = tmp;
@@ -754,7 +818,6 @@ namespace arx { namespace xml {
       return false;
     }
   }
-
 
 
 #define ARX_DEFINE_XML_BINDING_I(                                               \
@@ -832,9 +895,22 @@ namespace arx { namespace xml {
     __VA_ARGS__                                                                 \
   )
 
-#define ARX_DEFINE_NAMED_XML_BINDING(NAME, TYPE, BINDING)                       \
-  ARX_DEFINE_NAMED_XML_BINDING_TPL(NAME, TYPE, (), BINDING)
+
+/**
+ * This macro defines named xml binding for the given TYPE.
+ *
+ * Binding construction code is placed into the class with the given NAME,
+ * thus making it possible to befriend this class from the client code.
+ * This allows to access private members of the client class from the 
+ * binding code.
+ */
+#define ARX_DEFINE_NAMED_XML_BINDING(NAME, TYPE, ... /* BINDING */)             \
+  ARX_DEFINE_NAMED_XML_BINDING_TPL(NAME, TYPE, (), __VA_ARGS__)
   
+
+/**
+ * This macro defines an xml binding for the given TYPE.
+ */
 #define ARX_DEFINE_XML_BINDING(TYPE, ... /* BINDING */)                         \
   ARX_DEFINE_XML_BINDING_I(                                                     \
     (namespace xml_binding_definition_detail {),                                \
@@ -855,8 +931,40 @@ namespace arx { namespace xml {
     __VA_ARGS__                                                                 \
   )
 
-#define ARX_XML_MEMBER(MEMBER)                                                  \
-  decltype(MEMBER), MEMBER
+
+/**
+ * This macro constructs a member xml binding.
+ *
+ * Actual signature is as follows:
+ * <tt>ARX_XML_MEMBER(member_pointer, path, [checker], [params], [delegate])</tt>.
+ * Parameters in brackets are optional.
+ * 
+ * This macro is a shortcut to arx::xml::member function and it takes the same 
+ * parameters except for the fact that there is no need to supply the 
+ * type of member pointer.
+ */
+#define ARX_XML_MEMBER(MEMBER_POINTER, PATH, ...)                               \
+  arx::xml::member<decltype(MEMBER_POINTER), MEMBER_POINTER>(PATH, __VA_ARGS__)
+
+
+/**
+ * This macro constructs an accessor xml binding.
+ * 
+ * Actual signature is as follows:
+ * <tt>ARX_XML_ACCESSOR(getter_pointer, setter_pointer, path, [checker], [params], [delegate])</tt>.
+ * Parameters in brackets are optional.
+ *
+ * This macro is a shortcut to arx::xml::accessor function and it takes the same
+ * parameters except for the fact that there is no need to supply the types
+ * of getter and setter pointers.
+ */
+#define ARX_XML_ACCESSOR(GETTER_POINTER, SETTER_POINTER, PATH, ...)             \
+  arx::xml::accessor<                                                           \
+    decltype(GETTER_POINTER),                                                   \
+    GETTER_POINTER,                                                             \
+    decltype(SETTER_POINTER),                                                   \
+    SETTER_POINTER                                                              \
+  >(PATH, __VA_ARGS__)
 
 }} // namespace arx::xml
 
