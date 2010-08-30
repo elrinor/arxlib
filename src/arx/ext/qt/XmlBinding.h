@@ -182,7 +182,7 @@ namespace arx { namespace xml {
 
 
 #define ARX_STANDARD_BINDING(TYPE)                                              \
-  ARX_DEFINE_XML_BINDING(                                                       \
+  ARX_XML_DEFINE_BINDING(                                                       \
     TYPE,                                                                       \
     ARX_XML_FUNCTIONAL(                                                         \
       self,                                                                     \
@@ -207,7 +207,7 @@ namespace arx { namespace xml {
   ARX_STANDARD_BINDING(double);
 #undef ARX_STANDARD_BINDING
 
-  ARX_DEFINE_NAMED_XML_BINDING_TPL(
+  ARX_XML_DEFINE_NAMED_TPL_BINDING(
     QList_xml_binding, 
     QList<T>, 
     (template<class T>), 

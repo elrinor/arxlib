@@ -820,7 +820,7 @@ namespace arx { namespace xml {
   }
 
 
-#define ARX_DEFINE_XML_BINDING_I(                                               \
+#define ARX_XML_DEFINE_BINDING_I(                                               \
   NS_START,                                                                     \
   NS_END,                                                                       \
   NS_PREFIX,                                                                    \
@@ -875,8 +875,8 @@ namespace arx { namespace xml {
   }
 
 
-#define ARX_DEFINE_NAMED_XML_BINDING_TPL(NAME, TYPE, TYPE_TPL, ... /* BINDING */) \
-  ARX_DEFINE_XML_BINDING_I(                                                     \
+#define ARX_XML_DEFINE_NAMED_TPL_BINDING(NAME, TYPE, TYPE_TPL, ... /* BINDING */) \
+  ARX_XML_DEFINE_BINDING_I(                                                     \
     (),                                                                         \
     (),                                                                         \
     (),                                                                         \
@@ -904,15 +904,15 @@ namespace arx { namespace xml {
  * This allows to access private members of the client class from the 
  * binding code.
  */
-#define ARX_DEFINE_NAMED_XML_BINDING(NAME, TYPE, ... /* BINDING */)             \
-  ARX_DEFINE_NAMED_XML_BINDING_TPL(NAME, TYPE, (), __VA_ARGS__)
+#define ARX_XML_DEFINE_NAMED_BINDING(NAME, TYPE, ... /* BINDING */)             \
+  ARX_XML_DEFINE_NAMED_TPL_BINDING(NAME, TYPE, (), __VA_ARGS__)
   
 
 /**
  * This macro defines an xml binding for the given TYPE.
  */
-#define ARX_DEFINE_XML_BINDING(TYPE, ... /* BINDING */)                         \
-  ARX_DEFINE_XML_BINDING_I(                                                     \
+#define ARX_XML_DEFINE_BINDING(TYPE, ... /* BINDING */)                         \
+  ARX_XML_DEFINE_BINDING_I(                                                     \
     (namespace xml_binding_definition_detail {),                                \
     (}),                                                                        \
     (xml_binding_definition_detail::),                                          \
