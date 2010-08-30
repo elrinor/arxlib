@@ -42,9 +42,9 @@ namespace arx { namespace xml {
     }
 
     QDomNode element(const QDomNode &node, const QString &name) const {
-      assert(node.isElement());
+      assert(node.isElement() || node.isDocument() || node.isDocumentFragment());
 
-      return node.toElement().firstChildElement(name);
+      return node.firstChildElement(name);
     }
 
     QDomNode create_attribute(QDomNode &node, const QString &name) const {
@@ -56,10 +56,10 @@ namespace arx { namespace xml {
     }
 
     QDomNode create_element(QDomNode &node, const QString &name) const {
-      assert(node.isElement());
+      assert(node.isElement() || node.isDocument() || node.isDocumentFragment());
       assert(node.firstChildElement(name).isNull());
 
-      return node.toElement().appendChild(node.ownerDocument().createElement(name));
+      return node.appendChild(node.ownerDocument().createElement(name));
     }
   
   };

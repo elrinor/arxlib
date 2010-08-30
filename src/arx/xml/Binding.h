@@ -29,6 +29,7 @@
 #include <boost/proto/proto.hpp>
 #include <arx/Preprocessor.h>
 #include <arx/Properties.h>
+#include <arx/TypeTraits.h>
 #include "Path.h"
 #include "Error.h"
 #include "UserData.h"
@@ -40,52 +41,6 @@
 /* TODO: registration for Type & NodeType (not only for Type). */
 
 namespace arx { namespace xml {
-
-  /**
-    * Message handler that simply ignores all incoming messages.
-    */
-  struct NullMessageHandler {
-    template<class ErrorData, class UserData>
-    void operator()(ErrorSeverity severity, const ErrorData&, const UserData &, const ErrorLocation &) {
-      assert(severity == ERROR || severity == WARNING);
-
-      (void) severity; /* Just to make the compiler happy. */
-    }
-  };
-
-  template<class T, class Node>
-  bool serialize(const T &source, Node *target) {
-    NullMessageHandler handler;
-    return serialize(source, handler, no_properties, target);
-  }
-
-  template<class T, class MessageHandler, class Node>
-  bool serialize(const T &source, MessageHandler &handler, Node *target) {
-    return serialize(source, handler, no_properties, target);
-  }
-
-  template<class T, class MessageHandler, class Params, class Node>
-  bool serialize(const T &source, MessageHandler &handler, const Params &params, Node *target) {
-    return binding(static_cast<T *>(NULL)).serialize(source, handler, params, target);
-  }
-
-  template<class Node, class T>
-  bool deserialize(const Node &source, T *target) {
-    NullMessageHandler handler;
-    return deserialize(source, handler, no_properties, target);
-  }
-
-  template<class Node, class T, class MessageHandler>
-  bool deserialize(const Node &source, MessageHandler &handler, T *target) {
-    return deserialize(source, handler, no_properties, target);
-  }
-
-  template<class Node, class T, class MessageHandler, class Params>
-  bool deserialize(const Node &source, MessageHandler &handler, const Params &params, T *target) {
-    return binding(static_cast<T *>(NULL)).deserialize(source, handler, params, target);
-  }
-
-
   namespace binding_detail {
     namespace proto = boost::proto;
     namespace mpl = boost::mpl;
@@ -104,16 +59,6 @@ namespace arx { namespace xml {
 
 
     /**
-     * Metafunction that removes const, volatile and reference modifiers of the
-     * given type.
-     */
-    template<class T>
-    struct remove_cvr: 
-      boost::remove_cv<typename boost::remove_reference<T>::type> 
-    {};
-
-
-    /**
      * Metafunction that returns return type of the given getter member 
      * function pointer type.
      */
@@ -122,7 +67,7 @@ namespace arx { namespace xml {
 
     template<class Class, class Result>
     struct getter_result<Result (Class::*)() const>:
-      remove_cvr<Result>
+      remove_cv_reference<Result>
     {};
 
 
@@ -135,7 +80,7 @@ namespace arx { namespace xml {
 
     template<class Class, class Result, class Param>
     struct setter_param<Result (Class::*)(Param)>:
-      remove_cvr<Param>
+      remove_cv_reference<Param>
     {};
 
 
@@ -174,10 +119,10 @@ namespace arx { namespace xml {
       return MessageTranslator<MessageHandler, Params>(handler, params);
     }
 
-    template<class MessageHandler, class Params>
+    /*template<class MessageHandler, class Params>
     MessageHandler &handler(MessageTranslator<MessageHandler, Params> &translator) {
       return translator.handler;
-    }
+    }*/
 
 
     /**
@@ -468,74 +413,58 @@ namespace arx { namespace xml {
 
 
     /**
-     * Common context.
-     */
-    template<class Derived>
-    struct common_context:
-      proto::callable_context<Derived>
-    {
-      typedef bool result_type;
-
-      bool operator()(proto::tag::terminal, const binding_wrapper<noop_binding> &) const {
-        return true;
-      }
-
-      template<class L, class R>
-      bool operator()(proto::tag::comma, const L &l, const R &r) const {
-        /* Bitwise "and" is important here. We want to collect errors from both
-         * children. */
-        return proto::eval(l, derived()) & proto::eval(r, derived());
-      }
-
-      const Derived &derived() const {
-        return *static_cast<const Derived *>(this);
-      }
-
-    };
-
-
-    /**
      * Serialization context.
      */
     template<class T, class MessageHandler, class Params, class Node>
     struct serialization_context: 
-      common_context<const serialization_context<T, MessageHandler, Params, Node> >
+      proto::callable_context<const serialization_context<T, MessageHandler, Params, Node> >
     {
-      typedef 
-        common_context<const serialization_context<T, MessageHandler, Params, Node> >
-      base_type;
-
-      using base_type::operator();
-
       serialization_context(const T &source, MessageHandler &handler, const Params &params, Node *target): 
         source(source), handler(handler), params(params), target(target) {}
 
+      typedef void result_type;
+
+      void operator()(proto::tag::terminal, const binding_wrapper<noop_binding> &) const {
+        return;
+      }
+
+      template<class L, class R>
+      void operator()(proto::tag::comma, const L &l, const R &r) const {
+        proto::eval(l, *this);
+        proto::eval(r, *this);
+      }
+
       template<class Path, class Serializer, class Deserializer, class Params>
-      bool operator()(proto::tag::terminal, const binding_wrapper<functional_binding<Path, Serializer, Deserializer, Params> > &binding) const {
+      void operator()(proto::tag::terminal, const binding_wrapper<functional_binding<Path, Serializer, Deserializer, Params> > &binding) const {
         auto child = binding.value.path.create(*target);
         auto newParams = (binding.value.params, params);
         auto translator = create_translator(handler, newParams);
         binding.value.serializer(source, translator, newParams, &child);
-        return translator.success;
+
+        /* Serialization cannot fail. If it fails then it's a design flaw. */
+        assert(translator.success);
       }
 
       template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker, class Params>
-      bool operator()(proto::tag::terminal, const binding_wrapper<member_binding<MemberPointer, pointer, Delegate, Path, Checker, Params> > &binding) const {
+      void operator()(proto::tag::terminal, const binding_wrapper<member_binding<MemberPointer, pointer, Delegate, Path, Checker, Params> > &binding) const {
         auto child = binding.value.path.create(*target);
         Delegate tmp = static_cast<Delegate>(source.*pointer);
-        return serialize(tmp, handler, (binding.value.params, params), &child);
+        serialize_impl(tmp, handler, (binding.value.params, params), &child);
       }
 
       template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker, class Params>
-      bool operator()(proto::tag::terminal, const binding_wrapper<accessor_binding<Getter, getter, Setter, setter, Delegate, Path, Checker, Params> > &binding) const {
+      void operator()(proto::tag::terminal, const binding_wrapper<accessor_binding<Getter, getter, Setter, setter, Delegate, Path, Checker, Params> > &binding) const {
         auto child = binding.value.path.create(*target);
         Delegate tmp = static_cast<Delegate>((source.*getter)());
-        return serialize(tmp, handler, (binding.value.params, params), &child);
+        serialize_impl(tmp, handler, (binding.value.params, params), &child);
       }
 
       template<class Pred, class L, class R>
-      bool operator()(proto::tag::if_else_, const Pred &pred, const L &l, const R &r) const {
-        return proto::value(pred)(source) ? proto::eval(l, *this) : proto::eval(r, *this);
+      void operator()(proto::tag::if_else_, const Pred &pred, const L &l, const R &r) const {
+        if(proto::value(pred)(source))
+          proto::eval(l, *this);
+        else 
+          proto::eval(r, *this);
       }
 
       const T &source;
@@ -550,16 +479,23 @@ namespace arx { namespace xml {
      */
     template<class Node, class MessageHandler, class Params, class T>
     struct deserialization_context:
-      common_context<const deserialization_context<Node, MessageHandler, Params, T> >
+      proto::callable_context<const deserialization_context<Node, MessageHandler, Params, T> >
     {
-      typedef 
-        common_context<const deserialization_context<Node, MessageHandler, Params, T> >
-      base_type;
-
-      using base_type::operator();
-
       deserialization_context(const Node &source, MessageHandler &handler, const Params &params, T *target): 
         source(source), handler(handler), params(params), target(target) {}
+
+      typedef bool result_type;
+
+      bool operator()(proto::tag::terminal, const binding_wrapper<noop_binding> &) const {
+        return true;
+      }
+
+      template<class L, class R>
+      bool operator()(proto::tag::comma, const L &l, const R &r) const {
+        /* Bitwise "and" is important here. We want to collect errors from both
+         * children. */
+        return proto::eval(l, derived()) & proto::eval(r, derived());
+      }
 
       template<class Path, class Serializer, class Deserializer, class Params>
       bool operator()(proto::tag::terminal, const binding_wrapper<functional_binding<Path, Serializer, Deserializer, Params> > &binding) const {
@@ -581,7 +517,7 @@ namespace arx { namespace xml {
         if(!check_not_null(child, translator, binding.value.path))
           return false;
         Delegate tmp;
-        if(deserialize(child, handler, newParams, &tmp)) {
+        if(deserialize_impl(child, handler, newParams, &tmp)) {
           Actual actualTmp = static_cast<Actual>(tmp);
           if(!binding.value.checker(actualTmp)) {
             node_inspector<Node>::type inspector;
@@ -608,7 +544,7 @@ namespace arx { namespace xml {
         if(!check_not_null(child, translator, binding.value.path))
           return false;
         Delegate tmp;
-        if(deserialize(child, handler, newParams, &tmp)) {
+        if(deserialize_impl(child, handler, newParams, &tmp)) {
           Actual actualTmp = static_cast<Actual>(tmp);
           if(!binding.value.checker(actualTmp)) {
             node_inspector<Node>::type inspector;
@@ -666,9 +602,9 @@ namespace arx { namespace xml {
       BOOST_PROTO_EXTENDS(Expr, this_type, binding_domain);
 
       template<class T, class MessageHandler, class Params, class Node>
-      bool serialize(const T &source, MessageHandler &handler, const Params &params, Node *target) const {
+      void serialize(const T &source, MessageHandler &handler, const Params &params, Node *target) const {
         serialization_context<T, MessageHandler, Params, Node> ctx(source, handler, params, target);
-        return proto::eval(*this, ctx);
+        proto::eval(*this, ctx);
       }
 
       template<class Node, class T, class MessageHandler, class Params>
@@ -678,6 +614,47 @@ namespace arx { namespace xml {
       }
 
     };
+
+
+    template<class T>
+    struct is_binding_expression_impl: 
+      mpl::false_ 
+    {};
+
+    template<class Expr>
+    struct is_binding_expression_impl<binding_expression<Expr> >: 
+      mpl::true_ 
+    {};
+
+
+    /**
+     * Metafunction that returns true for binding expressions.
+     */
+    template<class T>
+    struct is_binding_expression: 
+      is_binding_expression_impl<typename remove_cv_reference<T>::type>
+    {};
+
+
+    /**
+     * Internal deserialization routine. Differs from public one in that
+     * it deserializes directly into its target parameter, without creating
+     * any temporaries.
+     */
+    template<class Node, class T, class MessageHandler, class Params>
+    bool deserialize_impl(const Node &source, MessageHandler &handler, const Params &params, T *target) {
+      return binding(static_cast<T *>(NULL)).deserialize(source, handler, params, target);
+    }
+
+
+    /**
+     * Internal serialization routine. No difference from the public one,
+     * added just for interface consistency with deserialization.
+     */
+    template<class T, class MessageHandler, class Params, class Node>
+    void serialize_impl(const T &source, MessageHandler &handler, const Params &params, Node *target) {
+      binding(static_cast<T *>(NULL)).serialize(source, handler, params, target);
+    }
 
 
     /**
@@ -695,7 +672,89 @@ namespace arx { namespace xml {
   using binding_detail::checked_member;
   using binding_detail::accessor;
   using binding_detail::checked_accessor;
+  using binding_detail::is_binding_expression;
   using boost::proto::if_else;
+
+  /**
+   * Message handler that simply ignores all incoming messages.
+   */
+  struct NullMessageHandler {
+    template<class ErrorData, class UserData>
+    void operator()(ErrorSeverity severity, const ErrorData&, const UserData &, const ErrorLocation &) {
+      assert(severity == ERROR || severity == WARNING);
+
+      (void) severity; /* Just to make the compiler happy. */
+    }
+  };
+
+  /* Serialization. */
+
+  template<class T, class Node>
+  void serialize(const T &source, Node *target) {
+    NullMessageHandler handler;
+    serialize(source, handler, no_properties, target);
+  }
+
+  template<class T, class Params, class Node>
+  typename boost::enable_if<is_property_expression<Params>, void>::type
+  serialize(const T &source, Params &params, Node *target) {
+    NullMessageHandler handler;
+    serialize(source, handler, params, target);
+  }
+
+  template<class T, class MessageHandler, class TranslatorParams, class Node>
+  void serialize(const T &source, binding_detail::MessageTranslator<MessageHandler, TranslatorParams> &translator, Node *target) {
+    serialize(source, translator.handler, target);
+  }
+
+  template<class T, class MessageHandler, class Node>
+  typename boost::disable_if<is_property_expression<MessageHandler>, void>::type
+  serialize(const T &source, MessageHandler &handler, Node *target) {
+    serialize(source, handler, no_properties, target);
+  }
+
+  template<class T, class MessageHandler, class TranslatorParams, class Params, class Node>
+  typename boost::enable_if<is_property_expression<Params>, void>::type
+  serialize(const T &source, binding_detail::MessageTranslator<MessageHandler, TranslatorParams> &translator, const Params &params, Node *target) {
+    serialize(source, translator.handler, params, target);
+  }
+
+  template<class T, class MessageHandler, class Params, class Node>
+  typename boost::enable_if<is_property_expression<Params>, void>::type
+  serialize(const T &source, MessageHandler &handler, const Params &params, Node *target) {
+    binding_detail::serialize_impl(source, handler, params, target);
+  }
+
+
+  /* Deserialization. */
+
+  template<class Node, class T>
+  bool deserialize(const Node &source, T *target) {
+    NullMessageHandler handler;
+    return deserialize(source, handler, no_properties, target);
+  }
+
+  /*template<class Node, class T, class Params>
+  bool deserialize(const Node &source, Params &handler, T *target) {
+    return deserialize(source, handler, no_properties, target);
+  }*/
+
+  template<class Node, class T, class MessageHandler>
+  bool deserialize(const Node &source, MessageHandler &handler, T *target) {
+    return deserialize(source, handler, no_properties, target);
+  }
+
+  template<class Node, class T, class MessageHandler, class Params>
+  bool deserialize(const Node &source, MessageHandler &handler, const Params &params, T *target) {
+    T tmp;
+    if(binding_detail::deserialize_impl(source, handler, params, &tmp)) {
+      *target = tmp;
+      return true;
+    } else {
+      return false;
+    }
+  }
+
 
 
 #define ARX_DEFINE_XML_BINDING_I(                                               \

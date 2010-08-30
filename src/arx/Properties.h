@@ -20,6 +20,7 @@
 #define ARX_PROPERTIES_H
 
 #include "config.h"
+#include <boost/mpl/bool.hpp>
 #include <boost/mpl/identity.hpp>
 #include <boost/mpl/and.hpp>
 #include <boost/mpl/not.hpp>
@@ -32,6 +33,7 @@
 #include <boost/fusion/include/pair.hpp>
 #include <boost/utility/result_of.hpp>
 #include <boost/utility/enable_if.hpp>
+#include <arx/TypeTraits.h>
 
 namespace arx {
 
@@ -315,6 +317,26 @@ namespace arx {
 
     };
 
+
+    template<class T>
+    struct is_property_expression_impl: 
+      mpl::false_ 
+    {};
+
+    template<class Expr>
+    struct is_property_expression_impl<property_expression<Expr> >: 
+      mpl::true_ 
+    {};
+
+
+    /**
+     * Metafunction that returns true for property expressions.
+     */
+    template<class T>
+    struct is_property_expression: 
+      is_property_expression_impl<typename remove_cv_reference<T>::type>
+    {};
+
   } // namespace properties_detail
 
 
@@ -338,6 +360,9 @@ namespace arx {
   }
 
   ARX_DEFINE_PROPERTY_KEY(properties_detail::no_properties_tag, no_properties);
+
+
+  using properties_detail::is_property_expression;
 
 } // namespace arx
 

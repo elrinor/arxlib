@@ -25,6 +25,7 @@
 #include <boost/type_traits/remove_cv.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/proto/proto.hpp>
+#include <arx/TypeTraits.h>
 #include "NodeWalker.h"
 #include "StringProcessor.h"
 
@@ -48,7 +49,7 @@ namespace arx { namespace xml {
 
     template<class Result, class Class, class Param1, class Param2>
     struct append_element_result<Result (Class::*)(Param1, Param2) const>:
-      boost::remove_cv<typename boost::remove_reference<Result>::type> 
+      remove_cv_reference<Result>
     {};
 
 
@@ -267,11 +268,11 @@ namespace arx { namespace xml {
         IS_ELEMENT = !IS_ATTRIBUTE
       };
 
-      bool isAttribute() const {
+      bool is_attribute() const {
         return IS_ATTRIBUTE;
       }
 
-      bool isElement() const {
+      bool is_element() const {
         return IS_ELEMENT;
       }
 
@@ -326,6 +327,26 @@ namespace arx { namespace xml {
     };
 
 
+    template<class T>
+    struct is_path_expression_impl: 
+      mpl::false_ 
+    {};
+
+    template<class Expr>
+    struct is_path_expression_impl<path_expression<Expr> >: 
+      mpl::true_ 
+    {};
+
+
+    /**
+     * Metafunction that returns true for path expressions.
+     */
+    template<class T>
+    struct is_path_expression: 
+      is_path_expression_impl<typename remove_cv_reference<T>::type>
+    {};
+
+
     namespace {
       /**
        * Starting terminal for xml path expressions.
@@ -337,7 +358,7 @@ namespace arx { namespace xml {
 
 
   using path_detail::self;
-
+  using path_detail::is_path_expression;
 
 }} // namespace arx::xml
 
