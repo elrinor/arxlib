@@ -28,6 +28,10 @@
 #include "NodeWalker.h"
 #include "StringProcessor.h"
 
+/* TODO: compile<String>, compile<StringProcessor> - converts internal storage 
+ * to string, returns copy of expression. */
+
+
 namespace arx { namespace xml {
   namespace path_detail {
     namespace proto = boost::proto;

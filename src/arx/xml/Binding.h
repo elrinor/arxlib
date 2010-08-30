@@ -34,6 +34,11 @@
 #include "UserData.h"
 #include "NodeInspector.h"
 
+/* TODO: Inspector, Walker and Processor as parameters to (de)serialization
+ * functions, stored in ctx. */
+
+/* TODO: registration for Type & NodeType (not only for Type). */
+
 namespace arx { namespace xml {
 
   /**
