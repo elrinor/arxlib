@@ -516,7 +516,7 @@ namespace arx { namespace xml {
       bool operator()(proto::tag::comma, const L &l, const R &r) const {
         /* Bitwise "and" is important here. We want to collect errors from both
          * children. */
-        return proto::eval(l, derived()) & proto::eval(r, derived());
+        return proto::eval(l, *this) & proto::eval(r, *this);
       }
 
       template<class Path, class Serializer, class Deserializer, class Params>
@@ -965,6 +965,34 @@ namespace arx { namespace xml {
     decltype(SETTER_POINTER),                                                   \
     SETTER_POINTER                                                              \
   >(PATH, __VA_ARGS__)
+
+
+/**
+ * This macro constructs a functional xml binding.
+ *
+ * Actual signature is as follows:
+ * <tt>ARX_XML_FUNCTIONAL(path, serializer, deserializer, [params])</tt>
+ * Parameters in brackets are optional.
+ *
+ * This macro is a shortcut to arx::xml::accessor function and it takes the same
+ * parameters.
+ */
+#define ARX_XML_FUNCTIONAL(PATH, SERIALIZER, DESERIALIZER, ...)                 \
+  arx::xml::functional(PATH, SERIALIZER, DESERIALIZER, __VA_ARGS__)
+
+
+/**
+ * This macro constructs a conditional xml binding.
+ */
+#define ARX_XML_IF(CONDITION, THEN)                                             \
+  arx::xml::if_else(CONDITION, THEN, arx::xml::noop)
+
+
+/**
+ * This macro constructs a conditional xml binding.
+ */
+#define ARX_XML_IF_ELSE(CONDITION, THEN, ELSE)                                  \
+  arx::xml::if_else(CONDITION, THEN, ELSE)
 
 }} // namespace arx::xml
 
