@@ -137,6 +137,7 @@
     <ClInclude Include="..\src\arx\ext\qt\FormGenerator.h" />
     <ClInclude Include="..\src\arx\ext\qt\FormPrinter.h" />
     <ClInclude Include="..\src\arx\xml\Binding.h" />
+    <ClInclude Include="..\src\arx\xml\Checkers.h" />
     <ClInclude Include="..\src\arx\xml\Error.h" />
     <ClInclude Include="..\src\arx\xml\NodeInspector.h" />
     <ClInclude Include="..\src\arx\xml\NodeWalker.h" />

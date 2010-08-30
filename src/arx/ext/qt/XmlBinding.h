@@ -170,7 +170,7 @@ namespace arx { namespace xml {
             translator(ERROR, create_invalid_name(child.nodeName(), elementName), child);
           } else {
             T value;
-            if(arx::xml::deserialize(child, handler(translator), params, &value))
+            if(arx::xml::deserialize(child, translator, params, &value))
               target->push_back(value);
           }
         }

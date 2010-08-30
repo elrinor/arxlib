@@ -37,6 +37,7 @@
 #include "Error.h"
 #include "UserData.h"
 #include "NodeInspector.h"
+#include "Checkers.h"
 
 /* TODO: Inspector, Walker and Processor as parameters to (de)serialization
  * functions, stored in ctx. */
@@ -94,14 +95,14 @@ namespace arx { namespace xml {
     template<class MessageHandler, class Params>
     struct MessageTranslator {
     public:
-      explicit MessageTranslator(MessageHandler &handler, const Params &params):
-        handler(handler), params(params), success(true) {}
+      explicit MessageTranslator(MessageHandler &handler, const Params &params, bool &success):
+        handler(handler), params(params), success(success) {}
 
       template<class ErrorData>
       void operator()(ErrorSeverity severity, const ErrorData& errorData, const ErrorLocation &location) {
         assert(severity == ERROR || severity == WARNING);
 
-        if(severity == QtFatalMsg)
+        if(severity == ERROR)
           success = false;
 
         handler(severity, errorData, params.get<user_data_tag>(no_user_data()), location);
@@ -114,24 +115,13 @@ namespace arx { namespace xml {
 
       MessageHandler &handler;
       const Params &params;
-      bool success;
+      bool &success;
     };
 
     template<class MessageHandler, class Params>
-    MessageTranslator<MessageHandler, Params> create_translator(MessageHandler &handler, const Params &params) {
-      return MessageTranslator<MessageHandler, Params>(handler, params);
+    MessageTranslator<MessageHandler, Params> create_translator(MessageHandler &handler, const Params &params, bool &success) {
+      return MessageTranslator<MessageHandler, Params>(handler, params, success);
     }
-
-
-    /**
-     * Null checker that accepts everything.
-     */
-    struct NullChecker {
-      template<class T>
-      bool operator()(const T &) const {
-        return true;
-      }
-    };
 
 
     /**
@@ -435,6 +425,30 @@ namespace arx { namespace xml {
 
 
     /**
+     * Fixup binding.
+     */
+    template<class Fixer>
+    struct fixup_binding {
+      fixup_binding(const Fixer &fixer):
+        fixer(fixer) {}
+
+      Fixer fixer;
+
+      typedef 
+        binding_expression<typename proto::terminal<binding_wrapper<fixup_binding> >::type>
+      expr_type;
+    };
+
+    template<class Fixer>
+    typename fixup_binding<Fixer>::expr_type
+    fixup(const Fixer &fixer) {
+      typedef fixup_binding<Fixer> binding_type;
+      binding_type::expr_type result = {{{binding_type(fixer)}}};
+      return result;
+    }
+
+
+    /**
      * Serialization context.
      */
     template<class T, class MessageHandler, class Params, class Node>
@@ -442,7 +456,7 @@ namespace arx { namespace xml {
       proto::callable_context<const serialization_context<T, MessageHandler, Params, Node> >
     {
       serialization_context(const T &source, MessageHandler &handler, const Params &params, Node *target): 
-        source(source), handler(handler), params(params), target(target) {}
+        source(source), handler(handler), params(params), target(target), success(true) {}
 
       typedef void result_type;
 
@@ -460,11 +474,11 @@ namespace arx { namespace xml {
       void operator()(proto::tag::terminal, const binding_wrapper<functional_binding<Path, Serializer, Deserializer, Params> > &binding) const {
         auto child = binding.value.path.create(*target);
         auto newParams = (binding.value.params, params);
-        auto translator = create_translator(handler, newParams);
+        auto translator = create_translator(handler, newParams, success);
         binding.value.serializer(source, translator, newParams, &child);
 
         /* Serialization cannot fail. If it fails then it's a design flaw. */
-        assert(translator.success);
+        assert(success);
       }
 
       template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker, class Params>
@@ -481,6 +495,11 @@ namespace arx { namespace xml {
         serialize_impl(tmp, handler, (binding.value.params, params), &child);
       }
 
+      template<class Fixer>
+      void operator()(proto::tag::terminal, const binding_wrapper<fixup_binding<Fixer> > &binding) const {
+        /* Just do nothing. */
+      }
+
       template<class Pred, class L, class R>
       void operator()(proto::tag::if_else_, const Pred &pred, const L &l, const R &r) const {
         if(proto::value(pred)(source))
@@ -493,6 +512,7 @@ namespace arx { namespace xml {
       MessageHandler &handler;
       const Params &params;
       Node *target;
+      mutable bool success;
     };
 
 
@@ -504,7 +524,7 @@ namespace arx { namespace xml {
       proto::callable_context<const deserialization_context<Node, MessageHandler, Params, T> >
     {
       deserialization_context(const Node &source, MessageHandler &handler, const Params &params, T *target): 
-        source(source), handler(handler), params(params), target(target) {}
+        source(source), handler(handler), params(params), target(target), success(true) {}
 
       typedef bool result_type;
 
@@ -523,11 +543,11 @@ namespace arx { namespace xml {
       bool operator()(proto::tag::terminal, const binding_wrapper<functional_binding<Path, Serializer, Deserializer, Params> > &binding) const {
         auto child = binding.value.path.traverse(source);
         auto newParams = (binding.value.params, params);
-        auto translator = create_translator(handler, newParams);
+        auto translator = create_translator(handler, newParams, success);
         if(!check_not_null(child, translator, binding.value.path))
           return false;
         binding.value.deserializer(child, translator, newParams, target);
-        return translator.success;
+        return success; /* Note that this is not generally correct as success may already be false. */
       }
 
       template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker, class Params>
@@ -535,7 +555,7 @@ namespace arx { namespace xml {
         typedef member_type<MemberPointer>::type Actual;
         auto child = binding.value.path.traverse(source);
         auto newParams = (binding.value.params, params);
-        auto translator = create_translator(handler, newParams);
+        auto translator = create_translator(handler, newParams, success);
         if(!check_not_null(child, translator, binding.value.path))
           return false;
         Delegate tmp;
@@ -548,10 +568,11 @@ namespace arx { namespace xml {
               create_invalid_value_for_type<Actual>(inspector.value(child)), 
               inspector.location(child)
             );
+            return false;
           } else {
             (target->*pointer) = actualTmp;
+            return true;
           }
-          return translator.success;
         } else {
           return false;
         }
@@ -562,7 +583,7 @@ namespace arx { namespace xml {
         typedef setter_param<Setter>::type Actual;
         auto child = binding.value.path.traverse(source);
         auto newParams = (binding.value.params, params);
-        auto translator = create_translator(handler, newParams);
+        auto translator = create_translator(handler, newParams, success);
         if(!check_not_null(child, translator, binding.value.path))
           return false;
         Delegate tmp;
@@ -575,13 +596,24 @@ namespace arx { namespace xml {
               create_invalid_value_for_type<Actual>(inspector.value(child)), 
               inspector.location(child)
             );
+            return false;
           } else {
             (target->*setter)(actualTmp);
+            return true;
           }
-          return translator.success;
         } else {
           return false;
         }
+      }
+
+      template<class Fixer>
+      bool operator()(proto::tag::terminal, const binding_wrapper<fixup_binding<Fixer> > &binding) const {
+        if(success) {
+          /* Fixer is called only if deserialization up to this point was 
+           * successful. */
+          binding.value.fixer(*target);
+        }
+        return true;
       }
 
       template<class Pred, class L, class R>
@@ -611,6 +643,7 @@ namespace arx { namespace xml {
       MessageHandler &handler;
       const Params &params;
       T *target;
+      mutable bool success;
     };
 
 
@@ -693,6 +726,7 @@ namespace arx { namespace xml {
   using binding_detail::functional;
   using binding_detail::member;
   using binding_detail::accessor;
+  using binding_detail::fixup;
   using binding_detail::is_binding_expression;
   using boost::proto::if_else;
 
@@ -701,10 +735,8 @@ namespace arx { namespace xml {
    */
   struct NullMessageHandler {
     template<class ErrorData, class UserData>
-    void operator()(ErrorSeverity severity, const ErrorData&, const UserData &, const ErrorLocation &) {
-      assert(severity == ERROR || severity == WARNING);
-
-      (void) severity; /* Just to make the compiler happy. */
+    void operator()(ErrorSeverity, const ErrorData &, const UserData &, const ErrorLocation &) {
+      return;
     }
   };
 
@@ -979,6 +1011,13 @@ namespace arx { namespace xml {
  */
 #define ARX_XML_FUNCTIONAL(PATH, SERIALIZER, DESERIALIZER, ...)                 \
   arx::xml::functional(PATH, SERIALIZER, DESERIALIZER, __VA_ARGS__)
+
+
+/**
+ * This macro constructs a fixup xml binding.
+ */
+#define ARX_XML_FIXUP(FIXER)                                                    \
+  arx::xml::fixup(FIXER)
 
 
 /**
