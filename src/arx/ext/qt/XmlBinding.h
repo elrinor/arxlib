@@ -108,7 +108,7 @@ namespace arx { namespace xml {
         QString elementName = QString(params.get<element_name_tag>(static_cast<const char *>("elem"))); /* TODO: handle this in a normal way. */
         foreach(const T &value, source) {
           QDomNode element = target->appendChild(target->ownerDocument().createElement(elementName));
-          arx::xml::serialize(value, handler(translator), params, &element);
+          arx::xml::serialize(value, translator, params, &element);
         }
       }
     };

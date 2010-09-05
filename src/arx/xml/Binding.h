@@ -496,7 +496,7 @@ namespace arx { namespace xml {
       }
 
       template<class Fixer>
-      void operator()(proto::tag::terminal, const binding_wrapper<fixup_binding<Fixer> > &binding) const {
+      void operator()(proto::tag::terminal, const binding_wrapper<fixup_binding<Fixer> > &) const {
         /* Just do nothing. */
       }
 
