@@ -24,7 +24,6 @@
 #include <boost/preprocessor/stringize.hpp>
 #include <functional>  /* for std::less. */
 #include <utility>     /* for std::pair. */
-#include <exception>   /* for std::runtime_error. */
 
 
 // -------------------------------------------------------------------------- //
@@ -36,8 +35,18 @@
 #  define FORCEINLINE inline
 #endif
 
-#define Unreachable() {assert(!"Unreachable code executed."); ARX_THROW(::std::runtime_error(__FILE__ ":" BOOST_PP_STRINGIZE(__LINE__) ": Unreachable code executed."));} 
+#ifdef ARX_MSVC
+#  define ARX_UNREACHABLE_CODE() __assume(false)
+#elif defined(ARX_GCC)
+#  define ARX_UNREACHABLE_CODE() __builtin_unreachable()
+#else 
+#  define ARX_UNREACHABLE_CODE()
+#endif
 
+#define Unreachable() {                                                         \
+    assert(!"Unreachable code executed.");                                      \
+    ARX_UNREACHABLE_CODE();                                                     \
+  }
 
 namespace arx {
 // -------------------------------------------------------------------------- //
