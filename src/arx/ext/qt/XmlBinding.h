@@ -211,7 +211,7 @@ namespace arx { namespace xml {
     QList_xml_binding, 
     QList<T>, 
     (template<class T>), 
-    functional(
+    ARX_XML_FUNCTIONAL(
       self, 
       qt_xml_binding_detail::Serializer(), 
       qt_xml_binding_detail::Deserializer()
