@@ -30,9 +30,27 @@
 // Some useful defines
 // -------------------------------------------------------------------------- //
 #ifdef ARX_MSVC
-#  define FORCEINLINE __forceinline
+#  define ALWAYS_INLINE __forceinline
+#elif defined(ARX_GCC)
+#  define ALWAYS_INLINE inline __attribute__((__always_inline__))
 #else
-#  define FORCEINLINE inline
+#  define ALWAYS_INLINE inline
+#endif
+
+#ifdef ARX_MSVC
+#  define NEVER_INLINE __declspec(noinline)
+#elif defined(ARX_GCC)
+#  define NEVER_INLINE __attribute__((__noinline__))
+#else
+#  define NEVER_INLINE
+#endif
+
+#ifdef ARX_MSVC
+#  define NORETURN __declspec(noreturn)
+#elif defined(ARX_GCC)
+#  define NORETURN __attribute((__noreturn__))
+#else
+#  define NORETURN
 #endif
 
 #ifdef ARX_MSVC
@@ -47,6 +65,7 @@
     assert(!"Unreachable code executed.");                                      \
     ARX_UNREACHABLE_CODE();                                                     \
   }
+
 
 namespace arx {
 // -------------------------------------------------------------------------- //
