@@ -55,7 +55,7 @@
 
 #ifdef ARX_MSVC
 #  define ARX_UNREACHABLE_CODE() __assume(false)
-#elif defined(ARX_GCC) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 5
+#elif defined(ARX_GCC) && (ARX_GCC >= 40500)
 #  define ARX_UNREACHABLE_CODE() __builtin_unreachable()
 #else 
 #  define ARX_UNREACHABLE_CODE() for(;;) {}
