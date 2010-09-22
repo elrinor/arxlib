@@ -19,8 +19,17 @@
 #ifndef ARX_FOREACH_H
 #define ARX_FOREACH_H
 
+#include <boost/config.hpp> /* For BOOST_NO_AUTO_DECLARATIONS. */
 #include <boost/foreach.hpp>
 #include <boost/preprocessor/cat.hpp>
+
+/* Use BOOST_TYPEOF when auto is not available. */
+#ifdef BOOST_NO_AUTO_DECLARATIONS
+#  include <boost/typeof/typeof.hpp>
+#  define ARX_FOREACH_AUTO_ELEMENT(NAME, CONTAINER) boost::range_value<BOOST_TYPEOF(CONTAINER)>::type &NAME
+#else
+#  define ARX_FOREACH_AUTO_ELEMENT(NAME, CONTAINER) auto NAME
+#endif
 
 /* Undefine qt foreach. */
 #ifdef foreach
@@ -35,7 +44,7 @@
 
 #define map_foreach(KEY, VAL, MAP)                                              \
   if(bool ARX_FOREACH_VAR(_continue) = true)                                    \
-  foreach(auto pair, MAP)                                                       \
+  foreach(ARX_FOREACH_AUTO_ELEMENT(pair, MAP), MAP)                             \
   if(!ARX_FOREACH_VAR(_continue)) break; else                                   \
   if(bool ARX_FOREACH_VAR(_iteration) = true)                                   \
   if((ARX_FOREACH_VAR(_continue) = false), true)                                \

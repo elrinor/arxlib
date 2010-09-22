@@ -96,6 +96,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\src\arx\config.h" />
+    <ClInclude Include="..\src\arx\ext\qt\MapForeach.h" />
     <ClInclude Include="..\src\arx\ext\qt\XmlBinding.h" />
     <ClInclude Include="..\src\arx\ext\qt\XmlQDomNodeInspector.h" />
     <ClInclude Include="..\src\arx\ext\qt\XmlQDomNodeWalker.h" />

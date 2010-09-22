@@ -177,6 +177,9 @@
     <ClInclude Include="..\src\arx\xml\Checkers.h">
       <Filter>arx\xml</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\arx\ext\qt\MapForeach.h">
+      <Filter>arx\ext\qt</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\arx\ext\VigraQt.pri">
