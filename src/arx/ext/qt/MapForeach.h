@@ -33,7 +33,7 @@ namespace arx { namespace detail {
     }
 
     operator bool() const {
-      return true;
+      return false;
     }
 
   private:
@@ -53,13 +53,13 @@ namespace arx { namespace detail {
 }} // namespace arx::detail
 
 #define qmap_foreach(KEY, VAL, MAP)                                             \
-  if(bool ARX_FOREACH_VAR(_continue) = true)                                    \
-  if(auto ARX_FOREACH_VAR(holder) = arx::detail::create_holder(MAP))            \
+  if(bool ARX_FOREACH_VAR(_stop) = false) {} else                               \
+  if(auto ARX_FOREACH_VAR(holder) = arx::detail::create_holder(MAP)) {} else    \
   for(auto i = ARX_FOREACH_VAR(holder).value().begin(); i != ARX_FOREACH_VAR(holder).value().end(); i++) \
-  if(!ARX_FOREACH_VAR(_continue)) break; else                                   \
-  if(bool ARX_FOREACH_VAR(_iteration) = true)                                   \
-  if((ARX_FOREACH_VAR(_continue) = false), true)                                \
-  for(KEY = i.key(); ARX_FOREACH_VAR(_iteration); ARX_FOREACH_VAR(_iteration) = false) \
-  for(VAL = i.value(); ARX_FOREACH_VAR(_iteration); ARX_FOREACH_VAR(_continue) = true, ARX_FOREACH_VAR(_iteration) = false)
+  if(ARX_FOREACH_VAR(_stop)) { break; } else                                    \
+  if(bool ARX_FOREACH_VAR(_end) = false) {} else                                \
+  if(ARX_FOREACH_VAR(_stop) = true, false) {} else                              \
+  for(KEY = i.key(); !ARX_FOREACH_VAR(_end); ARX_FOREACH_VAR(_end) = true)      \
+  for(VAL = i.value(); !ARX_FOREACH_VAR(_end); ARX_FOREACH_VAR(_stop) = false, ARX_FOREACH_VAR(_end) = true)
 
 #endif // ARX_EXT_QT_MAP_FOREACH_H

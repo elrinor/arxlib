@@ -43,12 +43,12 @@
 #define ARX_FOREACH_VAR(NAME) BOOST_PP_CAT(arx_foreach_, BOOST_PP_CAT(NAME, __LINE__))
 
 #define map_foreach(KEY, VAL, MAP)                                              \
-  if(bool ARX_FOREACH_VAR(_continue) = true)                                    \
+  if(bool ARX_FOREACH_VAR(_stop) = false) {} else                               \
   foreach(ARX_FOREACH_AUTO_ELEMENT(pair, MAP), MAP)                             \
-  if(!ARX_FOREACH_VAR(_continue)) break; else                                   \
-  if(bool ARX_FOREACH_VAR(_iteration) = true)                                   \
-  if((ARX_FOREACH_VAR(_continue) = false), true)                                \
-  for(KEY = pair.first; ARX_FOREACH_VAR(_iteration); ARX_FOREACH_VAR(_iteration) = false) \
-  for(VAL = pair.second; ARX_FOREACH_VAR(_iteration); ARX_FOREACH_VAR(_continue) = true, ARX_FOREACH_VAR(_iteration) = false)
+  if(ARX_FOREACH_VAR(_stop)) { break; } else                                    \
+  if(bool ARX_FOREACH_VAR(_end) = false) {} else                                \
+  if(ARX_FOREACH_VAR(_stop) = false) {} else                                    \
+  for(KEY = pair.first; !ARX_FOREACH_VAR(_end); ARX_FOREACH_VAR(_end) = true)   \
+  for(VAL = pair.second; !ARX_FOREACH_VAR(_end); ARX_FOREACH_VAR(_stop) = false, ARX_FOREACH_VAR(_end) = true)
 
 #endif // ARX_FOREACH_H
