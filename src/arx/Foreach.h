@@ -47,7 +47,7 @@
   foreach(ARX_FOREACH_AUTO_ELEMENT(pair, MAP), MAP)                             \
   if(ARX_FOREACH_VAR(_stop)) { break; } else                                    \
   if(bool ARX_FOREACH_VAR(_end) = false) {} else                                \
-  if(ARX_FOREACH_VAR(_stop) = false) {} else                                    \
+  if((ARX_FOREACH_VAR(_stop) = true), false) {} else                            \
   for(KEY = pair.first; !ARX_FOREACH_VAR(_end); ARX_FOREACH_VAR(_end) = true)   \
   for(VAL = pair.second; !ARX_FOREACH_VAR(_end); ARX_FOREACH_VAR(_stop) = false, ARX_FOREACH_VAR(_end) = true)
 
