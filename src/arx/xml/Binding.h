@@ -42,7 +42,12 @@
 /* TODO: Inspector, Walker and Processor as parameters to (de)serialization
  * functions, stored in ctx. */
 
-/* TODO: registration for Type & NodeType (not only for Type). */
+/* TODO: registration for Type & NodeType & Tag (optional) (not only for Type). 
+ * Tag is there to allow multiple (de)serialization routines for the same type.
+ * Tag is given as a parameter to (de)serialization routines and to 
+ * ARX_XML_MEMBER. */
+
+/* TODO: pass actual value to error reporting routine. */
 
 namespace arx { namespace xml {
   namespace binding_detail {
