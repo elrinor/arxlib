@@ -58,7 +58,7 @@ namespace arx { namespace detail {
   for(auto i = ARX_FOREACH_VAR(holder).value().begin(); i != ARX_FOREACH_VAR(holder).value().end(); i++) \
   if(ARX_FOREACH_VAR(_stop)) { break; } else                                    \
   if(bool ARX_FOREACH_VAR(_end) = false) {} else                                \
-  if(ARX_FOREACH_VAR(_stop) = true, false) {} else                              \
+  if((ARX_FOREACH_VAR(_stop) = true), false) {} else                            \
   for(KEY = i.key(); !ARX_FOREACH_VAR(_end); ARX_FOREACH_VAR(_end) = true)      \
   for(VAL = i.value(); !ARX_FOREACH_VAR(_end); ARX_FOREACH_VAR(_stop) = false, ARX_FOREACH_VAR(_end) = true)
 
