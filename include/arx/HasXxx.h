@@ -165,22 +165,31 @@ namespace arx {
 
 } // namespace arx
 
-#define ARX_HAS_EXACT_FUNC_XXX_TRAIT_NAMED_DEF_I(trait_name, func_name, func_sig, builder_name) \
-struct BOOST_PP_CAT(trait_name, _helper) {                                      \
+#define ARX_HAS_EXACT_FUNC_XXX_TRAIT_STRUCT_PROCESSOR_normal(text) text
+#define ARX_HAS_EXACT_FUNC_XXX_TRAIT_STRUCT_PROCESSOR_inline(text)
+#define ARX_HAS_EXACT_FUNC_XXX_TRAIT_STRUCT_PROCESSOR(func_type)          \
+  BOOST_PP_CAT(ARX_HAS_EXACT_FUNC_XXX_TRAIT_STRUCT_PROCESSOR_, func_type)
+
+#define ARX_HAS_EXACT_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF_II(trait_name, helper_name, func_name, func_sig, builder_name, has_member_name, has_member_struct_name, has_member_struct_processor_macro) \
+struct helper_name {                                                            \
   typedef char true_type;                                                       \
   struct false_type { true_type dummy[2]; };                                    \
                                                                                 \
   template<class T, typename builder_name<T, func_sig>::type> struct member {}; \
                                                                                 \
-  template<class T> static true_type has_member(T *, member<T, &T::func_name> * = NULL); \
-  static false_type has_member(...);                                            \
 };                                                                              \
+                                                                                \
+has_member_struct_processor_macro(struct has_member_struct_name {)                     \
+  template<class T>                                                             \
+  static helper_name::true_type has_member_name(T *, helper_name::member<T, &T::func_name> * = NULL); \
+  static helper_name::false_type has_member_name(...);                          \
+has_member_struct_processor_macro(};)                                           \
                                                                                 \
 template<class T, bool is_class = boost::is_class<T>::value>                    \
 struct trait_name:                                                              \
   boost::mpl::bool_<                                                            \
-    sizeof(BOOST_PP_CAT(trait_name, _helper)::has_member(static_cast<T *>(NULL))) == \
-    sizeof(BOOST_PP_CAT(trait_name, _helper)::true_type)                        \
+    sizeof(has_member_struct_processor_macro(has_member_struct_name::) has_member_name(static_cast<T *>(NULL))) == \
+    sizeof(helper_name::true_type)                                              \
   >                                                                             \
 {};                                                                             \
                                                                                 \
@@ -188,12 +197,46 @@ template<class T>                                                               
 struct trait_name<T, false>: public boost::mpl::false_ {};
 
 
+#define ARX_HAS_EXACT_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF_I(trait_name, func_name, func_sig, builder_name, checker_type) \
+  ARX_HAS_EXACT_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF_II(                           \
+    trait_name,                                                                 \
+    BOOST_PP_CAT(trait_name, _helper),                                          \
+    func_name,                                                                  \
+    func_sig,                                                                   \
+    builder_name,                                                               \
+    BOOST_PP_CAT(trait_name, _has_member),                                      \
+    BOOST_PP_CAT(trait_name, _has_member_struct),                               \
+    ARX_HAS_EXACT_FUNC_XXX_TRAIT_STRUCT_PROCESSOR(checker_type)                 \
+  )
+
+#define ARX_HAS_EXACT_NON_CONST_FUNC_XXX_TRAIT_NAMED_DEF_I(trait_name, func_name, func_sig, checker_type) \
+  ARX_HAS_EXACT_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF_I(trait_name, func_name, func_sig, arx::build_member_type, checker_type)
+
+#define ARX_HAS_EXACT_CONST_FUNC_XXX_TRAIT_NAMED_DEF_I(trait_name, func_name, func_sig, checker_type) \
+  ARX_HAS_EXACT_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF_I(trait_name, func_name, func_sig, arx::build_const_member_type, checker_type)
+
+#define ARX_HAS_EXACT_FUNC_XXX_TRAIT_NAMED_DEF_I(trait_name, func_name, func_sig, checker_type) \
+ARX_HAS_EXACT_CONST_FUNC_XXX_TRAIT_NAMED_DEF_I(BOOST_PP_CAT(trait_name, _const_impl), func_name, func_sig, checker_type) \
+ARX_HAS_EXACT_NON_CONST_FUNC_XXX_TRAIT_NAMED_DEF_I(BOOST_PP_CAT(trait_name, _non_const_impl), func_name, func_sig, checker_type) \
+                                                                                \
+template<class T>                                                               \
+struct trait_name :                                                             \
+  boost::mpl::or_<                                                              \
+    BOOST_PP_CAT(trait_name, _const_impl)<T>,                                   \
+    BOOST_PP_CAT(trait_name, _non_const_impl)<T>                                \
+  >                                                                             \
+{};
+
+
 /**
  * Generates a traits class that detect if a given type has a non-const member
  * function named func_name with a given signature func_sig.
  */
 #define ARX_HAS_EXACT_NON_CONST_FUNC_XXX_TRAIT_NAMED_DEF(trait_name, func_name, func_sig) \
-  ARX_HAS_EXACT_FUNC_XXX_TRAIT_NAMED_DEF_I(trait_name, func_name, func_sig, arx::build_member_type)
+  ARX_HAS_EXACT_NON_CONST_FUNC_XXX_TRAIT_NAMED_DEF_I(trait_name, func_name, func_sig, normal)
+
+#define ARX_HAS_EXACT_NON_CONST_FUNC_XXX_INLINE_TRAIT_NAMED_DEF(trait_name, func_name, func_sig) \
+  ARX_HAS_EXACT_NON_CONST_FUNC_XXX_TRAIT_NAMED_DEF_I(trait_name, func_name, func_sig, inline)
 
 
 /**
@@ -201,7 +244,10 @@ struct trait_name<T, false>: public boost::mpl::false_ {};
  * function named func_name with a given signature func_sig.
  */
 #define ARX_HAS_EXACT_CONST_FUNC_XXX_TRAIT_NAMED_DEF(trait_name, func_name, func_sig) \
-  ARX_HAS_EXACT_FUNC_XXX_TRAIT_NAMED_DEF_I(trait_name, func_name, func_sig, arx::build_const_member_type)
+  ARX_HAS_EXACT_CONST_FUNC_XXX_TRAIT_NAMED_DEF_I(trait_name, func_name, func_sig, normal)
+
+#define ARX_HAS_EXACT_CONST_FUNC_XXX_INLINE_TRAIT_NAMED_DEF(trait_name, func_name, func_sig) \
+  ARX_HAS_EXACT_CONST_FUNC_XXX_TRAIT_NAMED_DEF_I(trait_name, func_name, func_sig, inline)
 
 
 /**
@@ -212,15 +258,9 @@ struct trait_name<T, false>: public boost::mpl::false_ {};
  * the function being checked is private.
  */
 #define ARX_HAS_EXACT_FUNC_XXX_TRAIT_NAMED_DEF(trait_name, func_name, func_sig) \
-ARX_HAS_EXACT_CONST_FUNC_XXX_TRAIT_NAMED_DEF(BOOST_PP_CAT(trait_name, _const_impl), func_name, func_sig) \
-ARX_HAS_EXACT_NON_CONST_FUNC_XXX_TRAIT_NAMED_DEF(BOOST_PP_CAT(trait_name, _non_const_impl), func_name, func_sig) \
-                                                                                \
-template<class T>                                                               \
-struct trait_name :                                                             \
-  boost::mpl::or_<                                                              \
-    BOOST_PP_CAT(trait_name, _const_impl)<T>,                                   \
-    BOOST_PP_CAT(trait_name, _non_const_impl)<T>                                \
-  >                                                                             \
-{};
+  ARX_HAS_EXACT_FUNC_XXX_TRAIT_NAMED_DEF_I(trait_name, func_name, func_sig, normal)
+
+#define ARX_HAS_EXACT_FUNC_XXX_INLINE_TRAIT_NAMED_DEF(trait_name, func_name, func_sig) \
+  ARX_HAS_EXACT_FUNC_XXX_TRAIT_NAMED_DEF_I(trait_name, func_name, func_sig, inline)
 
 #endif // ARX_HAS_XXX_H
