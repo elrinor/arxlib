@@ -72,11 +72,12 @@ struct BOOST_PP_CAT(trait_name, _helper) {                                      
 };                                                                              \
                                                                                 \
 template<class T, bool is_class = boost::is_class<T>::value>                    \
-struct trait_name: public                                                       \
+struct trait_name:                                                              \
   boost::mpl::bool_<                                                            \
     sizeof(BOOST_PP_CAT(trait_name, _helper)::has_member(static_cast<T*>(NULL))) == \
     sizeof(BOOST_PP_CAT(trait_name, _helper)::true_type)                        \
-  > {};                                                                         \
+  >                                                                             \
+{};                                                                             \
                                                                                 \
 template<class T>                                                               \
 struct trait_name<T, false>: public boost::mpl::false_ {};
@@ -107,7 +108,7 @@ struct trait_name<T, false>: public boost::mpl::false_ {};
 #define ARX_HAS_FUNC_XXX_TRAIT_NAMED_DEF(trait_name, func_name)                 \
   ARX_HAS_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF(trait_name, func_name, normal, void, return, ())
 
-#define ARX_HAS_FUNC_XXX_TRAIT_DEF(member_name)                                 \
-  ARX_HAS_FUNC_XXX_TRAIT_NAMED_DEF(BOOST_PP_CAT(has_, member_name), member_name)
+#define ARX_HAS_FUNC_XXX_TRAIT_DEF(func_name)                                   \
+  ARX_HAS_FUNC_XXX_TRAIT_NAMED_DEF(BOOST_PP_CAT(has_, func_name), func_name)
 
 #endif // ARX_HAS_XXX_H
