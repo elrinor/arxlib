@@ -1,9 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "arxtest", "arxtest.vcxproj", "{41057D88-2C8A-45B6-83F6-550F56220F33}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "quicktest", "quicktest.vcxproj", "{97BD64AA-FCC5-4BDF-8EC2-50C5F6362C16}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "arxlib", "arxlib.vcxproj", "{32709868-6211-426F-A78B-E9D62D0BE494}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,14 +9,10 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{41057D88-2C8A-45B6-83F6-550F56220F33}.Debug|Win32.ActiveCfg = Debug|Win32
-		{41057D88-2C8A-45B6-83F6-550F56220F33}.Debug|Win32.Build.0 = Debug|Win32
-		{41057D88-2C8A-45B6-83F6-550F56220F33}.Release|Win32.ActiveCfg = Release|Win32
-		{41057D88-2C8A-45B6-83F6-550F56220F33}.Release|Win32.Build.0 = Release|Win32
-		{97BD64AA-FCC5-4BDF-8EC2-50C5F6362C16}.Debug|Win32.ActiveCfg = Debug|Win32
-		{97BD64AA-FCC5-4BDF-8EC2-50C5F6362C16}.Debug|Win32.Build.0 = Debug|Win32
-		{97BD64AA-FCC5-4BDF-8EC2-50C5F6362C16}.Release|Win32.ActiveCfg = Release|Win32
-		{97BD64AA-FCC5-4BDF-8EC2-50C5F6362C16}.Release|Win32.Build.0 = Release|Win32
+		{32709868-6211-426F-A78B-E9D62D0BE494}.Debug|Win32.ActiveCfg = Debug|Win32
+		{32709868-6211-426F-A78B-E9D62D0BE494}.Debug|Win32.Build.0 = Debug|Win32
+		{32709868-6211-426F-A78B-E9D62D0BE494}.Release|Win32.ActiveCfg = Release|Win32
+		{32709868-6211-426F-A78B-E9D62D0BE494}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

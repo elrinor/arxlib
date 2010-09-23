@@ -1,0 +1,211 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="include\arx">
+      <UniqueIdentifier>{db7c9e21-c3f0-4653-a1dd-748ef8d6071e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="include\arx\ext">
+      <UniqueIdentifier>{6d1d699e-53d8-440d-958c-11c83ce2efe3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\arx\xml">
+      <UniqueIdentifier>{3b7f1ea9-9009-4c8c-aa1b-e11db94b05de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\arx\ext\qt">
+      <UniqueIdentifier>{1e09d096-4bbb-431f-9062-0b9dd14d8213}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\arx\ext\vigra">
+      <UniqueIdentifier>{6f1c3122-2c60-4bbe-9393-50ab64580037}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\arx\ext\qt\form_printer">
+      <UniqueIdentifier>{6a835c73-ee3e-4cef-a33f-b1b399580c77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\arx\ext\qt\xml_binding">
+      <UniqueIdentifier>{5e4664fc-9ee6-4fa5-a239-27b10e1fb2c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\arx">
+      <UniqueIdentifier>{3dd0e404-2ea9-450f-b353-9ec6c557d8e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\arx\ext">
+      <UniqueIdentifier>{e70619b6-73bc-4d1a-bfd7-e606e9f8bfdc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\arx\ext\qt">
+      <UniqueIdentifier>{157a394a-b779-4132-bb91-80c4522fc4b5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\arx\config.h">
+      <Filter>include\arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\Foreach.h">
+      <Filter>include\arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\HashHack.h">
+      <Filter>include\arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\HasXxx.h">
+      <Filter>include\arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\LambdaHack.h">
+      <Filter>include\arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\Memory.h">
+      <Filter>include\arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\Null.h">
+      <Filter>include\arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ObjectPool.h">
+      <Filter>include\arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\Preprocessor.h">
+      <Filter>include\arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\Properties.h">
+      <Filter>include\arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\Range.h">
+      <Filter>include\arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\StaticBlock.h">
+      <Filter>include\arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\StaticCounter.h">
+      <Filter>include\arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\TypeTraits.h">
+      <Filter>include\arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\Utility.h">
+      <Filter>include\arx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\xml\Binding.h">
+      <Filter>include\arx\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\xml\Checkers.h">
+      <Filter>include\arx\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\xml\Error.h">
+      <Filter>include\arx\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\xml\NodeInspector.h">
+      <Filter>include\arx\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\xml\NodeWalker.h">
+      <Filter>include\arx\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\xml\Path.h">
+      <Filter>include\arx\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\xml\StringProcessor.h">
+      <Filter>include\arx\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\xml\UserData.h">
+      <Filter>include\arx\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\config.h">
+      <Filter>include\arx\ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\Magick.h">
+      <Filter>include\arx\ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\OpenCV.h">
+      <Filter>include\arx\ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\Qt.h">
+      <Filter>include\arx\ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\Vigra.h">
+      <Filter>include\arx\ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\VigraMagick.h">
+      <Filter>include\arx\ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\VigraOpenCV.h">
+      <Filter>include\arx\ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\VigraQt.h">
+      <Filter>include\arx\ext</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\vigra\Accessors.h">
+      <Filter>include\arx\ext\vigra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\vigra\Binarization.h">
+      <Filter>include\arx\ext\vigra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\vigra\Colors.h">
+      <Filter>include\arx\ext\vigra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\vigra\config.h">
+      <Filter>include\arx\ext\vigra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\vigra\Convert.h">
+      <Filter>include\arx\ext\vigra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\vigra\Converter.h">
+      <Filter>include\arx\ext\vigra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\vigra\Drawing.h">
+      <Filter>include\arx\ext\vigra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\vigra\MetaFunctions.h">
+      <Filter>include\arx\ext\vigra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\vigra\RGBAValue.h">
+      <Filter>include\arx\ext\vigra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\vigra\StdImage.h">
+      <Filter>include\arx\ext\vigra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\vigra\Validation.h">
+      <Filter>include\arx\ext\vigra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\qt\config.h">
+      <Filter>include\arx\ext\qt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\qt\MapForeach.h">
+      <Filter>include\arx\ext\qt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\qt\FormGenerator.h">
+      <Filter>include\arx\ext\qt\form_printer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\qt\FormPrinter.h">
+      <Filter>include\arx\ext\qt\form_printer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\qt\XmlBinding.h">
+      <Filter>include\arx\ext\qt\xml_binding</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\qt\XmlQStringProcessor.h">
+      <Filter>include\arx\ext\qt\xml_binding</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\qt\XmlQDomNodeInspector.h">
+      <Filter>include\arx\ext\qt\xml_binding</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\qt\XmlQDomNodeWalker.h">
+      <Filter>include\arx\ext\qt\xml_binding</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\include\arx\ext\VigraQt.pri">
+      <Filter>include\arx\ext</Filter>
+    </None>
+    <None Include="..\include\arx\ext\qt\FormPrinter.pri">
+      <Filter>include\arx\ext\qt\form_printer</Filter>
+    </None>
+    <None Include="..\include\arx\ext\qt\XmlBinding.pri">
+      <Filter>include\arx\ext\qt\xml_binding</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\arx\ext\qt\VigraQtStaticPlugins.cpp">
+      <Filter>src\arx\ext\qt</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
