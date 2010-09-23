@@ -28,7 +28,7 @@
 
 namespace arx {
   namespace range_protected {
-    ARX_HAS_FUNC_XXX_TRAIT_DEF(find);
+    ARX_DEFINE_HAS_FUNC_TRAIT(find);
 
     template<class AssociativeContainer, class T, bool hasFind = has_find<AssociativeContainer>::value>
     struct Contains {

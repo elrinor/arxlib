@@ -138,8 +138,8 @@ namespace arx {
 
   namespace detail {
     namespace has_new_delete_ns {
-      ARX_HAS_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF(has_operator_new, operator new, static, void*, return 0, (std::size_t) throw())
-      ARX_HAS_FUNC_XXX_TRAIT_NAMED_EXTENDED_DEF(has_operator_delete, operator delete, static, void, return, (void*))
+      ARX_DEFINE_NAMED_EXTENDED_HAS_FUNC_TRAIT(has_operator_new, operator new, static, void*, return 0, (std::size_t) throw())
+      ARX_DEFINE_NAMED_EXTENDED_HAS_FUNC_TRAIT(has_operator_delete, operator delete, static, void, return, (void*))
     }
   }
 

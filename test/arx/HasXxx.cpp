@@ -30,7 +30,7 @@ struct C2 {
   int type();
 };
 
-ARX_HAS_TYPE_XXX_TRAIT_NAMED_DEF(has_type, type);
+ARX_DEFINE_NAMED_HAS_TYPE_TRAIT(has_type, type);
 
 
 struct C3 {
@@ -52,11 +52,11 @@ struct C6 {
   void f() const;
 };
 
-ARX_HAS_FUNC_XXX_TRAIT_DEF(f);
+ARX_DEFINE_HAS_FUNC_TRAIT(f);
 
 
-ARX_HAS_EXACT_FUNC_XXX_TRAIT_NAMED_DEF(has_f_void, f, void());
-ARX_HAS_EXACT_FUNC_XXX_TRAIT_NAMED_DEF(has_f_int_float_char, f, void(int, float, char));
+ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT(has_f_void, f, void());
+ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT(has_f_int_float_char, f, void(int, float, char));
 
 
 
@@ -78,7 +78,7 @@ private:
 };
 
 struct D2 {
-  ARX_HAS_EXACT_FUNC_XXX_INLINE_TRAIT_NAMED_DEF(has_f_void, f, void());
+  ARX_DEFINE_INLINE_NAMED_HAS_EXACT_FUNC_TRAIT(has_f_void, f, void());
 };
 
 BOOST_AUTO_TEST_CASE(arx_has_xxx) {
