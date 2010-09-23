@@ -34,7 +34,7 @@ ARX_HAS_TYPE_XXX_TRAIT_NAMED_DEF(has_type, type);
 
 
 struct C3 {
-  void f();
+  void f(float);
   void f(int);
 };
 
@@ -43,20 +43,41 @@ struct C4 {
 };
 
 class C5 {
+protected:
   void f();
 };
 
+struct C6 {
+  void f(int, float, char) const;
+  void f() const;
+};
+
 ARX_HAS_FUNC_XXX_TRAIT_DEF(f);
+
+
+ARX_HAS_EXACT_FUNC_XXX_TRAIT_NAMED_DEF(has_f_void, f, void());
+ARX_HAS_EXACT_FUNC_XXX_TRAIT_NAMED_DEF(has_f_int_float_char, f, void(int, float, char));
 
 
 BOOST_AUTO_TEST_CASE(arx_has_xxx) {
 
   BOOST_CHECK(has_type<C1>::value);
   BOOST_CHECK(!has_type<C2>::value);
+  BOOST_CHECK(!has_type<int>::value);
+
 
   BOOST_CHECK(has_f<C3>::value);
   BOOST_CHECK(!has_f<C4>::value);
+  BOOST_CHECK(!has_f<char *>::value);
 
   BOOST_CHECK(has_f<C5>::value); /* Private members must also be detected. */
+
+  BOOST_CHECK(!has_f_void<C3>::value);
+  BOOST_CHECK(has_f_void<C6>::value);
+  BOOST_CHECK(!has_f_void<int>::value);
+
+  BOOST_CHECK(has_f_int_float_char<C6>::value);
+  BOOST_CHECK(!has_f_int_float_char<C3>::value);
+  BOOST_CHECK(!has_f_int_float_char<void *>::value);
 
 }
