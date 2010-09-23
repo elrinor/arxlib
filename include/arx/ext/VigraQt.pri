@@ -16,7 +16,7 @@
 # License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
 # 
 # $Id: FormPrinter.pri 112 2010-08-22 12:52:58Z ru.elric $
-SOURCES += $$PWD/qt/VigraQtStaticPlugins.cpp
+SOURCES += $$PWD/../../../src/arx/ext/qt/VigraQtStaticPlugins.cpp
 
 contains(CONFIG, static) {
   QTPLUGIN += qjpeg qgif qmng qico qtiff
