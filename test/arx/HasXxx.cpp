@@ -42,6 +42,10 @@ struct C4 {
   void g();
 };
 
+class C5 {
+  void f();
+};
+
 ARX_HAS_FUNC_XXX_TRAIT_DEF(f);
 
 
@@ -52,5 +56,7 @@ BOOST_AUTO_TEST_CASE(arx_has_xxx) {
 
   BOOST_CHECK(has_f<C3>::value);
   BOOST_CHECK(!has_f<C4>::value);
+
+  BOOST_CHECK(has_f<C5>::value); /* Private members must also be detected. */
 
 }
