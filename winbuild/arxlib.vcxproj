@@ -50,6 +50,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,6 +134,8 @@
   <ItemGroup>
     <ClCompile Include="..\src\arx\ext\qt\VigraQtStaticPlugins.cpp" />
     <ClCompile Include="..\test\arxtest.cpp" />
+    <ClCompile Include="..\test\arx\Foreach.cpp" />
+    <ClCompile Include="..\test\arx\HasXxx.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

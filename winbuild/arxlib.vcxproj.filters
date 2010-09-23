@@ -42,6 +42,9 @@
     <Filter Include="test">
       <UniqueIdentifier>{e0ecc1fd-6933-47e7-9a4c-7538d916b174}</UniqueIdentifier>
     </Filter>
+    <Filter Include="test\arx">
+      <UniqueIdentifier>{efb3ec86-5634-451f-b23e-c4cda4f0bf6b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\arx\config.h">
@@ -212,6 +215,12 @@
     </ClCompile>
     <ClCompile Include="..\test\arxtest.cpp">
       <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test\arx\Foreach.cpp">
+      <Filter>test\arx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test\arx\HasXxx.cpp">
+      <Filter>test\arx</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
