@@ -39,6 +39,9 @@
     <Filter Include="src\arx\ext\qt">
       <UniqueIdentifier>{157a394a-b779-4132-bb91-80c4522fc4b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="test">
+      <UniqueIdentifier>{e0ecc1fd-6933-47e7-9a4c-7538d916b174}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\arx\config.h">
@@ -206,6 +209,9 @@
   <ItemGroup>
     <ClCompile Include="..\src\arx\ext\qt\VigraQtStaticPlugins.cpp">
       <Filter>src\arx\ext\qt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test\arxtest.cpp">
+      <Filter>test</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
