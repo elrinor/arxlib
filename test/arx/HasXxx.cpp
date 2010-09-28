@@ -55,11 +55,6 @@ struct C6 {
 ARX_DEFINE_HAS_FUNC_TRAIT(f);
 
 
-ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT(has_f_void, f, void());
-ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT(has_f_int_float_char, f, void(int, float, char));
-
-
-
 struct C7 {
   void f();
 };
@@ -78,7 +73,7 @@ private:
 };
 
 struct D2 {
-  ARX_DEFINE_INLINE_NAMED_HAS_EXACT_FUNC_TRAIT(has_f_void, f, void());
+  ARX_DEFINE_INLINE_HAS_FUNC_TRAIT(f);
 };
 
 BOOST_AUTO_TEST_CASE(arx_has_xxx) {
@@ -94,14 +89,13 @@ BOOST_AUTO_TEST_CASE(arx_has_xxx) {
 
   BOOST_CHECK(has_f<C5>::value); /* Private members must also be detected. */
 
-  BOOST_CHECK(!has_f_void<C3>::value);
-  BOOST_CHECK(has_f_void<C6>::value);
-  BOOST_CHECK(!has_f_void<int>::value);
-  BOOST_CHECK(!has_f_void<C9>::value); /* Ambiguous members don't cause a failure. */
+  BOOST_CHECK((!has_f<C3, void (C3::*)()>::value));
+  BOOST_CHECK((has_f<C6, void (C6::*)() const>::value));
+  BOOST_CHECK((!has_f<C9, void (C9::*)()>::value)); /* Ambiguous members don't cause a compilation error. */
 
-  BOOST_CHECK(has_f_int_float_char<C6>::value);
-  BOOST_CHECK(!has_f_int_float_char<C3>::value);
-  BOOST_CHECK(!has_f_int_float_char<void *>::value);
+  BOOST_CHECK((!has_f<C6, void (C6::*)(int, float, char)>::value));
+  BOOST_CHECK((has_f<C6, void (C6::*)(int, float, char) const>::value));
+  BOOST_CHECK((!has_f<C3, void (C3::*)(int, float, char)>::value));
 
-  BOOST_CHECK(D2::has_f_void<D1>::value); /* Inline traits allow to work around the problem of private member introspection. */
+  BOOST_CHECK((D2::has_f<D1, void (D1::*)()>::value)); /* Inline traits allow to work around the problem of private member introspection. */
 }
