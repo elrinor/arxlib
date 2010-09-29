@@ -58,7 +58,7 @@
 #elif defined(ARX_GCC) && (ARX_GCC >= 40500)
 #  define ARX_UNREACHABLE_CODE() __builtin_unreachable()
 #else 
-#  define ARX_UNREACHABLE_CODE() for(;;) {}
+#  define ARX_UNREACHABLE_CODE()
 #endif
 
 #define Unreachable() {                                                         \
