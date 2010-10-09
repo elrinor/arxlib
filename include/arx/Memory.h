@@ -138,8 +138,8 @@ namespace arx {
 
   namespace detail {
     namespace has_new_delete_ns {
-      ARX_DEFINE_NAMED_EXTENDED_HAS_FUNC_TRAIT(has_operator_new, operator new, static, void*, return 0, (std::size_t) throw())
-      ARX_DEFINE_NAMED_EXTENDED_HAS_FUNC_TRAIT(has_operator_delete, operator delete, static, void, return, (void*))
+      ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT(has_operator_new, operator new)
+      ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT(has_operator_delete, operator delete)
     }
   }
 
@@ -210,7 +210,13 @@ namespace arx {
     }
 
   private:
-    template<class U, bool has_new_delete = boost::mpl::and_<detail::has_new_delete_ns::has_operator_new<U>, detail::has_new_delete_ns::has_operator_delete<U> >::value> 
+    template<
+      class U, 
+      bool has_new_delete = boost::mpl::and_<
+        detail::has_new_delete_ns::has_operator_new<T, void *(std::size_t)>,
+        detail::has_new_delete_ns::has_operator_delete<T, void(void *)> 
+      >::value
+    > 
     struct allocator_impl {
       enum { HAS_NEW = true };
 

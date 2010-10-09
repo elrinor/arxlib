@@ -73,7 +73,7 @@ private:
 };
 
 struct D2 {
-  ARX_DEFINE_INLINE_HAS_FUNC_TRAIT(f);
+  ARX_DEFINE_HAS_FUNC_TRAIT(f);
 };
 
 BOOST_AUTO_TEST_CASE(arx_has_xxx) {
@@ -97,5 +97,5 @@ BOOST_AUTO_TEST_CASE(arx_has_xxx) {
   BOOST_CHECK((has_f<C6, void (C6::*)(int, float, char) const>::value));
   BOOST_CHECK((!has_f<C3, void (C3::*)(int, float, char)>::value));
 
-  BOOST_CHECK((D2::has_f<D1, void (D1::*)()>::value)); /* Inline traits allow to work around the problem of private member introspection. */
+  BOOST_CHECK((D2::has_f<D1, void (D1::*)()>::value)); /* Private member introspection. */
 }
