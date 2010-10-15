@@ -45,6 +45,9 @@
     <Filter Include="test\arx">
       <UniqueIdentifier>{efb3ec86-5634-451f-b23e-c4cda4f0bf6b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\arx\ext\qt\dom_xml_receiver">
+      <UniqueIdentifier>{002bdaf4-79c3-45c8-9aaa-b6853185f01e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\arx\config.h">
@@ -197,6 +200,9 @@
     <ClInclude Include="..\include\arx\ext\qt\XmlQDomNodeWalker.h">
       <Filter>include\arx\ext\qt\xml_binding</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\arx\ext\qt\DomXmlReceiver.h">
+      <Filter>include\arx\ext\qt\dom_xml_receiver</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\arx\ext\VigraQt.pri">
@@ -207,6 +213,9 @@
     </None>
     <None Include="..\include\arx\ext\qt\XmlBinding.pri">
       <Filter>include\arx\ext\qt\xml_binding</Filter>
+    </None>
+    <None Include="..\include\arx\ext\qt\DomXmlReceiver.pri">
+      <Filter>include\arx\ext\qt\dom_xml_receiver</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -221,6 +230,9 @@
     </ClCompile>
     <ClCompile Include="..\test\arx\HasXxx.cpp">
       <Filter>test\arx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\arx\ext\qt\DomXmlReceiver.cpp">
+      <Filter>src\arx\ext\qt</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
