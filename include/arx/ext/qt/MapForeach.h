@@ -20,46 +20,112 @@
 #define ARX_EXT_QT_MAP_FOREACH_H
 
 #include "config.h"
-#include <arx/Foreach.h>
+#include <utility> /* For std::pair. */
+#include <boost/iterator/iterator_facade.hpp>
+#include <QHash>
+#include <QMultiHash>
+#include <QMap>
+#include <QMultiMap>
+
+/*
+ * Qt associative containers are not compatible with stl associative containers
+ * as they provide iterators over a set of mapped values, not over a set of 
+ * key-value pairs.
+ *
+ * This problem is solved by introducing proper boost::range bindings for 
+ * these containers.
+ */
 
 namespace arx { namespace detail {
-  template<class T>
-  class Holder {
+// -------------------------------------------------------------------------- //
+// QIteratorWrapper
+// -------------------------------------------------------------------------- //
+  template<class Iterator, class Key, class T>
+  class QIteratorWrapper: public 
+    boost::iterator_facade<
+      QIteratorWrapper<Iterator, Key, T>, 
+      std::pair<Key &, T &>,
+      boost::bidirectional_traversal_tag,
+      std::pair<Key &, T &>
+    >
+  {
   public:
-    Holder(T &value): mValue(value) {}
+    QIteratorWrapper() {}
 
-    T &value() const {
-      return mValue;
-    }
+    explicit QIteratorWrapper(const Iterator &iterator): mIterator(iterator) {}
 
-    operator bool() const {
-      return false;
-    }
+    template<class OtherIterator, class OtherKey, class OtherT>
+    QIteratorWrapper(const QIteratorWrapper<OtherIterator, OtherKey, OtherT> &other): mIterator(other.mIterator) {}
 
   private:
-    T &mValue;
+    friend class boost::iterator_core_access;
+
+    template<class OtherIterator, class OtherKey, class OtherT>
+    bool equal(const QIteratorWrapper<OtherIterator, OtherKey, OtherT> &other) const {
+      return mIterator == other.mIterator;
+    }
+
+    void increment() { 
+      mIterator++;
+    }
+
+    void decrement() {
+      mIterator--;
+    }
+
+    std::pair<Key &, T &> dereference() const { 
+      return std::pair<Key &, T &>(mIterator.key(), mIterator.value());
+    }
+
+    Iterator mIterator;
   };
-
-  template<class T>
-  Holder<T> create_holder(T &value) {
-    return Holder<T>(value);
-  }
-
-  template<class T>
-  Holder<const T> create_holder(const T &value) {
-    return Holder<const T>(value);
-  }
 
 }} // namespace arx::detail
 
-#define qmap_foreach(KEY, VAL, MAP)                                             \
-  if(bool ARX_FOREACH_VAR(_stop) = false) {} else                               \
-  if(auto ARX_FOREACH_VAR(holder) = arx::detail::create_holder(MAP)) {} else    \
-  for(auto i = ARX_FOREACH_VAR(holder).value().begin(); i != ARX_FOREACH_VAR(holder).value().end(); i++) \
-  if(ARX_FOREACH_VAR(_stop)) { break; } else                                    \
-  if(bool ARX_FOREACH_VAR(_end) = false) {} else                                \
-  if((ARX_FOREACH_VAR(_stop) = true), false) {} else                            \
-  for(KEY = i.key(); !ARX_FOREACH_VAR(_end); ARX_FOREACH_VAR(_end) = true)      \
-  for(VAL = i.value(); !ARX_FOREACH_VAR(_end); ARX_FOREACH_VAR(_stop) = false, ARX_FOREACH_VAR(_end) = true)
+namespace boost {
+  
+#define ARX_REGISTER_QT_ITERATOR_WRAPPER(CONTAINER)                             \
+  template<class Key, class T>                                                  \
+  struct range_mutable_iterator<CONTAINER<Key, T> > {                           \
+    typedef arx::detail::QIteratorWrapper<typename CONTAINER<Key, T>::iterator, const Key, T> type; \
+  };                                                                            \
+                                                                                \
+  template<class Key, class T>                                                  \
+  struct range_const_iterator<CONTAINER<Key, T> > {                             \
+    typedef arx::detail::QIteratorWrapper<typename CONTAINER<Key, T>::const_iterator, const Key, const T> type; \
+  };                                                                            \
+                                                                                \
+  template<class Key, class T>                                                  \
+  inline typename range_mutable_iterator<CONTAINER<Key, T> >::type              \
+  range_begin(CONTAINER<Key, T> &x) {                                           \
+    return range_mutable_iterator<CONTAINER<Key, T> >::type(x.begin());         \
+  }                                                                             \
+                                                                                \
+  template<class Key, class T>                                                  \
+  inline typename range_const_iterator<CONTAINER<Key, T> >::type                \
+  range_begin(const CONTAINER<Key, T> &x) {                                     \
+    return range_const_iterator<CONTAINER<Key, T> >::type(x.begin());           \
+  }                                                                             \
+                                                                                \
+  template<class Key, class T>                                                  \
+  inline typename range_mutable_iterator<CONTAINER<Key, T> >::type              \
+  range_end(CONTAINER<Key, T> &x) {                                             \
+    return range_mutable_iterator<CONTAINER<Key, T> >::type(x.end());           \
+  }                                                                             \
+                                                                                \
+  template<class Key, class T>                                                  \
+  inline typename range_const_iterator<CONTAINER<Key, T> >::type                \
+  range_end(const CONTAINER<Key, T> &x) {                                       \
+    return range_const_iterator<CONTAINER<Key, T> >::type(x.end());             \
+  }
+
+  ARX_REGISTER_QT_ITERATOR_WRAPPER(QHash);
+  ARX_REGISTER_QT_ITERATOR_WRAPPER(QMultiHash);
+  ARX_REGISTER_QT_ITERATOR_WRAPPER(QMap);
+  ARX_REGISTER_QT_ITERATOR_WRAPPER(QMultiMap);
+
+#undef ARX_REGISTER_QT_ITERATOR_WRAPPER
+
+} // namespace boost
 
 #endif // ARX_EXT_QT_MAP_FOREACH_H

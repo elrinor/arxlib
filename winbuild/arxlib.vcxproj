@@ -81,6 +81,7 @@
     <ClInclude Include="..\include\arx\ext\OpenCV.h" />
     <ClInclude Include="..\include\arx\ext\Qt.h" />
     <ClInclude Include="..\include\arx\ext\qt\config.h" />
+    <ClInclude Include="..\include\arx\ext\qt\DomXmlReceiver.h" />
     <ClInclude Include="..\include\arx\ext\qt\FormGenerator.h" />
     <ClInclude Include="..\include\arx\ext\qt\FormPrinter.h" />
     <ClInclude Include="..\include\arx\ext\qt\MapForeach.h" />
@@ -127,11 +128,13 @@
     <ClInclude Include="..\include\arx\xml\UserData.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\include\arx\ext\qt\DomXmlReceiver.pri" />
     <None Include="..\include\arx\ext\qt\FormPrinter.pri" />
     <None Include="..\include\arx\ext\qt\XmlBinding.pri" />
     <None Include="..\include\arx\ext\VigraQt.pri" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\arx\ext\qt\DomXmlReceiver.cpp" />
     <ClCompile Include="..\src\arx\ext\qt\VigraQtStaticPlugins.cpp" />
     <ClCompile Include="..\test\arxtest.cpp" />
     <ClCompile Include="..\test\arx\Foreach.cpp" />
