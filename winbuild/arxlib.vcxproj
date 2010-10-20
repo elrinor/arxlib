@@ -121,6 +121,7 @@
     <ClInclude Include="..\include\arx\xml\Binding.h" />
     <ClInclude Include="..\include\arx\xml\Checkers.h" />
     <ClInclude Include="..\include\arx\xml\Error.h" />
+    <ClInclude Include="..\include\arx\xml\ErrorLocation.h" />
     <ClInclude Include="..\include\arx\xml\NodeInspector.h" />
     <ClInclude Include="..\include\arx\xml\NodeWalker.h" />
     <ClInclude Include="..\include\arx\xml\Path.h" />

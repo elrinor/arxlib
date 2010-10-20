@@ -35,6 +35,7 @@
 #include <arx/TypeTraits.h>
 #include "Path.h"
 #include "Error.h"
+#include "ErrorLocation.h"
 #include "UserData.h"
 #include "NodeInspector.h"
 #include "Checkers.h"

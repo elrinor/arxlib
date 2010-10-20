@@ -32,26 +32,6 @@ namespace arx { namespace xml {
 
 
   /**
-   * Error location.
-   */
-  class ErrorLocation {
-  public:
-    ErrorLocation(int line, int column): mLine(line), mColumn(column) {}
-
-    int line() const {
-      return mLine;
-    }
-
-    int column() const {
-      return mColumn;
-    }
-
-  private:
-    int mLine, mColumn;
-  };
-
-
-  /**
    * Base class for all xml errors.
    */
   struct error {};
