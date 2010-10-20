@@ -203,6 +203,9 @@
     <ClInclude Include="..\include\arx\ext\qt\DomXmlReceiver.h">
       <Filter>include\arx\ext\qt\dom_xml_receiver</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\arx\xml\ErrorLocation.h">
+      <Filter>include\arx\xml</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\arx\ext\VigraQt.pri">
