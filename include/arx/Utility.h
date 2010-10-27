@@ -60,7 +60,7 @@
 #else 
 #  /* We cannot define ARX_UNREACHABLE_CODE() as empty since it will generate 
 #   * "Control reaches end of non-void function" warnings. */
-#  define ARX_UNREACHABLE_CODE() for(;;); 
+#  define ARX_UNREACHABLE_CODE() for(;;) {} 
 #endif
 
 #define Unreachable() {                                                         \
