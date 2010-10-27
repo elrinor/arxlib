@@ -58,7 +58,9 @@
 #elif defined(ARX_GCC) && (ARX_GCC >= 40500)
 #  define ARX_UNREACHABLE_CODE() __builtin_unreachable()
 #else 
-#  define ARX_UNREACHABLE_CODE()
+#  /* We cannot define ARX_UNREACHABLE_CODE() as empty since it will generate 
+#   * "Control reaches end of non-void function" warnings. */
+#  define ARX_UNREACHABLE_CODE() for(;;); 
 #endif
 
 #define Unreachable() {                                                         \
