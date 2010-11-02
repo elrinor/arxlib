@@ -284,13 +284,13 @@ namespace arx { namespace xml {
 
       template<class Node, class NodeWalker>
       Node traverse(const Node &startNode, const NodeWalker &nodeWalker) const {
-        node_string_processor<Node>::type processor;
+        typename node_string_processor<Node>::type processor;
         return traverse(startNode, nodeWalker, processor);
       }
 
       template<class Node>
       Node traverse(const Node &startNode) const {
-        node_walker<Node>::type nodeWalker;
+        typename node_walker<Node>::type nodeWalker;
         return traverse(startNode, nodeWalker);
       }
 
@@ -302,13 +302,13 @@ namespace arx { namespace xml {
 
       template<class Node, class NodeWalker>
       Node create(Node &startNode, const NodeWalker &nodeWalker) const {
-        node_string_processor<Node>::type processor;
+        typename node_string_processor<Node>::type processor;
         return create(startNode, nodeWalker, processor);
       }
 
       template<class Node>
       Node create(Node &startNode) const {
-        node_walker<Node>::type nodeWalker;
+        typename node_walker<Node>::type nodeWalker;
         return create(startNode, nodeWalker);
       }
 
@@ -320,7 +320,7 @@ namespace arx { namespace xml {
 
       template<class String>
       String to_string() const {
-        string_processor<String>::type processor;
+        typename string_processor<String>::type processor;
         return to_string_process(processor);
       }
 
@@ -351,7 +351,7 @@ namespace arx { namespace xml {
       /**
        * Starting terminal for xml path expressions.
        */
-      path_expression<proto::terminal<path_start>::type> self = {{}};
+      path_expression<proto::terminal<path_start>::type> self = {{{}}};
     }
 
   } // namespace path_detail
