@@ -982,7 +982,7 @@ namespace arx { namespace xml {
  * type of member pointer.
  */
 #define ARX_XML_MEMBER(MEMBER_POINTER, PATH, ...)                               \
-  arx::xml::member<decltype(MEMBER_POINTER), MEMBER_POINTER>(PATH, __VA_ARGS__)
+  arx::xml::member<decltype(MEMBER_POINTER), MEMBER_POINTER>(PATH, ##__VA_ARGS__)
 
 
 /**
@@ -1002,7 +1002,7 @@ namespace arx { namespace xml {
     GETTER_POINTER,                                                             \
     decltype(SETTER_POINTER),                                                   \
     SETTER_POINTER                                                              \
-  >(PATH, __VA_ARGS__)
+  >(PATH, ##__VA_ARGS__)
 
 
 /**
@@ -1016,7 +1016,7 @@ namespace arx { namespace xml {
  * parameters.
  */
 #define ARX_XML_FUNCTIONAL(PATH, SERIALIZER, DESERIALIZER, ...)                 \
-  arx::xml::functional(PATH, SERIALIZER, DESERIALIZER, __VA_ARGS__)
+  arx::xml::functional(PATH, SERIALIZER, DESERIALIZER, ##__VA_ARGS__)
 
 
 /**
