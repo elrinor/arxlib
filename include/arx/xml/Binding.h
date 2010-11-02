@@ -214,7 +214,7 @@ namespace arx { namespace xml {
     template<class Path, class Serializer, class Deserializer, class Params>
     struct functional_binding: binding_base<Path, Params> {
       functional_binding(const Path &path, const Serializer &serializer, const Deserializer &deserializer, const Params &params):
-        binding_base(path, params), serializer(serializer), deserializer(deserializer) {}
+        binding_base<Path, Params>(path, params), serializer(serializer), deserializer(deserializer) {}
 
       Serializer serializer;
       Deserializer deserializer;
@@ -228,7 +228,7 @@ namespace arx { namespace xml {
     typename functional_binding<Path, Serializer, Deserializer, Params>::expr_type
     functional(const Path &path, const Serializer &serializer, const Deserializer &deserializer, const Params &params) {
       typedef functional_binding<Path, Serializer, Deserializer, Params> binding_type;
-      binding_type::expr_type result = {{{binding_type(path, serializer, deserializer, params)}}};
+      typename binding_type::expr_type result = {{{binding_type(path, serializer, deserializer, params)}}};
       return result;
     }
 
