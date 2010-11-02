@@ -278,7 +278,7 @@ namespace arx { namespace xml {
     typename member_result<MemberPointer, pointer, Delegate, Path, Checker, Params>::type
     member_impl(const Path &path, const Checker &checker, const Params &params) {
       typedef member_binding<MemberPointer, pointer, Delegate, Path, Checker, Params> binding_type;
-      binding_type::expr_type result = {{{binding_type(path, checker, params)}}};
+      typename binding_type::expr_type result = {{{binding_type(path, checker, params)}}};
       return result;
     }
 
