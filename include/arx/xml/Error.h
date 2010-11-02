@@ -67,7 +67,7 @@ namespace arx { namespace xml {
 
   template<class String>
   invalid_value<String> create_invalid_value(const String &value) {
-    return invalid_value<String>(value)
+    return invalid_value<String>(value);
   }
 
 
@@ -77,7 +77,7 @@ namespace arx { namespace xml {
   template<class T, class String>
   struct invalid_value_for_type: invalid_value<String> {
     invalid_value_for_type(const String &value):
-      invalid_value(value) {};
+      invalid_value<String>(value) {};
 
     typedef T type;
   };

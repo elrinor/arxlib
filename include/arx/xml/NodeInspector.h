@@ -76,7 +76,7 @@ namespace arx { namespace xml {
 
     template<class Node>
     ErrorLocation location(const Node &node) const {
-      retunr node_inspector_detail::location_wrapper(node);
+      return node_inspector_detail::location_wrapper(node);
     }
 
   };
