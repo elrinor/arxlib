@@ -377,7 +377,7 @@ namespace arx { namespace xml {
     typename accessor_result<Getter, getter, Setter, setter, Delegate, Path, Checker, Params>::type
       accessor_impl(const Path &path, const Checker &checker, const Params &params) {
       typedef accessor_binding<Getter, getter, Setter, setter, Delegate, Path, Checker, Params> binding_type;
-      binding_type::expr_type result = {{{binding_type(path, checker, params)}}};
+      typename binding_type::expr_type result = {{{binding_type(path, checker, params)}}};
       return result;
     }
 
@@ -449,7 +449,7 @@ namespace arx { namespace xml {
     typename fixup_binding<Fixer>::expr_type
     fixup(const Fixer &fixer) {
       typedef fixup_binding<Fixer> binding_type;
-      binding_type::expr_type result = {{{binding_type(fixer)}}};
+      typename binding_type::expr_type result = {{{binding_type(fixer)}}};
       return result;
     }
 
@@ -568,7 +568,7 @@ namespace arx { namespace xml {
         if(deserialize_impl(child, handler, newParams, &tmp)) {
           Actual actualTmp = static_cast<Actual>(tmp);
           if(!binding.value.checker(actualTmp)) {
-            node_inspector<Node>::type inspector;
+            typename node_inspector<Node>::type inspector;
             translator(
               ERROR, 
               create_invalid_value_for_type<Actual>(inspector.value(child)), 
@@ -596,7 +596,7 @@ namespace arx { namespace xml {
         if(deserialize_impl(child, handler, newParams, &tmp)) {
           Actual actualTmp = static_cast<Actual>(tmp);
           if(!binding.value.checker(actualTmp)) {
-            node_inspector<Node>::type inspector;
+            typename node_inspector<Node>::type inspector;
             translator(
               ERROR, 
               create_invalid_value_for_type<Actual>(inspector.value(child)), 
