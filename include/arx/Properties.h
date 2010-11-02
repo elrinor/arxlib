@@ -188,8 +188,11 @@ namespace arx {
         /**
          * Implementation of the getter for the case when the sequence contains
          * the given key.
+         *
+         * Dummy template parameter was introduced as a workaround for an 
+         * "explicit specialization in non-namespace scope" error.
          */
-        template<bool contains = has_key::value>
+        template<bool contains = has_key::value, int dummy = 0>
         struct getter_impl {
           typedef 
             const typename fusion::result_of::second<
@@ -208,8 +211,8 @@ namespace arx {
          * Implementation of the getter for the case when the sequence does
          * not contain the given key.
          */
-        template<>
-        struct getter_impl<false> {
+        template<int dummy>
+        struct getter_impl<false, dummy> {
           typedef DefaultValue result_type;
 
           result_type operator()(const this_type &, const DefaultValue &defaultValue) const {
