@@ -306,7 +306,7 @@ namespace arx {
         get_by_tag_result<KeyTag, DefaultValue>
       >::type::type
       get(const DefaultValue &defaultValue) const {
-        return get_by_tag_impl<KeyTag, DefaultValue>::getter()(*this, defaultValue);
+        return typename get_by_tag_impl<KeyTag, DefaultValue>::getter()(*this, defaultValue);
       }
 
       template<class Key, class DefaultValue>
