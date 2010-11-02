@@ -476,8 +476,8 @@ namespace arx { namespace xml {
         proto::eval(r, *this);
       }
 
-      template<class Path, class Serializer, class Deserializer, class Params>
-      void operator()(proto::tag::terminal, const binding_wrapper<functional_binding<Path, Serializer, Deserializer, Params> > &binding) const {
+      template<class Path, class Serializer, class Deserializer, class AdditionalParams>
+      void operator()(proto::tag::terminal, const binding_wrapper<functional_binding<Path, Serializer, Deserializer, AdditionalParams> > &binding) const {
         auto child = binding.value.path.create(*target);
         auto newParams = (binding.value.params, params);
         auto translator = create_translator(handler, newParams, success);
@@ -487,15 +487,15 @@ namespace arx { namespace xml {
         assert(success);
       }
 
-      template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker, class Params>
-      void operator()(proto::tag::terminal, const binding_wrapper<member_binding<MemberPointer, pointer, Delegate, Path, Checker, Params> > &binding) const {
+      template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker, class AdditionalParams>
+      void operator()(proto::tag::terminal, const binding_wrapper<member_binding<MemberPointer, pointer, Delegate, Path, Checker, AdditionalParams> > &binding) const {
         auto child = binding.value.path.create(*target);
         Delegate tmp = static_cast<Delegate>(source.*pointer);
         serialize_impl(tmp, handler, (binding.value.params, params), &child);
       }
 
-      template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker, class Params>
-      void operator()(proto::tag::terminal, const binding_wrapper<accessor_binding<Getter, getter, Setter, setter, Delegate, Path, Checker, Params> > &binding) const {
+      template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker, class AdditionalParams>
+      void operator()(proto::tag::terminal, const binding_wrapper<accessor_binding<Getter, getter, Setter, setter, Delegate, Path, Checker, AdditionalParams> > &binding) const {
         auto child = binding.value.path.create(*target);
         Delegate tmp = static_cast<Delegate>((source.*getter)());
         serialize_impl(tmp, handler, (binding.value.params, params), &child);
@@ -545,8 +545,8 @@ namespace arx { namespace xml {
         return proto::eval(l, *this) & proto::eval(r, *this);
       }
 
-      template<class Path, class Serializer, class Deserializer, class Params>
-      bool operator()(proto::tag::terminal, const binding_wrapper<functional_binding<Path, Serializer, Deserializer, Params> > &binding) const {
+      template<class Path, class Serializer, class Deserializer, class AdditionalParams>
+      bool operator()(proto::tag::terminal, const binding_wrapper<functional_binding<Path, Serializer, Deserializer, AdditionalParams> > &binding) const {
         auto child = binding.value.path.traverse(source);
         auto newParams = (binding.value.params, params);
         auto translator = create_translator(handler, newParams, success);
@@ -556,9 +556,9 @@ namespace arx { namespace xml {
         return success; /* Note that this is not generally correct as success may already be false. */
       }
 
-      template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker, class Params>
-      bool operator()(proto::tag::terminal, const binding_wrapper<member_binding<MemberPointer, pointer, Delegate, Path, Checker, Params> > &binding) const {
-        typedef member_type<MemberPointer>::type Actual;
+      template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker, class AdditionalParams>
+      bool operator()(proto::tag::terminal, const binding_wrapper<member_binding<MemberPointer, pointer, Delegate, Path, Checker, AdditionalParams> > &binding) const {
+        typedef typename member_type<MemberPointer>::type Actual;
         auto child = binding.value.path.traverse(source);
         auto newParams = (binding.value.params, params);
         auto translator = create_translator(handler, newParams, success);
@@ -584,9 +584,9 @@ namespace arx { namespace xml {
         }
       }
 
-      template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker, class Params>
-      bool operator()(proto::tag::terminal, const binding_wrapper<accessor_binding<Getter, getter, Setter, setter, Delegate, Path, Checker, Params> > &binding) const {
-        typedef setter_param<Setter>::type Actual;
+      template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker, class AdditionalParams>
+      bool operator()(proto::tag::terminal, const binding_wrapper<accessor_binding<Getter, getter, Setter, setter, Delegate, Path, Checker, AdditionalParams> > &binding) const {
+        typedef typename setter_param<Setter>::type Actual;
         auto child = binding.value.path.traverse(source);
         auto newParams = (binding.value.params, params);
         auto translator = create_translator(handler, newParams, success);
@@ -722,7 +722,7 @@ namespace arx { namespace xml {
      * Noop binding literal.
      */
     namespace {
-      binding_expression<proto::terminal<binding_wrapper<noop_binding> >::type> noop = {{{}}};
+      binding_expression<proto::terminal<binding_wrapper<noop_binding> >::type> noop = {{{{}}}};
     }
 
   } // namespace binding_detail
