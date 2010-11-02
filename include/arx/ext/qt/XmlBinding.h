@@ -164,7 +164,7 @@ namespace arx { namespace xml {
     
       template<class T, class MessageTranslator, class Params>
       void operator()(QDomNode &source, MessageTranslator &translator, const Params &params, QList<T> *target) const {
-        QString elementName = QString(params.get<element_name_tag>(static_cast<const char *>("elem")));
+        QString elementName = QString(params.template get<element_name_tag>(static_cast<const char *>("elem")));
         for(QDomNode child = source.firstChildElement(); !child.isNull(); child = child.nextSiblingElement()) {
           if(child.nodeName() != elementName) {
             translator(ERROR, create_invalid_name(child.nodeName(), elementName), child);
