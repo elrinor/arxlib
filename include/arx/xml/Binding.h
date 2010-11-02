@@ -116,7 +116,7 @@ namespace arx { namespace xml {
 
       template<class ErrorData, class Node>
       void operator()(ErrorSeverity severity, const ErrorData& errorData, const Node &node) {
-        operator()(severity, errorData, node_inspector<Node>::type().location(node));
+        operator()(severity, errorData, typename node_inspector<Node>::type().location(node));
       }
 
       MessageHandler &handler;
