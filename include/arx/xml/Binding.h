@@ -246,7 +246,7 @@ namespace arx { namespace xml {
     template<class MemberPointer, MemberPointer pointer, class Delegate, class Path, class Checker, class Params>
     struct member_binding: binding_base<Path, Params> {
       member_binding(const Path &path, const Checker &checker, const Params &params):
-        binding_base(path, params), checker(checker) {}
+        binding_base<Path, Params>(path, params), checker(checker) {}
 
       typedef 
         binding_expression<typename proto::terminal<binding_wrapper<member_binding> >::type>
@@ -337,7 +337,7 @@ namespace arx { namespace xml {
     template<class Getter, Getter getter, class Setter, Setter setter, class Delegate, class Path, class Checker, class Params>
     struct accessor_binding: binding_base<Path, Params> {
     accessor_binding(const Path &path, const Checker &checker, const Params &params):
-      binding_base(path, params), checker(checker) {}
+      binding_base<Path, Params>(path, params), checker(checker) {}
 
       typedef 
         binding_expression<typename proto::terminal<binding_wrapper<accessor_binding> >::type>
