@@ -105,7 +105,7 @@ namespace arx { namespace xml {
     
       template<class T, class MessageTranslator, class Params>
       void operator()(const QList<T> &source, MessageTranslator &translator, const Params &params, QDomNode *target) const {
-        QString elementName = QString(params.get<element_name_tag>(static_cast<const char *>("elem"))); /* TODO: handle this in a normal way. */
+        QString elementName = QString(params.template get<element_name_tag>(static_cast<const char *>("elem"))); /* TODO: handle this in a normal way. */
         foreach(const T &value, source) {
           QDomNode element = target->appendChild(target->ownerDocument().createElement(elementName));
           arx::xml::serialize(value, translator, params, &element);
