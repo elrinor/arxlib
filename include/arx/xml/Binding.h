@@ -629,15 +629,15 @@ namespace arx { namespace xml {
 
       template<class Path, class Translator>
       bool check_not_null(const Node &node, Translator &translator, const Path &path) const {
-        if(node_walker<Node>::type().is_null(node)) {
+        if(typename node_walker<Node>::type().is_null(node)) {
           translator(
             ERROR, 
             create_node_not_found(
               path.to_string_process(
-                node_string_processor<Node>::type()
+                typename node_string_processor<Node>::type()
               )
             ), 
-            node_inspector<Node>::type().location(node)
+            typename node_inspector<Node>::type().location(node)
           );
           return false;
         } else {
