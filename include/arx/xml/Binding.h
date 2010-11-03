@@ -698,15 +698,60 @@ namespace arx { namespace xml {
 
 
     /**
+     * Deserialization visitor.
+     */ 
+    template<class Node, class MessageHandler, class Params, class T>
+    class deserialization_visitor {
+    public:
+      deserialization_visitor(const Node &source, MessageHandler &handler, const Params &params, T *target):
+        mSource(source), mHandler(handler), mParams(params), mTarget(target) {}
+
+      template<class Binding>
+      bool operator()(const Binding &binding) {
+        return binding.deserialize(mSource, mHandler, mParams, mTarget);
+      }
+
+    private:
+      const Node &mSource;
+      MessageHandler &mHandler;
+      const Params &mParams;
+      T *mTarget;
+    };
+
+    /**
      * Internal deserialization routine. Differs from public one in that
      * it deserializes directly into its target parameter, without creating
      * any temporaries.
      */
-    template<class Node, class T, class MessageHandler, class Params>
+    template<class Node, class MessageHandler, class Params, class T>
     bool deserialize_impl(const Node &source, MessageHandler &handler, const Params &params, T *target) {
-      return binding(static_cast<T *>(NULL)).deserialize(source, handler, params, target);
+      return visit_binding(
+        deserialization_visitor<Node, MessageHandler, Params, T>(source, handler, params, target), 
+        static_cast<T *>(NULL)
+      );
     }
 
+    /**
+     * Serialization visitor.
+     */ 
+    template<class T, class MessageHandler, class Params, class Node>
+    class serialization_visitor {
+    public:
+      serialization_visitor(const T &source, MessageHandler &handler, const Params &params, Node *target):
+        mSource(source), mHandler(handler), mParams(params), mTarget(target) {}
+
+      template<class Binding>
+      bool operator()(const Binding &binding) {
+        binding.serialize(mSource, mHandler, mParams, mTarget);
+        return true;
+      }
+
+    private:
+      const T &mSource;
+      MessageHandler &mHandler;
+      const Params &mParams;
+      Node *mTarget;
+    };
 
     /**
      * Internal serialization routine. No difference from the public one,
@@ -714,7 +759,10 @@ namespace arx { namespace xml {
      */
     template<class T, class MessageHandler, class Params, class Node>
     void serialize_impl(const T &source, MessageHandler &handler, const Params &params, Node *target) {
-      binding(static_cast<T *>(NULL)).serialize(source, handler, params, target);
+      return visit_binding(
+        serialization_visitor<T, MessageHandler, Params, Node>(source, handler, params, target), 
+        static_cast<T *>(NULL)
+      );
     }
 
 
@@ -858,80 +906,51 @@ namespace arx { namespace xml {
   }
 
 
-#define ARX_XML_DEFINE_BINDING_I(                                               \
-  NS_START,                                                                     \
-  NS_END,                                                                       \
-  NS_PREFIX,                                                                    \
-  NAME,                                                                         \
-  NAME_TPL_HEAD,                                                                \
-  NAME_TPL_SPEC_HEAD,                                                           \
-  NAME_TPL_SPEC,                                                                \
-  NAME_TPL_SPEC_ACC,                                                            \
-  HOLDER,                                                                       \
-  HOLDER_TPL_HEAD,                                                              \
-  HOLDER_TPL_SPEC_HEAD,                                                         \
-  HOLDER_TPL_SPEC,                                                              \
-  HOLDER_TPL_SPEC_ACC,                                                          \
-  TYPE,                                                                         \
-  TYPE_TPL,                                                                     \
-  ... /* BINDING */                                                             \
-)                                                                               \
-  ARX_STRIP(NS_START)                                                           \
-    ARX_STRIP(NAME_TPL_HEAD)                                                    \
-    class NAME;                                                                 \
+
+
+
+#define ARX_XML_DEFINE_NAMED_TPL_BINDING_II(BINDING_NAME, TEMPLATE_BINDING, TYPE_NAME, TYPE_SPEC, TYPE_TPL_ARRAY, ... /* BINDING */) \
+  BOOST_PP_IF(TEMPLATE_BINDING, template<class T>, BOOST_PP_EMPTY())            \
+  class BINDING_NAME;                                                           \
                                                                                 \
-    ARX_STRIP(NAME_TPL_SPEC_HEAD)                                               \
-    class NAME ARX_STRIP(NAME_TPL_SPEC) {                                       \
-    public:                                                                     \
-      typedef decltype(boost::proto::deep_copy((__VA_ARGS__))) result_type;     \
-      result_type operator()() const {                                          \
-        return boost::proto::deep_copy((__VA_ARGS__));                          \
-      }                                                                         \
-    };                                                                          \
-  ARX_STRIP(NS_END)                                                             \
+  BOOST_PP_IF(TEMPLATE_BINDING, template<ARX_ARRAY_BINARY_PARAMS(TYPE_TPL_ARRAY)>, BOOST_PP_EMPTY()) \
+  class BINDING_NAME BOOST_PP_IF(TEMPLATE_BINDING, < TYPE_SPEC >, BOOST_PP_EMPTY()) { \
+  public:                                                                       \
+    template<class Visitor>                                                     \
+    bool operator()(Visitor &visitor) const {                                   \
+      static const auto binding = boost::proto::deep_copy((__VA_ARGS__));       \
+      return visitor(binding);                                                  \
+    }                                                                           \
+  };                                                                            \
                                                                                 \
-  namespace xml_binding_definition_detail {                                     \
-    ARX_STRIP(HOLDER_TPL_HEAD)                                                  \
-    struct HOLDER;                                                              \
-                                                                                \
-    ARX_STRIP(HOLDER_TPL_SPEC_HEAD)                                             \
-    struct HOLDER ARX_STRIP(HOLDER_TPL_SPEC) {                                  \
-      static const ARX_STRIP(NS_PREFIX) NAME ARX_STRIP(NAME_TPL_SPEC_ACC)::result_type \
-        binding;                                                                \
-    };                                                                          \
-                                                                                \
-    ARX_STRIP(HOLDER_TPL_SPEC_HEAD)                                             \
-    const typename ARX_STRIP(NS_PREFIX) NAME ARX_STRIP(NAME_TPL_SPEC_ACC)::result_type \
-      HOLDER ARX_STRIP(HOLDER_TPL_SPEC)::binding =                              \
-      ARX_STRIP(NS_PREFIX) NAME ARX_STRIP(NAME_TPL_SPEC_ACC)()();               \
-  }                                                                             \
-                                                                                \
-  ARX_STRIP(TYPE_TPL)                                                           \
-  inline const ARX_STRIP(NS_PREFIX) NAME ARX_STRIP(NAME_TPL_SPEC_ACC)::result_type & \
-  binding(const TYPE *) {                                                       \
-    return xml_binding_definition_detail::HOLDER ARX_STRIP(HOLDER_TPL_SPEC_ACC)::binding; \
+  template<ARX_ARRAY_BINARY_PARAMS(BOOST_PP_ARRAY_PUSH_BACK(BOOST_PP_ARRAY_PUSH_BACK(TYPE_TPL_ARRAY, class), Visitor))> \
+  inline bool visit_binding(                                                    \
+    Visitor &visitor,                                                           \
+    const TYPE_SPEC*                                                            \
+  ) {                                                                           \
+    return BINDING_NAME BOOST_PP_IF(TEMPLATE_BINDING, < TYPE_SPEC >, BOOST_PP_EMPTY())()(visitor); \
   }
 
 
-#define ARX_XML_DEFINE_NAMED_TPL_BINDING(NAME, TYPE, TYPE_TPL, ... /* BINDING */) \
-  ARX_XML_DEFINE_BINDING_I(                                                     \
-    (),                                                                         \
-    (),                                                                         \
-    (),                                                                         \
-    NAME,                                                                       \
-    (),                                                                         \
-    (),                                                                         \
-    (),                                                                         \
-    (),                                                                         \
-    ARX_CAT_3(NAME, _holder_, __LINE__),                                        \
-    (template<class Dummy, class Dummy2>),                                      \
-    (template<class Dummy>),                                                    \
-    (<Dummy, void>),                                                            \
-    (<void, void>),                                                             \
-    TYPE,                                                                       \
-    TYPE_TPL,                                                                   \
+#define ARX_XML_DEFINE_NAMED_TPL_BINDING_I(BINDING_NAME, TEMPLATE_BINDING, TYPE_NAME, TYPE_TPL_ARRAY, TYPE_SPEC_ARRAY, ... /* BINDING */) \
+  ARX_XML_DEFINE_NAMED_TPL_BINDING_II(                                          \
+    BINDING_NAME,                                                               \
+    TEMPLATE_BINDING,                                                           \
+    TYPE_NAME,                                                                  \
+    TYPE_NAME BOOST_PP_IF(                                                      \
+      BOOST_PP_EQUAL(BOOST_PP_ARRAY_SIZE(TYPE_SPEC_ARRAY), 0),                  \
+      BOOST_PP_EMPTY(),                                                         \
+      <ARX_ARRAY_PARAMS(TYPE_SPEC_ARRAY)>                                       \
+    ),                                                                          \
+    TYPE_TPL_ARRAY,                                                             \
     __VA_ARGS__                                                                 \
   )
+
+
+
+#define ARX_XML_DEFINE_NAMED_TPL_BINDING(BINDING_NAME, TYPE_NAME, TYPE_TPL_SEQ, TYPE_SPEC_SEQ, ... /* BINDING */) \
+  ARX_XML_DEFINE_NAMED_TPL_BINDING_I(BINDING_NAME, 0, TYPE_NAME, BOOST_PP_SEQ_TO_ARRAY(TYPE_TPL_SEQ), BOOST_PP_SEQ_TO_ARRAY(TYPE_SPEC_SEQ), __VA_ARGS__)
+
 
 
 /**
@@ -942,32 +961,15 @@ namespace arx { namespace xml {
  * This allows to access private members of the client class from the 
  * binding code.
  */
-#define ARX_XML_DEFINE_NAMED_BINDING(NAME, TYPE, ... /* BINDING */)             \
-  ARX_XML_DEFINE_NAMED_TPL_BINDING(NAME, TYPE, (), __VA_ARGS__)
+#define ARX_XML_DEFINE_NAMED_BINDING(BINDING_NAME, TYPE_NAME, ... /* BINDING */) \
+  ARX_XML_DEFINE_NAMED_TPL_BINDING_I(BINDING_NAME, 0, TYPE_NAME, (0, ()), (0, ()), __VA_ARGS__)
   
 
 /**
  * This macro defines an xml binding for the given TYPE.
  */
-#define ARX_XML_DEFINE_BINDING(TYPE, ... /* BINDING */)                         \
-  ARX_XML_DEFINE_BINDING_I(                                                     \
-    (namespace xml_binding_definition_detail {),                                \
-    (}),                                                                        \
-    (xml_binding_definition_detail::),                                          \
-    xml_binding_definition,                                                     \
-    (template<class T>),                                                        \
-    (template<>),                                                               \
-    (<TYPE>),                                                                   \
-    (<TYPE>),                                                                   \
-    xml_binding_holder,                                                         \
-    (template<class T, class Dummy>),                                           \
-    (template<class Dummy>),                                                    \
-    (<TYPE, Dummy>),                                                            \
-    (<TYPE, void>),                                                             \
-    TYPE,                                                                       \
-    (),                                                                         \
-    __VA_ARGS__                                                                 \
-  )
+#define ARX_XML_DEFINE_BINDING(TYPE_NAME, ... /* BINDING */)                    \
+  ARX_XML_DEFINE_NAMED_TPL_BINDING_I(arx_xml_XmlBinding, 1, TYPE_NAME, (0, ()), (0, ()), __VA_ARGS__)
 
 
 /**
