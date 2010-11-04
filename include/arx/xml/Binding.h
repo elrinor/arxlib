@@ -30,6 +30,10 @@
 #include <boost/type_traits/is_same.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/proto/proto.hpp>
+#include <boost/preprocessor/array/push_back.hpp>
+#include <boost/preprocessor/if.hpp>
+#include <boost/preprocessor/empty.hpp>
+#include <boost/preprocessor/comparison/equal.hpp>
 #include <arx/Preprocessor.h>
 #include <arx/Properties.h>
 #include <arx/TypeTraits.h>
@@ -758,7 +762,7 @@ namespace arx { namespace xml {
      * added just for interface consistency with deserialization.
      */
     template<class T, class MessageHandler, class Params, class Node>
-    void serialize_impl(const T &source, MessageHandler &handler, const Params &params, Node *target) {
+    bool serialize_impl(const T &source, MessageHandler &handler, const Params &params, Node *target) {
       return visit_binding(
         serialization_visitor<T, MessageHandler, Params, Node>(source, handler, params, target), 
         static_cast<T *>(NULL)
@@ -914,7 +918,7 @@ namespace arx { namespace xml {
   class BINDING_NAME;                                                           \
                                                                                 \
   BOOST_PP_IF(TEMPLATE_BINDING, template<ARX_ARRAY_BINARY_PARAMS(TYPE_TPL_ARRAY)>, BOOST_PP_EMPTY()) \
-  class BINDING_NAME BOOST_PP_IF(TEMPLATE_BINDING, < TYPE_SPEC >, BOOST_PP_EMPTY()) { \
+  class BINDING_NAME BOOST_PP_IF(TEMPLATE_BINDING, <TYPE_SPEC>, BOOST_PP_EMPTY()) { \
   public:                                                                       \
     template<class Visitor>                                                     \
     bool operator()(Visitor &visitor) const {                                   \
@@ -928,7 +932,7 @@ namespace arx { namespace xml {
     Visitor &visitor,                                                           \
     const TYPE_SPEC*                                                            \
   ) {                                                                           \
-    return BINDING_NAME BOOST_PP_IF(TEMPLATE_BINDING, < TYPE_SPEC >, BOOST_PP_EMPTY())()(visitor); \
+    return BINDING_NAME BOOST_PP_IF(TEMPLATE_BINDING, <TYPE_SPEC>, BOOST_PP_EMPTY())()(visitor); \
   }
 
 
@@ -943,13 +947,46 @@ namespace arx { namespace xml {
       <ARX_ARRAY_PARAMS(TYPE_SPEC_ARRAY)>                                       \
     ),                                                                          \
     TYPE_TPL_ARRAY,                                                             \
-    __VA_ARGS__                                                                 \
+    ##__VA_ARGS__                                                               \
   )
 
 
-
+/**
+ * This macro defines a named binding for a template class.
+ *
+ * For example, if you want to create a binding for std::vector, then this
+ * macro should be used as follows:
+ * <code>
+ * ARX_XML_DEFINE_NAMED_TPL_BINDING(
+ *   std_vector_xml_binding,
+ *   std::vector,
+ *   (class)(T)(class)(Allocator),
+ *   (T)(Allocator)
+ * );
+ * </code>
+ *
+ * By changing the template sequences you may define a binding only for vectors
+ * of specific type. For example:
+ * <code>
+ * ARX_XML_DEFINE_NAMED_TPL_BINDING(
+ *   std_vector_char_xml_binding,
+ *   std::vector,
+ *   (class)(Allocator),
+ *   (char)(Allocator)
+ * )
+ * </code>
+ *
+ * @param BINDING_NAME                 Name of the binding to create.
+ * @param TYPE_NAME                    Name of the type to create binding for.
+ * @param TYPE_TPL_SEQ                 Binary sequence of template declaration
+ *                                     parameters for the given type.
+ * @param TYPE_SPEC_SEQ                Unary sequence of template parameters
+ *                                     for the given type.
+ *
+ * @see ARX_XML_DEFINE_NAMED_BINDING
+ */
 #define ARX_XML_DEFINE_NAMED_TPL_BINDING(BINDING_NAME, TYPE_NAME, TYPE_TPL_SEQ, TYPE_SPEC_SEQ, ... /* BINDING */) \
-  ARX_XML_DEFINE_NAMED_TPL_BINDING_I(BINDING_NAME, 0, TYPE_NAME, BOOST_PP_SEQ_TO_ARRAY(TYPE_TPL_SEQ), BOOST_PP_SEQ_TO_ARRAY(TYPE_SPEC_SEQ), __VA_ARGS__)
+  ARX_XML_DEFINE_NAMED_TPL_BINDING_I(BINDING_NAME, 0, TYPE_NAME, BOOST_PP_SEQ_TO_ARRAY(TYPE_TPL_SEQ), BOOST_PP_SEQ_TO_ARRAY(TYPE_SPEC_SEQ), ##__VA_ARGS__)
 
 
 
@@ -962,14 +999,14 @@ namespace arx { namespace xml {
  * binding code.
  */
 #define ARX_XML_DEFINE_NAMED_BINDING(BINDING_NAME, TYPE_NAME, ... /* BINDING */) \
-  ARX_XML_DEFINE_NAMED_TPL_BINDING_I(BINDING_NAME, 0, TYPE_NAME, (0, ()), (0, ()), __VA_ARGS__)
+  ARX_XML_DEFINE_NAMED_TPL_BINDING_I(BINDING_NAME, 0, TYPE_NAME, (0, ()), (0, ()), ##__VA_ARGS__)
   
 
 /**
  * This macro defines an xml binding for the given TYPE.
  */
 #define ARX_XML_DEFINE_BINDING(TYPE_NAME, ... /* BINDING */)                    \
-  ARX_XML_DEFINE_NAMED_TPL_BINDING_I(arx_xml_XmlBinding, 1, TYPE_NAME, (0, ()), (0, ()), __VA_ARGS__)
+  ARX_XML_DEFINE_NAMED_TPL_BINDING_I(arx_xml_XmlBinding, 1, TYPE_NAME, (0, ()), (0, ()), ##__VA_ARGS__)
 
 
 /**

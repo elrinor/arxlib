@@ -24,6 +24,7 @@
 #include <boost/preprocessor/array/elem.hpp>
 #include <boost/preprocessor/array/size.hpp>
 #include <boost/preprocessor/tuple/elem.hpp>
+#include <boost/preprocessor/seq/to_array.hpp>
 #include <boost/preprocessor/repeat.hpp>
 #include <boost/preprocessor/arithmetic/div.hpp>
 #include <boost/preprocessor/arithmetic/mul.hpp>

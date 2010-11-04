@@ -209,8 +209,9 @@ namespace arx { namespace xml {
 
   ARX_XML_DEFINE_NAMED_TPL_BINDING(
     QList_xml_binding, 
-    QList<T>, 
-    (template<class T>), 
+    QList, 
+    (class)(T), 
+    (T), 
     ARX_XML_FUNCTIONAL(
       self, 
       qt_xml_binding_detail::Serializer(), 
