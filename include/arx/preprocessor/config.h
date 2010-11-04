@@ -16,12 +16,4 @@
  * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
  * 
  * $Id$ */
-#ifndef ARX_PREPROCESSOR_H
-#define ARX_PREPROCESSOR_H
-
-#include "config.h"
-#include "preprocessor/Cat.h"
-#include "preprocessor/Strip.h"
-#include "preprocessor/ArrayParams.h"
-
-#endif // ARX_PREPROCESSOR_H
+#include "../config.h"
