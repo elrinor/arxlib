@@ -16,12 +16,12 @@
  * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
  * 
  * $Id$ */
-#ifndef ARX_PREPROCESSOR_H
-#define ARX_PREPROCESSOR_H
+#ifndef ARX_PREPROCESSOR_STRIP_H
+#define ARX_PREPROCESSOR_STRIP_H
 
 #include "config.h"
-#include "preprocessor/Cat.h"
-#include "preprocessor/Strip.h"
-#include "preprocessor/ArrayParams.h"
 
-#endif // ARX_PREPROCESSOR_H
+#define ARX_STRIP_I(...) __VA_ARGS__
+#define ARX_STRIP(ARG) ARX_STRIP_I ARG
+
+#endif // ARX_PREPROCESSOR_STRIP_H

@@ -16,12 +16,16 @@
  * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
  * 
  * $Id$ */
-#ifndef ARX_PREPROCESSOR_H
-#define ARX_PREPROCESSOR_H
+#ifndef ARX_PREPROCESSOR_CAT_H
+#define ARX_PREPROCESSOR_CAT_H
 
 #include "config.h"
-#include "preprocessor/Cat.h"
-#include "preprocessor/Strip.h"
-#include "preprocessor/ArrayParams.h"
+#include <boost/preprocessor/cat.hpp>
 
-#endif // ARX_PREPROCESSOR_H
+#define ARX_CAT BOOST_PP_CAT
+#define ARX_CAT_3(a, b, c) BOOST_PP_CAT(BOOST_PP_CAT(a, b), c)
+#define ARX_CAT_4(a, b, c, d) BOOST_PP_CAT(BOOST_PP_CAT(a, b), BOOST_PP_CAT(c, d))
+#define ARX_CAT_5(a, b, c, d, e) BOOST_PP_CAT(BOOST_PP_CAT(a, b), BOOST_PP_CAT(BOOST_PP_CAT(c, d), e))
+
+#endif // ARX_PREPROCESSOR_CAT_H
+
