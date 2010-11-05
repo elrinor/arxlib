@@ -87,22 +87,40 @@ namespace arx { namespace xml {
     return invalid_value_for_type<T, String>(value);
   }
 
+
   /**
    * Invalid name error.
    */
   template<class String>
   struct invalid_name: error {
-    invalid_name(const String &name, const String &desiredName):
-      name(name), desiredName(desiredName) {}
+    invalid_name(const String &name): name(name) {}
 
     String name;
+  };
+
+  template<class String>
+  invalid_name<String> create_invalid_name(const String &name) {
+    return invalid_name<String>(name);
+  }
+
+
+
+  /**
+   * Invalid name error for the case when desired name is known.
+   */
+  template<class String>
+  struct invalid_desired_name: invalid_name<String> {
+    invalid_desired_name(const String &name, const String &desiredName): 
+      invalid_name<String>(name), desiredName(desiredName) {}
+
     String desiredName;
   };
 
   template<class String>
-  invalid_name<String> create_invalid_name(const String &name, const String &desiredName) {
-    return invalid_name<String>(name, desiredName);
+  invalid_desired_name<String> create_invalid_desired_name(const String &name, const String &desiredName) {
+    return invalid_desired_name<String>(name, desiredName);
   }
+
 
 
 }} // namespace arx::xml

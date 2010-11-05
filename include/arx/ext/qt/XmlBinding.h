@@ -167,7 +167,7 @@ namespace arx { namespace xml {
         QString elementName = QString(params.template get<element_name_tag>(static_cast<const char *>("elem")));
         for(QDomNode child = source.firstChildElement(); !child.isNull(); child = child.nextSiblingElement()) {
           if(child.nodeName() != elementName) {
-            translator(ERROR, create_invalid_name(child.nodeName(), elementName), child);
+            translator(ERROR, create_invalid_desired_name(child.nodeName(), elementName), child);
           } else {
             T value;
             if(arx::xml::deserialize(child, translator, params, &value))
