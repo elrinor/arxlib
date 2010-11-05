@@ -8,7 +8,7 @@ namespace arx {
     mNodeStack.push_back(*outNode);
   }
 
-  QDomNode DomXmlReceiver::appendChild(QDomNode &node) {
+  QDomNode DomXmlReceiver::appendChild(const QDomNode &node) {
     return mNodeStack.back().appendChild(node);
   }
 

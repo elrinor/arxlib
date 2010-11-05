@@ -112,6 +112,9 @@
     <ClInclude Include="..\include\arx\Null.h" />
     <ClInclude Include="..\include\arx\ObjectPool.h" />
     <ClInclude Include="..\include\arx\Preprocessor.h" />
+    <ClInclude Include="..\include\arx\preprocessor\ArrayParams.h" />
+    <ClInclude Include="..\include\arx\preprocessor\Cat.h" />
+    <ClInclude Include="..\include\arx\preprocessor\Strip.h" />
     <ClInclude Include="..\include\arx\Properties.h" />
     <ClInclude Include="..\include\arx\Range.h" />
     <ClInclude Include="..\include\arx\StaticBlock.h" />

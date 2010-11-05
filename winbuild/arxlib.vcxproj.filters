@@ -48,6 +48,9 @@
     <Filter Include="include\arx\ext\qt\dom_xml_receiver">
       <UniqueIdentifier>{002bdaf4-79c3-45c8-9aaa-b6853185f01e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\arx\preprocessor">
+      <UniqueIdentifier>{6e11f7bc-5e53-438a-a4e0-8d309d0af9f4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\arx\config.h">
@@ -205,6 +208,15 @@
     </ClInclude>
     <ClInclude Include="..\include\arx\xml\ErrorLocation.h">
       <Filter>include\arx\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\preprocessor\Cat.h">
+      <Filter>include\arx\preprocessor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\preprocessor\Strip.h">
+      <Filter>include\arx\preprocessor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\preprocessor\ArrayParams.h">
+      <Filter>include\arx\preprocessor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

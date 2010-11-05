@@ -58,7 +58,7 @@ namespace arx {
     virtual void startOfSequence();
 
   protected:
-    QDomNode appendChild(QDomNode &node);
+    QDomNode appendChild(const QDomNode &node);
 
     QDomDocument document();
 
