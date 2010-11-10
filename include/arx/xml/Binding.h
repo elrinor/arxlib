@@ -30,8 +30,9 @@
 #include <boost/type_traits/is_same.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/proto/proto.hpp>
-#include <boost/preprocessor/array/push_back.hpp>
+#include <boost/preprocessor/array/size.hpp>
 #include <boost/preprocessor/if.hpp>
+#include <boost/preprocessor/comparison/not_equal.hpp>
 #include <boost/preprocessor/empty.hpp>
 #include <boost/preprocessor/comparison/equal.hpp>
 #include <arx/Preprocessor.h>
@@ -702,71 +703,23 @@ namespace arx { namespace xml {
 
 
     /**
-     * Deserialization visitor.
-     */ 
-    template<class Node, class MessageHandler, class Params, class T>
-    class deserialization_visitor {
-    public:
-      deserialization_visitor(const Node &source, MessageHandler &handler, const Params &params, T *target):
-        mSource(source), mHandler(handler), mParams(params), mTarget(target) {}
-
-      template<class Binding>
-      bool operator()(const Binding &binding) {
-        return binding.deserialize(mSource, mHandler, mParams, mTarget);
-      }
-
-    private:
-      const Node &mSource;
-      MessageHandler &mHandler;
-      const Params &mParams;
-      T *mTarget;
-    };
-
-    /**
      * Internal deserialization routine. Differs from public one in that
      * it deserializes directly into its target parameter, without creating
      * any temporaries.
      */
     template<class Node, class MessageHandler, class Params, class T>
     bool deserialize_impl(const Node &source, MessageHandler &handler, const Params &params, T *target) {
-      return visit_binding(
-        deserialization_visitor<Node, MessageHandler, Params, T>(source, handler, params, target), 
-        static_cast<T *>(NULL)
-      );
+      return binding(static_cast<T *>(NULL)).deserialize(source, handler, params, target);
     }
 
-    /**
-     * Serialization visitor.
-     */ 
-    template<class T, class MessageHandler, class Params, class Node>
-    class serialization_visitor {
-    public:
-      serialization_visitor(const T &source, MessageHandler &handler, const Params &params, Node *target):
-        mSource(source), mHandler(handler), mParams(params), mTarget(target) {}
-
-      template<class Binding>
-      bool operator()(const Binding &binding) {
-        binding.serialize(mSource, mHandler, mParams, mTarget);
-        return true;
-      }
-
-    private:
-      const T &mSource;
-      MessageHandler &mHandler;
-      const Params &mParams;
-      Node *mTarget;
-    };
 
     /**
      * Internal serialization routine. No difference from the public one,
      * added just for interface consistency with deserialization.
      */
     template<class T, class MessageHandler, class Params, class Node>
-    bool serialize_impl(const T &source, MessageHandler &handler, const Params &params, Node *target) {
-      return visit_binding(
-        serialization_visitor<T, MessageHandler, Params, Node>(source, handler, params, target), 
-        static_cast<T *>(NULL)
-      );
+    void serialize_impl(const T &source, MessageHandler &handler, const Params &params, Node *target) {
+      binding(static_cast<T *>(NULL)).serialize(source, handler, params, target);
     }
 
 
@@ -912,27 +865,40 @@ namespace arx { namespace xml {
 
 
 
-
-#define ARX_XML_DEFINE_NAMED_TPL_BINDING_II(BINDING_NAME, TEMPLATE_BINDING, TYPE_NAME, TYPE_SPEC, TYPE_TPL_ARRAY, ... /* BINDING */) \
+/**
+ * @param BINDING_NAME                 Name of the class that defines a binding.
+ * @param TEMPLATE_BINDING             Binding class is a template?
+ * @param TYPE_SPEC                    Type to define a binding for, with 
+ *                                     template parameters.
+ * @param TYPE_TPL_ARRAY               Array of template declaration parameters
+ *                                     for that type.
+ */
+#define ARX_XML_DEFINE_NAMED_TPL_BINDING_II(BINDING_NAME, TEMPLATE_BINDING, TYPE_SPEC, TYPE_TPL_ARRAY, ... /* BINDING */) \
   BOOST_PP_IF(TEMPLATE_BINDING, template<class T>, BOOST_PP_EMPTY())            \
   class BINDING_NAME;                                                           \
                                                                                 \
   BOOST_PP_IF(TEMPLATE_BINDING, template<ARX_ARRAY_BINARY_PARAMS(TYPE_TPL_ARRAY)>, BOOST_PP_EMPTY()) \
   class BINDING_NAME BOOST_PP_IF(TEMPLATE_BINDING, <TYPE_SPEC>, BOOST_PP_EMPTY()) { \
   public:                                                                       \
-    template<class Visitor>                                                     \
-    bool operator()(Visitor &visitor) const {                                   \
-      static const auto binding = boost::proto::deep_copy((__VA_ARGS__));       \
-      return visitor(binding);                                                  \
+    template<class Node, class MessageHandler, class Params>                    \
+    bool deserialize(const Node &source, MessageHandler &handler, const Params &params, TYPE_SPEC *target) const { \
+      return ((__VA_ARGS__)).deserialize(source, handler, params, target);      \
+    }                                                                           \
+                                                                                \
+    template<class MessageHandler, class Params, class Node>                    \
+    void serialize(const TYPE_SPEC &source, MessageHandler &handler, const Params &params, Node *target) const { \
+      ((__VA_ARGS__)).serialize(source, handler, params, target);               \
     }                                                                           \
   };                                                                            \
                                                                                 \
-  template<ARX_ARRAY_BINARY_PARAMS(BOOST_PP_ARRAY_PUSH_BACK(BOOST_PP_ARRAY_PUSH_BACK(TYPE_TPL_ARRAY, class), Visitor))> \
-  inline bool visit_binding(                                                    \
-    Visitor &visitor,                                                           \
-    const TYPE_SPEC*                                                            \
-  ) {                                                                           \
-    return BINDING_NAME BOOST_PP_IF(TEMPLATE_BINDING, <TYPE_SPEC>, BOOST_PP_EMPTY())()(visitor); \
+  BOOST_PP_IF(                                                                  \
+    BOOST_PP_NOT_EQUAL(BOOST_PP_ARRAY_SIZE(TYPE_TPL_ARRAY), 0),                 \
+    template<ARX_ARRAY_BINARY_PARAMS(TYPE_TPL_ARRAY)>,                          \
+    BOOST_PP_EMPTY()                                                            \
+  )                                                                             \
+  inline BINDING_NAME BOOST_PP_IF(TEMPLATE_BINDING, <TYPE_SPEC>, BOOST_PP_EMPTY()) \
+  binding(const TYPE_SPEC *) {                                                  \
+    return BINDING_NAME BOOST_PP_IF(TEMPLATE_BINDING, <TYPE_SPEC>, BOOST_PP_EMPTY())(); \
   }
 
 
@@ -940,7 +906,6 @@ namespace arx { namespace xml {
   ARX_XML_DEFINE_NAMED_TPL_BINDING_II(                                          \
     BINDING_NAME,                                                               \
     TEMPLATE_BINDING,                                                           \
-    TYPE_NAME,                                                                  \
     TYPE_NAME BOOST_PP_IF(                                                      \
       BOOST_PP_EQUAL(BOOST_PP_ARRAY_SIZE(TYPE_SPEC_ARRAY), 0),                  \
       BOOST_PP_EMPTY(),                                                         \
@@ -986,7 +951,7 @@ namespace arx { namespace xml {
  * @see ARX_XML_DEFINE_NAMED_BINDING
  */
 #define ARX_XML_DEFINE_NAMED_TPL_BINDING(BINDING_NAME, TYPE_NAME, TYPE_TPL_SEQ, TYPE_SPEC_SEQ, ... /* BINDING */) \
-  ARX_XML_DEFINE_NAMED_TPL_BINDING_I(BINDING_NAME, 0, TYPE_NAME, BOOST_PP_SEQ_TO_ARRAY(TYPE_TPL_SEQ), BOOST_PP_SEQ_TO_ARRAY(TYPE_SPEC_SEQ), ##__VA_ARGS__)
+  ARX_XML_DEFINE_NAMED_TPL_BINDING_I(BINDING_NAME, 1, TYPE_NAME, BOOST_PP_SEQ_TO_ARRAY(TYPE_TPL_SEQ), BOOST_PP_SEQ_TO_ARRAY(TYPE_SPEC_SEQ), ##__VA_ARGS__)
 
 
 
