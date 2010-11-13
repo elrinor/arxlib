@@ -117,6 +117,7 @@
     <ClInclude Include="..\include\arx\preprocessor\Strip.h" />
     <ClInclude Include="..\include\arx\Properties.h" />
     <ClInclude Include="..\include\arx\Range.h" />
+    <ClInclude Include="..\include\arx\Singleton.h" />
     <ClInclude Include="..\include\arx\StaticBlock.h" />
     <ClInclude Include="..\include\arx\StaticCounter.h" />
     <ClInclude Include="..\include\arx\TypeTraits.h" />
