@@ -22,8 +22,24 @@
 #include "config.h"
 #include <cassert>
 #include <boost/noncopyable.hpp>
+#include <boost/mpl/map.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/and.hpp>
+#include <boost/mpl/not.hpp>
+#include <boost/mpl/at.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <boost/interprocess/sync/null_mutex.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/locks.hpp>
+
 
 namespace arx {
+  struct is_initialized_at_startup_t {};
+  struct is_thread_safe_t {};
+
+  typedef boost::mpl::map0<> default_singleton_policies;
+
+
 // -------------------------------------------------------------------------- //
 // SingletonFactory
 // -------------------------------------------------------------------------- //
@@ -50,14 +66,17 @@ namespace arx {
 
 
   namespace detail {
+// -------------------------------------------------------------------------- //
+// SingletonStorage
+// -------------------------------------------------------------------------- //
     template<class T>
-    class SingletonGuard {
+    class SingletonStorage {
     public:
-      SingletonGuard() {
+      SingletonStorage() {
         SingletonFactory::create<T>(mStorage);
       }
 
-      ~SingletonGuard() {
+      ~SingletonStorage() {
         SingletonFactory::destroy<T>(mStorage);
         sIsDestroyed = true;
       }
@@ -70,13 +89,130 @@ namespace arx {
         return reinterpret_cast<T &>(mStorage);
       }
 
+      static T &staticInstance() {
+        static SingletonStorage guard;
+
+        assert(!guard.isDestroyed());
+
+        return guard.instance();
+      }
+
     private:
       static bool sIsDestroyed;
       char mStorage[sizeof(T)];
     };
   
     template<class T> 
-    bool SingletonGuard<T>::sIsDestroyed = false;
+    bool SingletonStorage<T>::sIsDestroyed = false;
+
+  } // namespace detail
+
+
+  namespace detail {
+// -------------------------------------------------------------------------- //
+// SingletonPolicies
+// -------------------------------------------------------------------------- //
+    template<class PolicyList>
+    class SingletonPolicies {
+    public:
+      typedef typename boost::mpl::at<PolicyList, is_initialized_at_startup_t>::type  user_initialized_at_startup;
+      typedef typename boost::mpl::at<PolicyList, is_thread_safe_t>::type             user_thread_safe;
+
+      typedef boost::mpl::true_                                                       default_initialized_at_startup;
+      typedef boost::mpl::true_                                                       default_thread_safe;
+
+      typedef typename boost::mpl::if_<
+        boost::is_same<user_initialized_at_startup, boost::mpl::void_>,
+        default_initialized_at_startup,
+        user_initialized_at_startup
+      >::type initialized_at_startup;
+
+      typedef typename boost::mpl::if_<
+        boost::is_same<user_thread_safe, boost::mpl::void_>,
+        default_thread_safe,
+        user_thread_safe
+      >::type thread_safe;
+
+      typedef boost::mpl::and_<
+        boost::mpl::not_<initialized_at_startup>,
+        thread_safe
+      > locked;
+
+      typedef typename boost::mpl::if_<
+        locked,
+        boost::mutex,
+        boost::interprocess::null_mutex
+      >::type mutex_type;
+    };
+
+
+// -------------------------------------------------------------------------- //
+// SingletonInitializerBase
+// -------------------------------------------------------------------------- //
+    template<class T, class Derived, bool isInitializedAtStartup>
+    class SingletonInitializerBase {
+    public:
+      static void instantiateInstance() {
+        /* Instantiate sInstance so that it will be initialized at 
+         * startup time. */
+        use(sInstance);
+      }
+
+    private:
+      static void use(const T &) {}
+
+      static T &instance() {
+        return Derived::instance();
+      }
+
+      static T &sInstance;
+    };
+
+    template<class T, class Derived, bool isInitializedAtStartup> 
+    T &SingletonInitializerBase<T, Derived, isInitializedAtStartup>::sInstance = 
+      SingletonInitializerBase<T, Derived, isInitializedAtStartup>::instance();
+
+    template<class T, class Derived>
+    class SingletonInitializerBase<T, Derived, false> {
+    public:
+      static void instantiateInstance() {}
+    };
+
+
+// -------------------------------------------------------------------------- //
+// SingletonMutexBase
+// -------------------------------------------------------------------------- //
+    template<class T, bool isLocked>
+    class SingletonMutexBase {
+    public:
+      static boost::mutex &mutex() {
+        static boost::mutex result;
+
+        /* Instantiate sMutex so that it will be initialized at startup time. */
+        use(sMutex);
+
+        return result;
+      }
+
+    private:
+      void use(const boost::mutex &) {}
+
+      static boost::mutex &sMutex;
+    };
+
+    template<class T, bool isLocked>
+    boost::mutex SingletonMutexBase<T, isLocked>::sMutex = 
+      SingletonMutexBase<T, isLocked>::mutex();
+
+    template<class T>
+    class SingletonMutexBase<T, false> {
+    public:
+      static boost::interprocess::null_mutex &mutex() {
+        static boost::interprocess::null_mutex result;
+
+        return result;
+      }
+    };
 
   } // namespace detail
 
@@ -88,19 +224,21 @@ namespace arx {
    * Singleton class implements a singleton pattern. That is, for a given
    * template parameter T, only one instance of class T is created.
    */
-  template<class T>
-  class Singleton: public boost::noncopyable {
+  template<class T, class PolicyList = default_singleton_policies>
+  class Singleton: 
+    public boost::noncopyable, 
+    public detail::SingletonInitializerBase<T, Singleton<T, PolicyList>, detail::SingletonPolicies<PolicyList>::initialized_at_startup::value>,
+    public detail::SingletonMutexBase<T, detail::SingletonPolicies<PolicyList>::locked::value>
+  {
   public:
     static T &instance() {
-      static detail::SingletonGuard<T> guard;
+      boost::lock_guard<detail::SingletonPolicies<PolicyList>::mutex_type> lock(mutex());
 
-      assert(!guard.isDestroyed());
+      T &result = detail::SingletonStorage<T>::staticInstance();
 
-      /* Use sInstance to instantiate it and force initialization at startup 
-       * time. */
-      use(sInstance);
+      instantiateInstance();
 
-      return guard.instance();
+      return result;
     }
 
   private:
@@ -109,8 +247,6 @@ namespace arx {
     static T &sInstance;
   };
 
-  template<class T> 
-  T &Singleton<T>::sInstance = Singleton<T>::instance();
 
 } // namespace arx
 
