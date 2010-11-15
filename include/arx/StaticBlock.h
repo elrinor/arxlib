@@ -70,10 +70,18 @@
  * regardless of the number of translation units the header file was included 
  * into.
  *
- * It is guaranteed that static block will be executed BEFORE any static
- * initializers that follow it in every translation unit.
+ * The initialization block is protected from initialization order fiasco.
+ * It is guaranteed that it will be executed BEFORE all other static 
+ * initializers that follow it in all translation unit.
  *
- * @param FILE_ID                      unique identifier used to prevent name 
+ * Example usage:
+ * @code
+ * ARX_STATIC_BLOCK(HEADER_H) {
+ *   // Perform initialization here.
+ * }
+ * @endcode
+ *
+ * @param FILE_ID                      Unique identifier used to prevent name 
  *                                     clashes.
  */
 #define ARX_STATIC_BLOCK(FILE_ID)                                               \
@@ -144,11 +152,20 @@
  * regardless of the number of translation units the header file was included 
  * into.
  *
- * It is guaranteed that deinitialization block will be executed AFTER all
- * static deinitializers that follow it in all translation units.
+ * The deinitialization block is protected from initialization order fiasco.
+ * It is guaranteed that it will be executed AFTER all other static 
+ * deinitializers that follow it in all translation units.
  *
- * @param FILE_ID                      unique identifier used to prevent name 
+ * Example usage:
+ * @code
+ * ARX_STATIC_DEINITIALIZER(HEADER_H) {
+ *   // Perform deinitialization here.
+ * }
+ * @endcode
+ *
+ * @param FILE_ID                      Unique identifier used to prevent name 
  *                                     clashes.
+ * @see ARX_STATIC_INITIALIZER
  */
 #define ARX_STATIC_DEINITIALIZER(FILE_ID)                                       \
   ARX_NAMED_STATIC_DEINITIALIZER(BOOST_PP_CAT(StaticDeinitializer, BOOST_PP_CAT(FILE_ID, __LINE__)))
@@ -172,9 +189,10 @@
  * in header files - only one variable will be generated, regardless of the 
  * number of translation units the header file was included into.
  *
- * Note that created static variable has no protection against static
- * initialization order fiasco, i.e. in some translation units it may be
- * initialized after some of the static variables that follow it.
+ * Note that created static variable, if defined in a header file, has no 
+ * protection against static initialization order fiasco, i.e. in some 
+ * translation units it may be initialized after some of the static variables 
+ * that follow it.
  *
  * @param TYPE                         Variable type.
  * @param NAME                         Variable name.
