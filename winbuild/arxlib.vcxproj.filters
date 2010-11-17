@@ -71,9 +71,6 @@
     <ClInclude Include="..\include\arx\Memory.h">
       <Filter>include\arx</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\arx\Null.h">
-      <Filter>include\arx</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\arx\ObjectPool.h">
       <Filter>include\arx</Filter>
     </ClInclude>
