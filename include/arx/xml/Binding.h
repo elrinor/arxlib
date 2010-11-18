@@ -21,6 +21,7 @@
 
 #include "config.h"
 #include <cassert>
+#include <utility>
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/identity.hpp>
 #include <boost/mpl/and.hpp>
@@ -52,8 +53,6 @@
  * Tag is there to allow multiple (de)serialization routines for the same type.
  * Tag is given as a parameter to (de)serialization routines and to 
  * ARX_XML_MEMBER. */
-
-/* TODO: pass actual value to error reporting routine. */
 
 namespace arx { namespace xml {
   namespace binding_detail {
@@ -152,9 +151,14 @@ namespace arx { namespace xml {
     public:
       typedef T value_type;
 
-      template<class Source, class Target>
-      void operator()(const Source &source, Target &target) const {
-        target = static_cast<Target>(source);
+      template<class From>
+      value_type serialize(From &&source) const {
+        return static_cast<value_type>(std::forward<From>(source));
+      }
+
+      template<class To>
+      To deserialize(value_type &&source) const {
+        return static_cast<To>(std::forward<value_type>(source));
       }
     };
 
@@ -166,14 +170,14 @@ namespace arx { namespace xml {
       custom_converter(const SerializationConverter &serializationConverter, const DeserializationConverter &deserializationConverter):
         mSerializationConverter(serializationConverter), mDeserializationConverter(deserializationConverter) {}
 
-      template<class Y>
-      void operator()(const T &source, Y &target) const {
-        mDeserializationConverter(source, target);
+      template<class From>
+      value_type serialize(From &&source) const {
+        return mSerializationConverter(std::forward<From>(source));
       }
 
-      template<class Y>
-      void operator()(const Y &source, T &target) const {
-        mSerializationConverter(source, target);
+      template<class To>
+      To deserialize(value_type &&source) const {
+        return mDeserializationConverter(std::forward<value_type>(source));
       }
 
     private:
@@ -205,40 +209,68 @@ namespace arx { namespace xml {
       typedef typename member_type<MemberPointer>::type value_type;
 
       template<class T>
-      void operator()(const T &source, value_type &target) {
-        target = (source.*pointer);
+      const value_type &get(const T &source) const {
+        return source.*pointer;
       }
 
       template<class T>
-      void operator()(const value_type &source, T &target) {
-        (target.*pointer) = source;
+      void set(T &target, value_type &&source) const {
+        (target.*pointer) = std::forward<value_type>(source);
       }
     };
 
+    template<class MemberPointer, MemberPointer pointer>
+    member_accessor<MemberPointer, pointer> member() {
+      return member_accessor<MemberPointer, pointer>();
+    }
+
+    template<class T>
     class identity_accessor {
     public:
-      template<class T>
-      void operator()(const T &source, T &target) {
-        target = source;
+      typedef T value_type;
+      
+      const value_type &get(const value_type &source) const {
+        return source;
+      }
+
+      void set(value_type &target, value_type &&source) const {
+        target = std::forward<value_type>(source);
       }
     };
 
+    template<class T>
+    identity_accessor<T> identity() {
+      return identity_accessor<T>();
+    }
+
+    template<class Getter, class Setter>
+    struct get_set_valid: 
+      boost::is_same<
+        typename getter_result<Getter>::type,
+        typename setter_param<Setter>::type
+      >
+    {};
+
     template<class Getter, Getter getter, class Setter, Setter setter>
-    class accessor_accessor {
+    class get_set_accessor {
     public:
       typedef typename getter_result<Getter>::type value_type;
 
       template<class T>
-      void operator()(const T &source, value_type &target) {
-        target = (source.*getter)();
+      const value_type &get(const T &source) const {
+        return (source.*getter)();
       }
 
       template<class T>
-      void operator()(const value_type &source, T &target) {
-        (target.*setter)(source);
+      void set(T &target, value_type &&source) const {
+        (target.*setter)(std::forward<value_type>(source));
       }
-
     };
+
+    template<class Getter, Getter getter, class Setter, Setter setter>
+    get_set_accessor<Getter, getter, Setter, setter> get_set() {
+      return get_set_accessor<Getter, getter, Setter, setter>();
+    }
 
 
     /**
@@ -339,119 +371,28 @@ namespace arx { namespace xml {
 
 
     /**
-     * Member binding
-     */
-    template<class MemberPointer, MemberPointer pointer, class Path, class Checker, class Params, class Converter>
-    struct member_binding: binding_base<Path, Params> {
-      member_binding(const Path &path, const Checker &checker, const Params &params, const Converter &converter):
-        binding_base<Path, Params>(path, params), checker(checker), converter(converter) {}
-
-      typedef 
-        binding_expression<typename proto::terminal<binding_wrapper<member_binding> >::type>
-      expr_type;
-
-      Checker checker;
-      Converter converter;
-    };
-
-    template<class MemberPointer, MemberPointer pointer, class Path, class Checker, class Params, class Converter, class Enable = void>
-    struct member_result {};
-
-    template<class MemberPointer, MemberPointer pointer, class Path, class Checker, class Params, class Converter>
-    struct member_result<
-      MemberPointer, pointer, Path, Checker, Params, Converter,
-      typename boost::enable_if<
-        mpl::and_<
-          is_path_expression<Path>,
-          is_property_expression<Params>,
-          mpl::not_<is_property_expression<Checker> >
-        >
-      >::type
-    >:
-      mpl::identity<
-        typename member_binding<MemberPointer, pointer, Path, Checker, Params, Converter>::expr_type
-      >
-    {};
-
-    template<class MemberPointer, MemberPointer pointer, class Path, class Checker, class Params, class Converter>
-    typename member_result<MemberPointer, pointer, Path, Checker, Params, Converter>::type
-    member_impl(const Path &path, const Checker &checker, const Params &params, const Converter &converter) {
-      typedef member_binding<MemberPointer, pointer, Path, Checker, Params, Converter> binding_type;
-      typename binding_type::expr_type result = {{{binding_type(path, checker, params, converter)}}};
-      return result;
-    }
-
-    template<class MemberPointer, MemberPointer pointer, class Path, class Checker, class Params, class Converter>
-    typename member_result<MemberPointer, pointer, Path, Checker, Params, Converter>::type
-    member(const Path &path, const Checker &checker, const Params &params, const converter_wrapper<Converter> &converter) {
-      return member_impl<MemberPointer, pointer>(path, checker, params, converter.wrapped);
-    }
-
-    template<class MemberPointer, MemberPointer pointer, class Path, class Checker, class Converter>
-    typename member_result<MemberPointer, pointer, Path, Checker, NoParams, Converter>::type
-    member(const Path &path, const Checker &checker, const converter_wrapper<Converter> &converter) {
-      return member_impl<MemberPointer, pointer>(path, checker, no_properties, converter.wrapped);
-    }
-
-    template<class MemberPointer, MemberPointer pointer, class Path, class Checker, class Params>
-    typename member_result<MemberPointer, pointer, Path, Checker, Params, static_cast_converter<typename member_type<MemberPointer>::type> >::type
-    member(const Path &path, const Checker &checker, const Params &params) {
-      return member_impl<MemberPointer, pointer>(path, checker, params, static_cast_converter<typename member_type<MemberPointer>::type>());
-    }
-
-    template<class MemberPointer, MemberPointer pointer, class Path, class Checker>
-    typename member_result<MemberPointer, pointer, Path, Checker, NoParams, static_cast_converter<typename member_type<MemberPointer>::type> >::type
-    member(const Path &path, const Checker &checker) {
-      return member_impl<MemberPointer, pointer>(path, checker, no_properties, static_cast_converter<typename member_type<MemberPointer>::type>());
-    }
-
-    template<class MemberPointer, MemberPointer pointer, class Path, class Params, class Converter>
-    typename member_result<MemberPointer, pointer, Path, NullChecker, Params, Converter>::type
-    member(const Path &path, const Params &params, const converter_wrapper<Converter> &converter) {
-      return member_impl<MemberPointer, pointer>(path, NullChecker(), params, converter.wrapped);
-    }
-
-    template<class MemberPointer, MemberPointer pointer, class Path, class Converter>
-    typename member_result<MemberPointer, pointer, Path, NullChecker, NoParams, Converter>::type
-    member(const Path &path, const converter_wrapper<Converter> &converter) {
-      return member_impl<MemberPointer, pointer>(path, NullChecker(), no_properties, converter.wrapped);
-    }
-
-    template<class MemberPointer, MemberPointer pointer, class Path, class Params>
-    typename member_result<MemberPointer, pointer, Path, NullChecker, Params, static_cast_converter<typename member_type<MemberPointer>::type> >::type
-    member(const Path &path, const Params &params) {
-      return member_impl<MemberPointer, pointer>(path, NullChecker(), params, static_cast_converter<typename member_type<MemberPointer>::type>());
-    }
-
-    template<class MemberPointer, MemberPointer pointer, class Path>
-    typename member_result<MemberPointer, pointer, Path, NullChecker, NoParams, static_cast_converter<typename member_type<MemberPointer>::type> >::type
-    member(const Path &path) {
-      return member_impl<MemberPointer, pointer>(path, NullChecker(), no_properties, static_cast_converter<typename member_type<MemberPointer>::type>());
-    }
-
-
-    /**
      * Accessor binding.
      */
-    template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Checker, class Params, class Converter>
+    template<class Accessor, class Path, class Checker, class Params, class Converter>
     struct accessor_binding: binding_base<Path, Params> {
-      accessor_binding(const Path &path, const Checker &checker, const Params &params, const Converter &converter):
-        binding_base<Path, Params>(path, params), checker(checker), converter(converter) {}
+      accessor_binding(const Accessor &accessor, const Path &path, const Checker &checker, const Params &params, const Converter &converter):
+        binding_base<Path, Params>(path, params), accessor(accessor), checker(checker), converter(converter) {}
 
       typedef 
         binding_expression<typename proto::terminal<binding_wrapper<accessor_binding> >::type>
       expr_type;
 
+      Accessor accessor;
       Checker checker;
       Converter converter;
     };
 
-    template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Checker, class Params, class Converter, class Enable = void>
+    template<class Accessor, class Path, class Checker, class Params, class Converter, class Enable = void>
     struct accessor_result {};
 
-    template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Checker, class Params, class Converter>
+    template<class Accessor, class Path, class Checker, class Params, class Converter>
     struct accessor_result<
-      Getter, getter, Setter, setter, Path, Checker, Params, Converter,
+      Accessor, Path, Checker, Params, Converter,
       typename boost::enable_if<
         mpl::and_<
           is_path_expression<Path>,
@@ -461,72 +402,64 @@ namespace arx { namespace xml {
       >::type
     >:
       mpl::identity<
-        typename accessor_binding<Getter, getter, Setter, setter, Path, Checker, Params, Converter>::expr_type
+        typename accessor_binding<Accessor, Path, Checker, Params, Converter>::expr_type
       >
     {};
 
-    template<class Getter, class Setter>
-    struct accessors_valid: 
-      boost::is_same<
-        typename getter_result<Getter>::type,
-        typename setter_param<Setter>::type
-      >
-    {};
-
-    template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Checker, class Params, class Converter>
-    typename accessor_result<Getter, getter, Setter, setter, Path, Checker, Params, Converter>::type
-      accessor_impl(const Path &path, const Checker &checker, const Params &params, const Converter &converter) {
-      typedef accessor_binding<Getter, getter, Setter, setter, Path, Checker, Params, Converter> binding_type;
-      typename binding_type::expr_type result = {{{binding_type(path, checker, params, converter)}}};
+    template<class Accessor, class Path, class Checker, class Params, class Converter>
+    typename accessor_result<Accessor, Path, Checker, Params, Converter>::type
+    accessor_impl(const Accessor &accessor, const Path &path, const Checker &checker, const Params &params, const Converter &converter) {
+      typedef accessor_binding<Accessor, Path, Checker, Params, Converter> binding_type;
+      typename binding_type::expr_type result = {{{binding_type(accessor, path, checker, params, converter)}}};
       return result;
     }
 
-    template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Checker, class Params, class Converter>
-    typename accessor_result<Getter, getter, Setter, setter, Path, Checker, Params, Converter>::type
-    accessor(const Path &path, const Checker &checker, const Params &params, const converter_wrapper<Converter> &converter) {
-      return accessor_impl<Getter, getter, Setter, setter>(path, checker, params, converter.wrapped);
+    template<class Accessor, class Path, class Checker, class Params, class Converter>
+    typename accessor_result<Accessor, Path, Checker, Params, Converter>::type
+    accessor(const Accessor &accessor, const Path &path, const Checker &checker, const Params &params, const converter_wrapper<Converter> &converter) {
+      return accessor_impl(accessor, path, checker, params, converter.wrapped);
     }
 
-    template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Checker, class Converter>
-    typename accessor_result<Getter, getter, Setter, setter, Path, Checker, NoParams, Converter>::type
-    accessor(const Path &path, const Checker &checker, const converter_wrapper<Converter> &converter) {
-      return accessor_impl<Getter, getter, Setter, setter>(path, checker, no_properties, converter);
+    template<class Accessor, class Path, class Checker, class Converter>
+    typename accessor_result<Accessor, Path, Checker, NoParams, Converter>::type
+    accessor(const Accessor &accessor, const Path &path, const Checker &checker, const converter_wrapper<Converter> &converter) {
+      return accessor_impl(accessor, path, checker, no_properties, converter.wrapped);
     }
 
-    template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Checker, class Params>
-    typename accessor_result<Getter, getter, Setter, setter, Path, Checker, Params, static_cast_converter<typename getter_result<Getter>::type> >::type
-    accessor(const Path &path, const Checker &checker, const Params &params, const typename boost::enable_if<accessors_valid<Getter, Setter> >::type * = NULL) {
-      return accessor_impl<Getter, getter, Setter, setter>(path, checker, params, static_cast_converter<typename getter_result<Getter>::type>());
+    template<class Accessor, class Path, class Checker, class Params>
+    typename accessor_result<Accessor, Path, Checker, Params, static_cast_converter<typename Accessor::value_type> >::type
+    accessor(const Accessor &accessor, const Path &path, const Checker &checker, const Params &params) {
+      return accessor_impl(accessor, path, checker, params, static_cast_converter<typename Accessor::value_type>());
     }
 
-    template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Checker>
-    typename accessor_result<Getter, getter, Setter, setter, Path, Checker, NoParams, static_cast_converter<typename getter_result<Getter>::type> >::type
-    accessor(const Path &path, const Checker &checker, const typename boost::enable_if<accessors_valid<Getter, Setter> >::type * = NULL) {
-      return accessor_impl<Getter, getter, Setter, setter>(path, checker, no_properties, static_cast_converter<typename getter_result<Getter>::type>());
+    template<class Accessor, class Path, class Checker>
+    typename accessor_result<Accessor, Path, Checker, NoParams, static_cast_converter<typename Accessor::value_type> >::type
+    accessor(const Accessor &accessor, const Path &path, const Checker &checker) {
+      return accessor_impl(accessor, path, checker, no_properties, static_cast_converter<typename Accessor::value_type>());
     }
 
-    template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Params, class Converter>
-    typename accessor_result<Getter, getter, Setter, setter, Path, NullChecker, Params, Converter>::type
-    accessor(const Path &path, const Params &params, const converter_wrapper<Converter> &converter) {
-      return accessor_impl<Getter, getter, Setter, setter>(path, NullChecker(), params, converter.wrapped);
+    template<class Accessor, class Path, class Params, class Converter>
+    typename accessor_result<Accessor, Path, NullChecker, Params, Converter>::type
+    accessor(const Accessor &accessor, const Path &path, const Params &params, const converter_wrapper<Converter> &converter) {
+      return accessor_impl(accessor, path, NullChecker(), params, converter.wrapped);
     }
 
-    template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Converter>
-    typename accessor_result<Getter, getter, Setter, setter, Path, NullChecker, NoParams, Converter>::type
-    accessor(const Path &path, const converter_wrapper<Converter> &converter) {
-      return accessor_impl<Getter, getter, Setter, setter>(path, NullChecker(), no_properties, converter.wrapped);
+    template<class Accessor, class Path, class Converter>
+    typename accessor_result<Accessor, Path, NullChecker, NoParams, Converter>::type
+    accessor(const Accessor &accessor, const Path &path, const converter_wrapper<Converter> &converter) {
+      return accessor_impl(accessor, path, NullChecker(), no_properties, converter.wrapped);
     }
 
-    template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Params>
-    typename accessor_result<Getter, getter, Setter, setter, Path, NullChecker, Params, static_cast_converter<typename getter_result<Getter>::type> >::type
-    accessor(const Path &path, const Params &params, const typename boost::enable_if<accessors_valid<Getter, Setter> >::type * = NULL) {
-      return accessor_impl<Getter, getter, Setter, setter>(path, NullChecker(), params, static_cast_converter<typename getter_result<Getter>::type>());
+    template<class Accessor, class Path, class Params>
+    typename accessor_result<Accessor, Path, NullChecker, Params, static_cast_converter<typename Accessor::value_type> >::type
+    accessor(const Accessor &accessor, const Path &path, const Params &params) {
+      return accessor_impl(accessor, path, NullChecker(), params, static_cast_converter<typename Accessor::value_type>());
     }
 
-    template<class Getter, Getter getter, class Setter, Setter setter, class Path>
-    typename accessor_result<Getter, getter, Setter, setter, Path, NullChecker, NoParams, static_cast_converter<typename getter_result<Getter>::type> >::type
-    accessor(const Path &path, const typename boost::enable_if<accessors_valid<Getter, Setter> >::type * = NULL) {
-      return accessor_impl<Getter, getter, Setter, setter>(path, NullChecker(), no_properties, static_cast_converter<typename getter_result<Getter>::type>());
+    template<class Accessor, class Path>
+    typename accessor_result<Accessor, Path, NullChecker, NoParams, static_cast_converter<typename Accessor::value_type> >::type
+    accessor(const Accessor &accessor, const Path &path) {
+      return accessor_impl(accessor, path, NullChecker(), no_properties, static_cast_converter<typename Accessor::value_type>());
     }
 
 
@@ -587,20 +520,12 @@ namespace arx { namespace xml {
         assert(success);
       }
 
-      template<class MemberPointer, MemberPointer pointer, class Path, class Checker, class AdditionalParams, class Converter>
-      void operator()(proto::tag::terminal, const binding_wrapper<member_binding<MemberPointer, pointer, Path, Checker, AdditionalParams, Converter> > &binding) const {
+      template<class Accessor, class Path, class Checker, class AdditionalParams, class Converter>
+      void operator()(proto::tag::terminal, const binding_wrapper<accessor_binding<Accessor, Path, Checker, AdditionalParams, Converter> > &binding) const {
         auto child = binding.value.path.create(*target);
-        typename Converter::value_type tmp;
-        binding.value.converter(const_cast<const typename member_type<MemberPointer>::type &>(source.*pointer), tmp);
-        serialize_impl(tmp, handler, (binding.value.params, params), &child);
-      }
-
-      template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Checker, class AdditionalParams, class Converter>
-      void operator()(proto::tag::terminal, const binding_wrapper<accessor_binding<Getter, getter, Setter, setter, Path, Checker, AdditionalParams, Converter> > &binding) const {
-        auto child = binding.value.path.create(*target);
-        typename Converter::value_type tmp;
-        binding.value.converter(const_cast<const typename getter_result<Getter>::type &>(source.*getter)(), tmp);
-        serialize_impl(tmp, handler, (binding.value.params, params), &child);
+        typename Accessor::value_type value = binding.value.accessor.get(source);
+        typename Converter::value_type convertedValue = binding.value.converter.serialize(std::move(value));
+        serialize_impl(convertedValue, handler, (binding.value.params, params), &child);
       }
 
       template<class Fixer>
@@ -658,56 +583,27 @@ namespace arx { namespace xml {
         return success; /* Note that this is not generally correct as success may already be false. */
       }
 
-      template<class MemberPointer, MemberPointer pointer, class Path, class Checker, class AdditionalParams, class Converter>
-      bool operator()(proto::tag::terminal, const binding_wrapper<member_binding<MemberPointer, pointer, Path, Checker, AdditionalParams, Converter> > &binding) const {
-        typedef typename member_type<MemberPointer>::type Actual;
+      template<class Accessor, class Path, class Checker, class AdditionalParams, class Converter>
+      bool operator()(proto::tag::terminal, const binding_wrapper<accessor_binding<Accessor, Path, Checker, AdditionalParams, Converter> > &binding) const {
         auto child = binding.value.path.traverse(source);
         auto newParams = (binding.value.params, params);
         auto translator = create_translator(handler, newParams, success);
         if(!check_not_null(child, translator, binding.value.path))
           return false;
-        typename Converter::value_type tmp;
-        if(deserialize_impl(child, handler, newParams, &tmp)) {
-          //Actual actualTmp = static_cast<Actual>(tmp);
-          if(!binding.value.checker(tmp)) {
-            typename node_inspector<Node>::type inspector;
-            translator(
-              ERROR, 
-              create_invalid_value_for_type<Actual>(inspector.value(child)), 
-              inspector.location(child)
-            );
-            return false;
-          } else {
-            binding.value.converter(const_cast<const typename Converter::value_type &>(tmp), (target->*pointer));
-            return true;
-          }
-        } else {
-          return false;
-        }
-      }
 
-      template<class Getter, Getter getter, class Setter, Setter setter, class Path, class Checker, class AdditionalParams, class Converter>
-      bool operator()(proto::tag::terminal, const binding_wrapper<accessor_binding<Getter, getter, Setter, setter, Path, Checker, AdditionalParams, Converter> > &binding) const {
-        typedef typename setter_param<Setter>::type Actual;
-        auto child = binding.value.path.traverse(source);
-        auto newParams = (binding.value.params, params);
-        auto translator = create_translator(handler, newParams, success);
-        if(!check_not_null(child, translator, binding.value.path))
-          return false;
-        typename Converter::value_type tmp;
-        if(deserialize_impl(child, handler, newParams, &tmp)) {
-          if(!binding.value.checker(tmp)) {
+        typename Converter::value_type convertedValue;
+        if(deserialize_impl(child, handler, newParams, &convertedValue)) {
+          if(!binding.value.checker(convertedValue)) {
             typename node_inspector<Node>::type inspector;
             translator(
               ERROR, 
-              create_invalid_value_for_type<Actual>(inspector.value(child)), 
+              create_invalid_value_for_type<typename Accessor::value_type>(inspector.value(child)), 
               inspector.location(child)
             );
             return false;
           } else {
-            Actual actualTmp;
-            binding.value.converter(const_cast<const typename Converter::value_type &>(tmp), actualTmp);
-            (target->*setter)(actualTmp);
+            typename Accessor::value_type value = binding.value.converter.deserialize<typename Accessor::value_type>(std::move(convertedValue));
+            binding.value.accessor.set(*target, std::move(value));
             return true;
           }
         } else {
@@ -833,8 +729,10 @@ namespace arx { namespace xml {
   using binding_detail::noop;
   using binding_detail::converter;
   using binding_detail::functional;
-  using binding_detail::member;
   using binding_detail::accessor;
+  using binding_detail::member;
+  using binding_detail::identity;
+  using binding_detail::get_set;
   using binding_detail::fixup;
   using binding_detail::is_binding_expression;
   using boost::proto::if_else;
@@ -1084,27 +982,40 @@ namespace arx { namespace xml {
  * type of member pointer.
  */
 #define ARX_XML_MEMBER(MEMBER_POINTER, PATH, ...)                               \
-  arx::xml::member<decltype(MEMBER_POINTER), MEMBER_POINTER>(PATH, ##__VA_ARGS__)
+  arx::xml::accessor(                                                           \
+    arx::xml::member<decltype(MEMBER_POINTER), MEMBER_POINTER>(),               \
+    PATH, ##__VA_ARGS__                                                         \
+  )
 
+/**
+ * TODO: write docs here.
+ */
+#define ARX_XML_THIS(TYPE, PATH, ...)                                           \
+  arx::xml::accessor(                                                           \
+    arx::xml::identity<TYPE>(),                                                 \
+    PATH, ##__VA_ARGS__                                                         \
+  )
 
 /**
  * This macro constructs an accessor xml binding.
  * 
  * Actual signature is as follows:
- * <tt>ARX_XML_ACCESSOR(getter_pointer, setter_pointer, path, [checker], [params], [converter])</tt>.
+ * <tt>ARX_XML_GET_SET(getter_pointer, setter_pointer, path, [checker], [params], [converter])</tt>.
  * Parameters in brackets are optional.
  *
  * This macro is a shortcut to arx::xml::accessor function and it takes the same
  * parameters except for the fact that there is no need to supply the types
  * of getter and setter pointers.
  */
-#define ARX_XML_ACCESSOR(GETTER_POINTER, SETTER_POINTER, PATH, ...)             \
-  arx::xml::accessor<                                                           \
-    decltype(GETTER_POINTER),                                                   \
-    GETTER_POINTER,                                                             \
-    decltype(SETTER_POINTER),                                                   \
-    SETTER_POINTER                                                              \
-  >(PATH, ##__VA_ARGS__)
+#define ARX_XML_GET_SET(GETTER_POINTER, SETTER_POINTER, PATH, ...)              \
+  arx::xml::accessor(                                                           \
+    arx::xml::get_set<                                                          \
+      decltype(GETTER_POINTER),                                                 \
+      GETTER_POINTER,                                                           \
+      decltype(SETTER_POINTER),                                                 \
+      SETTER_POINTER                                                            \
+    >(), PATH, ##__VA_ARGS__                                                    \
+  )
 
 
 /**
