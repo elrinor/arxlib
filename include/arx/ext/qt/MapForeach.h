@@ -21,7 +21,7 @@
 
 #include "config.h"
 #include <utility> /* For std::pair. */
-#include <boost/iterator/iterator_facade.hpp>
+#include <boost/iterator/iterator_adaptor.hpp>
 #include <QHash>
 #include <QMultiHash>
 #include <QMap>
@@ -40,44 +40,32 @@ namespace arx { namespace detail {
 // -------------------------------------------------------------------------- //
 // QIteratorWrapper
 // -------------------------------------------------------------------------- //
-  template<class Iterator, class Key, class T>
+  template<class Iterator, class Value, class Reference>
   class QIteratorWrapper: public 
-    boost::iterator_facade<
-      QIteratorWrapper<Iterator, Key, T>, 
-      std::pair<Key &, T &>,
+    boost::iterator_adaptor<
+      QIteratorWrapper<Iterator, Value, Reference>, 
+      Iterator,
+      Value,
       boost::bidirectional_traversal_tag,
-      std::pair<Key &, T &>
+      Reference
     >
   {
   public:
     QIteratorWrapper() {}
 
-    explicit QIteratorWrapper(const Iterator &iterator): mIterator(iterator) {}
+    explicit QIteratorWrapper(const Iterator &iterator): 
+      QIteratorWrapper::iterator_adaptor_(iterator) {}
 
     template<class OtherIterator, class OtherKey, class OtherT>
-    QIteratorWrapper(const QIteratorWrapper<OtherIterator, OtherKey, OtherT> &other): mIterator(other.mIterator) {}
+    QIteratorWrapper(const QIteratorWrapper<OtherIterator, OtherKey, OtherT> &other): 
+      QIteratorWrapper::iterator_adaptor_(other.base()) {}
 
   private:
     friend class boost::iterator_core_access;
 
-    template<class OtherIterator, class OtherKey, class OtherT>
-    bool equal(const QIteratorWrapper<OtherIterator, OtherKey, OtherT> &other) const {
-      return mIterator == other.mIterator;
+    Reference dereference() const { 
+      return Reference(base().key(), base().value());
     }
-
-    void increment() { 
-      mIterator++;
-    }
-
-    void decrement() {
-      mIterator--;
-    }
-
-    std::pair<Key &, T &> dereference() const { 
-      return std::pair<Key &, T &>(mIterator.key(), mIterator.value());
-    }
-
-    Iterator mIterator;
   };
 
 }} // namespace arx::detail
@@ -87,12 +75,12 @@ namespace boost {
 #define ARX_REGISTER_QT_ITERATOR_WRAPPER(CONTAINER)                             \
   template<class Key, class T>                                                  \
   struct range_mutable_iterator<CONTAINER<Key, T> > {                           \
-    typedef arx::detail::QIteratorWrapper<typename CONTAINER<Key, T>::iterator, const Key, T> type; \
+    typedef arx::detail::QIteratorWrapper<typename CONTAINER<Key, T>::iterator, std::pair<const Key, T>, std::pair<const Key &, T &> > type; \
   };                                                                            \
                                                                                 \
   template<class Key, class T>                                                  \
   struct range_const_iterator<CONTAINER<Key, T> > {                             \
-    typedef arx::detail::QIteratorWrapper<typename CONTAINER<Key, T>::const_iterator, const Key, const T> type; \
+    typedef arx::detail::QIteratorWrapper<typename CONTAINER<Key, T>::const_iterator, std::pair<const Key, T>, std::pair<const Key &, const T &> > type; \
   };                                                                            \
                                                                                 \
   template<class Key, class T>                                                  \
