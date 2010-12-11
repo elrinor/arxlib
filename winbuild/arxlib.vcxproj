@@ -116,6 +116,7 @@
     <ClInclude Include="..\include\arx\preprocessor\Strip.h" />
     <ClInclude Include="..\include\arx\Properties.h" />
     <ClInclude Include="..\include\arx\Range.h" />
+    <ClInclude Include="..\include\arx\ScopeExit.h" />
     <ClInclude Include="..\include\arx\Singleton.h" />
     <ClInclude Include="..\include\arx\StaticBlock.h" />
     <ClInclude Include="..\include\arx\StaticCounter.h" />
@@ -143,6 +144,7 @@
     <ClCompile Include="..\test\arxtest.cpp" />
     <ClCompile Include="..\test\arx\Foreach.cpp" />
     <ClCompile Include="..\test\arx\HasXxx.cpp" />
+    <ClCompile Include="..\test\arx\ScopeExit.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

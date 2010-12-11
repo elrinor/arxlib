@@ -49,6 +49,9 @@ add_executable(HasXxx ${arxlib_SOURCE_DIR}/test/arx/HasXxx.cpp)
 target_link_libraries(HasXxx ${LIBRARIES})
 add_test(HasXxx HasXxx)
 
+add_executable(ScopeExit ${arxlib_SOURCE_DIR}/test/arx/ScopeExit.cpp)
+target_link_libraries(ScopeExit ${LIBRARIES})
+add_test(ScopeExit ScopeExit)
 
 
 
