@@ -218,6 +218,9 @@
     <ClInclude Include="..\include\arx\Singleton.h">
       <Filter>include\arx</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\arx\ScopeExit.h">
+      <Filter>include\arx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\arx\ext\VigraQt.pri">
@@ -248,6 +251,9 @@
     </ClCompile>
     <ClCompile Include="..\src\arx\ext\qt\DomXmlReceiver.cpp">
       <Filter>src\arx\ext\qt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test\arx\ScopeExit.cpp">
+      <Filter>test\arx</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
