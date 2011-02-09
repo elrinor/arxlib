@@ -300,10 +300,13 @@ namespace arx { namespace xml {
     template<class Path, class Params>
     struct binding_base {
       binding_base(const Path &path, const Params &params):
-        path(proto::deep_copy(path)), params(proto::deep_copy(params)) {}
+        path(path), params(params) {}
 
-      typename proto::result_of::deep_copy<Path>::type path;
-      typename proto::result_of::deep_copy<Params>::type params;
+      static_assert(boost::is_same<typename proto::result_of::deep_copy<Path>::type, Path>::value, "Path must be a deep copy.");
+      static_assert(boost::is_same<typename proto::result_of::deep_copy<Params>::type, Params>::value, "Params must be a deep copy.");
+
+      Path path;
+      Params params;
     };
 
 
@@ -336,15 +339,28 @@ namespace arx { namespace xml {
     };
 
     template<class Path, class Serializer, class Deserializer, class Params>
-    typename functional_binding<Path, Serializer, Deserializer, Params>::expr_type
+    struct functional_result:
+      mpl::identity<
+        functional_binding<
+          typename proto::result_of::deep_copy<Path>::type, 
+          Serializer, 
+          Deserializer, 
+          typename proto::result_of::deep_copy<Params>::type
+        >
+      >
+    {};
+
+
+    template<class Path, class Serializer, class Deserializer, class Params>
+    typename functional_result<Path, Serializer, Deserializer, Params>::type::expr_type
     functional(const Path &path, const Serializer &serializer, const Deserializer &deserializer, const Params &params) {
-      typedef functional_binding<Path, Serializer, Deserializer, Params> binding_type;
-      typename binding_type::expr_type result = {{{binding_type(path, serializer, deserializer, params)}}};
+      typedef typename functional_result<Path, Serializer, Deserializer, Params>::type binding_type;
+      typename binding_type::expr_type result = {{{binding_type(proto::deep_copy(path), serializer, deserializer, proto::deep_copy(params))}}};
       return result;
     }
 
     template<class Path, class Serializer, class Deserializer>
-    typename functional_binding<Path, Serializer, Deserializer, NoParams>::expr_type
+    typename functional_result<Path, Serializer, Deserializer, NoParams>::type::expr_type
     functional(const Path &path, const Serializer &serializer, const Deserializer &deserializer) {
       return functional(path, serializer, deserializer, no_properties);
     }
@@ -381,38 +397,43 @@ namespace arx { namespace xml {
       >::type
     >:
       mpl::identity<
-        typename accessor_binding<Accessor, Path, Checker, Params>::expr_type
+        accessor_binding<
+            Accessor, 
+            typename proto::result_of::deep_copy<Path>::type, 
+            Checker, 
+            typename proto::result_of::deep_copy<Params>::type
+        >
       >
     {};
 
     template<class Accessor, class Path, class Checker, class Params>
-    typename accessor_result<Accessor, Path, Checker, Params>::type
+    typename accessor_result<Accessor, Path, Checker, Params>::type::expr_type
     accessor_impl(const Accessor &accessor, const Path &path, const Checker &checker, const Params &params) {
-      typedef accessor_binding<Accessor, Path, Checker, Params> binding_type;
-      typename binding_type::expr_type result = {{{binding_type(accessor, path, checker, params)}}};
+      typedef typename accessor_result<Accessor, Path, Checker, Params>::type binding_type;
+      typename binding_type::expr_type result = {{{binding_type(accessor, proto::deep_copy(path), checker, proto::deep_copy(params))}}};
       return result;
     }
 
     template<class Accessor, class Path, class Checker, class Params>
-    typename accessor_result<Accessor, Path, Checker, Params>::type
+    typename accessor_result<Accessor, Path, Checker, Params>::type::expr_type
     accessor(const Accessor &accessor, const Path &path, const Checker &checker, const Params &params) {
       return accessor_impl(accessor, path, checker, params);
     }
 
     template<class Accessor, class Path, class Checker>
-    typename accessor_result<Accessor, Path, Checker, NoParams>::type
+    typename accessor_result<Accessor, Path, Checker, NoParams>::type::expr_type
     accessor(const Accessor &accessor, const Path &path, const Checker &checker) {
       return accessor_impl(accessor, path, checker, no_properties);
     }
 
     template<class Accessor, class Path, class Params>
-    typename accessor_result<Accessor, Path, NullChecker, Params>::type
+    typename accessor_result<Accessor, Path, NullChecker, Params>::type::expr_type
     accessor(const Accessor &accessor, const Path &path, const Params &params) {
       return accessor_impl(accessor, path, NullChecker(), params);
     }
 
     template<class Accessor, class Path>
-    typename accessor_result<Accessor, Path, NullChecker, NoParams>::type
+    typename accessor_result<Accessor, Path, NullChecker, NoParams>::type::expr_type
     accessor(const Accessor &accessor, const Path &path) {
       return accessor_impl(accessor, path, NullChecker(), no_properties);
     }
