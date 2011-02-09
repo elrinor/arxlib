@@ -1,6 +1,6 @@
 /* This file is part of ArXLib, a C++ ArX Primitives Library.
  *
- * Copyright (C) 2008-2010 Alexander Fokin <apfokin@gmail.com>
+ * Copyright (C) 2008-2011 Alexander Fokin <apfokin@gmail.com>
  *
  * ArXLib is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
