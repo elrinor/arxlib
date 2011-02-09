@@ -64,7 +64,7 @@ namespace arx { namespace detail {
     friend class boost::iterator_core_access;
 
     Reference dereference() const { 
-      return Reference(base().key(), base().value());
+      return Reference(QIteratorWrapper::base().key(), QIteratorWrapper::base().value());
     }
   };
 
