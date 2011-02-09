@@ -235,6 +235,9 @@
     <None Include="..\include\arx\ext\qt\DomXmlReceiver.pri">
       <Filter>include\arx\ext\qt\dom_xml_receiver</Filter>
     </None>
+    <None Include="..\include\arx\Arx.pri">
+      <Filter>include\arx</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\arx\ext\qt\VigraQtStaticPlugins.cpp">

@@ -1,6 +1,6 @@
 # This file is part of ArXLib, a C++ ArX Primitives Library.
 #
-# Copyright (C) 2008-2010 Alexander Fokin <apfokin@gmail.com>
+# Copyright (C) 2008-2011 Alexander Fokin <apfokin@gmail.com>
 #
 # ArXLib is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,8 @@
 # License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
 # 
 # $Id: FormPrinter.pri 112 2010-08-22 12:52:58Z ru.elric $
+include(../Arx.pri)
+
 SOURCES += $$PWD/../../../src/arx/ext/qt/VigraQtStaticPlugins.cpp
 
 contains(CONFIG, static) {
@@ -24,7 +26,4 @@ contains(CONFIG, static) {
 }
 
 DEFINES     += ARX_VIGRA_QT_PRI_INCLUDED
-
-INCLUDEPATH += $$PWD/..
-DEPENDPATH  += $$PWD/..
 

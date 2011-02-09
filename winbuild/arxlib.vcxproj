@@ -133,6 +133,7 @@
     <ClInclude Include="..\include\arx\xml\UserData.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\include\arx\Arx.pri" />
     <None Include="..\include\arx\ext\qt\DomXmlReceiver.pri" />
     <None Include="..\include\arx\ext\qt\FormPrinter.pri" />
     <None Include="..\include\arx\ext\qt\XmlBinding.pri" />

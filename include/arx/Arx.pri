@@ -16,10 +16,7 @@
 # License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
 # 
 # $Id$
-include(../../Arx.pri)
 
-QT += gui
+INCLUDEPATH += $$PWD/..
+DEPENDPATH  += $$PWD/..
 
-HEADERS += \
-  $$PWD/FormPrinter.h \
-  $$PWD/FormGenerator.h \
