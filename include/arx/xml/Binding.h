@@ -129,7 +129,7 @@ namespace arx { namespace xml {
         if(severity == ERROR)
           success = false;
 
-        handler(severity, errorData, params.get<user_data_tag>(no_user_data()), location);
+        handler(severity, errorData, params.template get<user_data_tag>(no_user_data()), location);
       }
 
       template<class ErrorData, class Node>
