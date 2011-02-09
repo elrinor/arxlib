@@ -1,6 +1,6 @@
 # This file is part of ArXLib, a C++ ArX Primitives Library.
 #
-# Copyright (C) 2008-2010 Alexander Fokin <apfokin@gmail.com>
+# Copyright (C) 2008-2011 Alexander Fokin <apfokin@gmail.com>
 #
 # ArXLib is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,8 @@
 # License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
 # 
 # $Id: FormPrinter.pri 114 2010-08-24 14:33:46Z ru.elric $
+include(../../Arx.pri)
+
 QT += xml
 
 HEADERS += \
@@ -24,9 +26,4 @@ HEADERS += \
   $$PWD/XmlQDomNodeWalker.h \
   $$PWD/XmlQStringProcessor.h \
 
-SOURCES += 
-
 DEFINES     += ARX_XML_BINDING_PRI_INCLUDED
-
-INCLUDEPATH += $$PWD/../..
-DEPENDPATH  += $$PWD/../..
