@@ -849,12 +849,14 @@ namespace arx { namespace xml {
   public:                                                                       \
     template<class Node, class MessageHandler, class Params>                    \
     bool deserialize(const Node &source, MessageHandler &handler, const Params &params, TYPE_SPEC *target) const { \
-      return ((__VA_ARGS__)).deserialize(source, handler, params, target);      \
+      static auto binding = boost::proto::deep_copy((__VA_ARGS__));             \
+      return binding.deserialize(source, handler, params, target);              \
     }                                                                           \
                                                                                 \
     template<class MessageHandler, class Params, class Node>                    \
     void serialize(const TYPE_SPEC &source, MessageHandler &handler, const Params &params, Node *target) const { \
-      ((__VA_ARGS__)).serialize(source, handler, params, target);               \
+      static auto binding = boost::proto::deep_copy((__VA_ARGS__));             \
+      binding.serialize(source, handler, params, target);                       \
     }                                                                           \
   };                                                                            \
                                                                                 \
