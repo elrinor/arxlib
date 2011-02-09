@@ -70,9 +70,9 @@ namespace arx { namespace detail {
 
 }} // namespace arx::detail
 
-namespace boost {
-  
 #define ARX_REGISTER_QT_ITERATOR_WRAPPER(CONTAINER)                             \
+namespace boost {                                                               \
+                                                                                \
   template<class Key, class T>                                                  \
   struct range_mutable_iterator<CONTAINER<Key, T> > {                           \
     typedef arx::detail::QIteratorWrapper<typename CONTAINER<Key, T>::iterator, std::pair<const Key, T>, std::pair<const Key &, T &> > type; \
@@ -83,37 +83,37 @@ namespace boost {
     typedef arx::detail::QIteratorWrapper<typename CONTAINER<Key, T>::const_iterator, std::pair<const Key, T>, std::pair<const Key &, const T &> > type; \
   };                                                                            \
                                                                                 \
-  template<class Key, class T>                                                  \
-  inline typename range_mutable_iterator<CONTAINER<Key, T> >::type              \
-  range_begin(CONTAINER<Key, T> &x) {                                           \
-    return range_mutable_iterator<CONTAINER<Key, T> >::type(x.begin());         \
-  }                                                                             \
+}                                                                               \
                                                                                 \
-  template<class Key, class T>                                                  \
-  inline typename range_const_iterator<CONTAINER<Key, T> >::type                \
-  range_begin(const CONTAINER<Key, T> &x) {                                     \
-    return range_const_iterator<CONTAINER<Key, T> >::type(x.begin());           \
-  }                                                                             \
+template<class Key, class T>                                                    \
+inline typename boost::range_mutable_iterator<CONTAINER<Key, T> >::type         \
+range_begin(CONTAINER<Key, T> &x) {                                             \
+  return boost::range_mutable_iterator<CONTAINER<Key, T> >::type(x.begin());    \
+}                                                                               \
                                                                                 \
-  template<class Key, class T>                                                  \
-  inline typename range_mutable_iterator<CONTAINER<Key, T> >::type              \
-  range_end(CONTAINER<Key, T> &x) {                                             \
-    return range_mutable_iterator<CONTAINER<Key, T> >::type(x.end());           \
-  }                                                                             \
+template<class Key, class T>                                                    \
+inline typename boost::range_const_iterator<CONTAINER<Key, T> >::type           \
+range_begin(const CONTAINER<Key, T> &x) {                                       \
+  return boost::range_const_iterator<CONTAINER<Key, T> >::type(x.begin());      \
+}                                                                               \
                                                                                 \
-  template<class Key, class T>                                                  \
-  inline typename range_const_iterator<CONTAINER<Key, T> >::type                \
-  range_end(const CONTAINER<Key, T> &x) {                                       \
-    return range_const_iterator<CONTAINER<Key, T> >::type(x.end());             \
-  }
+template<class Key, class T>                                                    \
+inline typename boost::range_mutable_iterator<CONTAINER<Key, T> >::type         \
+range_end(CONTAINER<Key, T> &x) {                                               \
+  return boost::range_mutable_iterator<CONTAINER<Key, T> >::type(x.end());      \
+}                                                                               \
+                                                                                \
+template<class Key, class T>                                                    \
+inline typename boost::range_const_iterator<CONTAINER<Key, T> >::type           \
+range_end(const CONTAINER<Key, T> &x) {                                         \
+  return boost::range_const_iterator<CONTAINER<Key, T> >::type(x.end());        \
+}
 
-  ARX_REGISTER_QT_ITERATOR_WRAPPER(QHash);
-  ARX_REGISTER_QT_ITERATOR_WRAPPER(QMultiHash);
-  ARX_REGISTER_QT_ITERATOR_WRAPPER(QMap);
-  ARX_REGISTER_QT_ITERATOR_WRAPPER(QMultiMap);
+ARX_REGISTER_QT_ITERATOR_WRAPPER(QHash);
+ARX_REGISTER_QT_ITERATOR_WRAPPER(QMultiHash);
+ARX_REGISTER_QT_ITERATOR_WRAPPER(QMap);
+ARX_REGISTER_QT_ITERATOR_WRAPPER(QMultiMap);
 
 #undef ARX_REGISTER_QT_ITERATOR_WRAPPER
-
-} // namespace boost
 
 #endif // ARX_EXT_QT_MAP_FOREACH_H
