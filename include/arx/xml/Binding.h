@@ -545,7 +545,7 @@ namespace arx { namespace xml {
         if(!check_not_null(source, child, translator, binding.value.path))
           return false;
 
-        typename Accessor::parameter_type<T>::type value;
+        typename Accessor::template parameter_type<T>::type value;
         if(deserialize_impl(child, handler, newParams, &value)) {
           if(!binding.value.checker(value)) {
             typename node_inspector<Node>::type inspector;
