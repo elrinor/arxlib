@@ -23,12 +23,7 @@
 #include <boost/preprocessor/cat.hpp>
 #include <boost/mpl/has_xxx.hpp>
 #include <boost/mpl/bool.hpp>
-#include <boost/mpl/or.hpp>
 #include <boost/type_traits/is_class.hpp>
-#include <boost/function_types/result_type.hpp>
-#include <boost/function_types/parameter_types.hpp>
-#include <boost/function_types/member_function_pointer.hpp>
-#include <boost/function_types/property_tags.hpp>
 
 
 // -------------------------------------------------------------------------- //
