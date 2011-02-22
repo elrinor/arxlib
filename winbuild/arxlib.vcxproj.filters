@@ -59,9 +59,6 @@
     <ClInclude Include="..\include\arx\Foreach.h">
       <Filter>include\arx</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\arx\HashHack.h">
-      <Filter>include\arx</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\arx\HasXxx.h">
       <Filter>include\arx</Filter>
     </ClInclude>

@@ -105,7 +105,6 @@
     <ClInclude Include="..\include\arx\ext\vigra\StdImage.h" />
     <ClInclude Include="..\include\arx\ext\vigra\Validation.h" />
     <ClInclude Include="..\include\arx\Foreach.h" />
-    <ClInclude Include="..\include\arx\HashHack.h" />
     <ClInclude Include="..\include\arx\HasXxx.h" />
     <ClInclude Include="..\include\arx\LambdaHack.h" />
     <ClInclude Include="..\include\arx\Memory.h" />
