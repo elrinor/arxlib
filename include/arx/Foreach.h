@@ -36,6 +36,10 @@
 #  undef foreach
 #endif
 
+#ifdef reverse_foreach
+#  undef reverse_foreach
+#endif
+
 #define foreach BOOST_FOREACH
 
 #define reverse_foreach BOOST_REVERSE_FOREACH
