@@ -75,7 +75,7 @@
 #elif defined(__GNUC__) || defined(__GNUG__)
 #  define ARX_GCC (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #elif defined _MSC_VER
-#  define ARX_MSVC
+#  define ARX_MSVC _MSC_VER
 #endif
 
 
