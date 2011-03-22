@@ -30,6 +30,10 @@
 #include <boost/type_traits/remove_cv.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/utility/enable_if.hpp>
+#include <boost/proto/proto_fwd.hpp>
+#ifndef BOOST_PROTO_RESULT_OF
+#  define BOOST_PROTO_RESULT_OF boost::result_of /* This one gets triggered for no apparent reason under some configurations. */
+#endif
 #include <boost/proto/proto.hpp>
 #include <boost/preprocessor/array/size.hpp>
 #include <boost/preprocessor/if.hpp>
@@ -45,6 +49,7 @@
 #include "UserData.h"
 #include "NodeInspector.h"
 #include "Checkers.h"
+
 
 /* TODO: Inspector, Walker and Processor as parameters to (de)serialization
  * functions, stored in ctx. */
