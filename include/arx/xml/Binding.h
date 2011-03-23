@@ -223,6 +223,11 @@ namespace arx { namespace xml {
     template<class Underlying, class Getter, class Setter>
     class getter_setter_accessor {
     public:
+      /* For some reason, GCC chokes on decltype(mGetter(source)) if mGetter 
+       * is private. So, it was made public. */
+      Getter mGetter; 
+      Setter mSetter;
+
       getter_setter_accessor(const Getter &getter, const Setter &setter): 
         mGetter(getter), mSetter(setter) {}
 
@@ -248,8 +253,6 @@ namespace arx { namespace xml {
       }
 
     private:
-      Getter mGetter;
-      Setter mSetter;
     };
 
     template<class Underlying, class Getter, class Setter>
@@ -803,6 +806,19 @@ namespace arx { namespace xml {
     return deserialize(source, handler, params, target);
   }
 
+  template<class Node, class MessageHandler, class Params, class T>
+  typename boost::enable_if<is_property_expression<Params>, bool>::type
+    deserialize(const Node &source, MessageHandler &handler, const Params &params, T *target) {
+      T tmp;
+      if(binding_detail::deserialize_impl(source, handler, params, &tmp)) {
+        *target = tmp;
+        return true;
+      } else {
+        return false;
+      }
+  }
+
+
   template<class Node, class MessageHandler, class T>
   typename boost::disable_if<is_property_expression<MessageHandler>, bool>::type
   deserialize(
@@ -824,17 +840,6 @@ namespace arx { namespace xml {
     return deserialize(source, translator.handler, params, target);
   }
 
-  template<class Node, class MessageHandler, class Params, class T>
-  typename boost::enable_if<is_property_expression<Params>, bool>::type
-  deserialize(const Node &source, MessageHandler &handler, const Params &params, T *target) {
-    T tmp;
-    if(binding_detail::deserialize_impl(source, handler, params, &tmp)) {
-      *target = tmp;
-      return true;
-    } else {
-      return false;
-    }
-  }
 
 
 /**
