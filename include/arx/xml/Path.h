@@ -185,7 +185,8 @@ namespace arx { namespace xml {
         if(atRoot) {
           /* At root node elements must always be created. */
           creation_context<Node, NodeWalker, StringProcessor, false> ctx(startNode, nodeWalker, processor);
-          return nodeWalker.create_element(proto::eval(l, ctx), processor.to_string(proto::eval(r, ctx)));
+          Node node = proto::eval(l, ctx);
+          return nodeWalker.create_element(node, processor.to_string(proto::eval(r, ctx)));
         } else {
           Node node = proto::eval(l, *this);
           auto name = processor.to_string(proto::eval(r, *this));
@@ -203,7 +204,8 @@ namespace arx { namespace xml {
         static_assert(atRoot, "Attribute access must be a root node of path expression tree.");
 
         creation_context<Node, NodeWalker, StringProcessor, false> ctx(startNode, nodeWalker, processor);
-        return nodeWalker.create_attribute(proto::eval(l, ctx), processor.to_string(proto::eval(r, ctx)));
+        Node node = proto::eval(l, ctx);
+        return nodeWalker.create_attribute(node, processor.to_string(proto::eval(r, ctx)));
       }
 
       Node &startNode;
