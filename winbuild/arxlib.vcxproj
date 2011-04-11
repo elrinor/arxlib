@@ -84,7 +84,7 @@
     <ClInclude Include="..\include\arx\ext\qt\DomXmlReceiver.h" />
     <ClInclude Include="..\include\arx\ext\qt\FormGenerator.h" />
     <ClInclude Include="..\include\arx\ext\qt\FormPrinter.h" />
-    <ClInclude Include="..\include\arx\ext\qt\MapForeach.h" />
+    <ClInclude Include="..\include\arx\ext\qt\Range.h" />
     <ClInclude Include="..\include\arx\ext\qt\XmlBinding.h" />
     <ClInclude Include="..\include\arx\ext\qt\XmlQDomNodeInspector.h" />
     <ClInclude Include="..\include\arx\ext\qt\XmlQDomNodeWalker.h" />
