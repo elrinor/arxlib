@@ -1,6 +1,6 @@
 /* This file is part of ArXLib, a C++ ArX Primitives Library.
  *
- * Copyright (C) 2008-2010 Alexander Fokin <apfokin@gmail.com>
+ * Copyright (C) 2008-2011 Alexander Fokin <apfokin@gmail.com>
  *
  * ArXLib is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,12 +16,11 @@
  * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
  * 
  * $Id$ */
-#ifndef ARX_RANGE_H
-#define ARX_RANGE_H
+#ifndef ARX_RANGE_CONTAINS_H
+#define ARX_RANGE_CONTAINS_H
 
 #include "config.h"
-#include <algorithm>
-#include <boost/utility/enable_if.hpp>
+#include <algorithm> /* For std::find. */
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include "HasXxx.h"
@@ -48,11 +47,9 @@ namespace arx {
 
   template<class Range, class T>
   bool contains(const Range &range, const T &value) {
-    /* TODO: range type & concept check */
-
     return range_protected::Contains<Range, T>()(range, value);
   }
 
 } // namespace arx
 
-#endif // ARX_RANGE_H
+#endif // ARX_RANGE_CONTAINS_H

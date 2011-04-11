@@ -51,6 +51,9 @@
     <Filter Include="include\arx\preprocessor">
       <UniqueIdentifier>{6e11f7bc-5e53-438a-a4e0-8d309d0af9f4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\arx\range">
+      <UniqueIdentifier>{29af75de-6729-4d9a-94d1-801b702f35f0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\arx\config.h">
@@ -75,9 +78,6 @@
       <Filter>include\arx</Filter>
     </ClInclude>
     <ClInclude Include="..\include\arx\Properties.h">
-      <Filter>include\arx</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\arx\Range.h">
       <Filter>include\arx</Filter>
     </ClInclude>
     <ClInclude Include="..\include\arx\StaticBlock.h">
@@ -217,6 +217,12 @@
     </ClInclude>
     <ClInclude Include="..\include\arx\ext\qt\Range.h">
       <Filter>include\arx\ext\qt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\range\Contains.h">
+      <Filter>include\arx\range</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\Range.h">
+      <Filter>include\arx</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
