@@ -16,8 +16,8 @@
  * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
  * 
  * $Id$ */
-#ifndef ARX_EXT_QT_MAP_FOREACH_H
-#define ARX_EXT_QT_MAP_FOREACH_H
+#ifndef ARX_EXT_QT_RANGE_H
+#define ARX_EXT_QT_RANGE_H
 
 #include "config.h"
 #include <utility> /* For std::pair. */
@@ -116,4 +116,4 @@ ARX_REGISTER_QT_ITERATOR_WRAPPER(QMultiMap);
 
 #undef ARX_REGISTER_QT_ITERATOR_WRAPPER
 
-#endif // ARX_EXT_QT_MAP_FOREACH_H
+#endif // ARX_EXT_QT_RANGE_H
