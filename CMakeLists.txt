@@ -53,6 +53,9 @@ add_executable(ScopeExit ${arxlib_SOURCE_DIR}/test/arx/ScopeExit.cpp)
 target_link_libraries(ScopeExit ${LIBRARIES})
 add_test(ScopeExit ScopeExit)
 
+add_executable(RangeSingleton ${arxlib_SOURCE_DIR}/test/arx/range/Singleton.cpp)
+target_link_libraries(RangeSingleton ${LIBRARIES})
+add_test(RangeSingleton RangeSingleton)
 
 
 
