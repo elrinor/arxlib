@@ -116,7 +116,6 @@
     <ClInclude Include="..\include\arx\Properties.h" />
     <ClInclude Include="..\include\arx\Range.h" />
     <ClInclude Include="..\include\arx\range\Contains.h" />
-    <ClInclude Include="..\include\arx\range\Singleton.h" />
     <ClInclude Include="..\include\arx\ScopeExit.h" />
     <ClInclude Include="..\include\arx\Singleton.h" />
     <ClInclude Include="..\include\arx\StaticBlock.h" />
