@@ -227,9 +227,6 @@
     <ClInclude Include="..\include\arx\Range.h">
       <Filter>include\arx</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\arx\range\Singleton.h">
-      <Filter>include\arx\range</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\arx\ext\VigraQt.pri">
