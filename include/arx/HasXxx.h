@@ -54,7 +54,7 @@ struct helper_name {                                                            
   template<class T, T> struct wrapper {};                                       \
                                                                                 \
   struct mixin {                                                                \
-    void func_name(); \
+    void func_name();                                                           \
   };                                                                            \
                                                                                 \
   template<class T> struct mixed {                                              \
