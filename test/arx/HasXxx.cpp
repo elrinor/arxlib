@@ -16,9 +16,8 @@
  * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
  * 
  * $Id$ */
-#define NOMINMAX
 #define BOOST_TEST_MODULE arx_has_xxx
-#include <boost/test/included/unit_test.hpp>
+#include <arx/ext/boost/Test.h>
 
 #include <arx/HasXxx.h>
 
@@ -76,6 +75,15 @@ struct D2 {
   ARX_DEFINE_HAS_FUNC_TRAIT(f);
 };
 
+struct E1 {
+  void f(char);
+  void f(int);
+};
+
+struct E2: E1 {};
+
+
+
 BOOST_AUTO_TEST_CASE(arx_has_xxx) {
 
   BOOST_CHECK(has_type<C1>::value);
@@ -98,4 +106,6 @@ BOOST_AUTO_TEST_CASE(arx_has_xxx) {
   BOOST_CHECK((!has_f<C3, void (C3::*)(int, float, char)>::value));
 
   BOOST_CHECK((D2::has_f<D1, void (D1::*)()>::value)); /* Private member introspection. */
+
+  BOOST_CHECK((has_f<E2, void (E2::*)(int)>::value)); 
 }

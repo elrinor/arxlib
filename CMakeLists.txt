@@ -37,6 +37,16 @@ endif()
 
 
 # 
+# Compiler options
+# 
+# add_definitions(/E)
+if(CMAKE_COMPILER_IS_GNUCXX)
+	add_definitions(-std=c++0x)
+	add_definitions(-Wall -Wextra)
+endif(CMAKE_COMPILER_IS_GNUCXX)
+
+
+# 
 # Tests
 # 
 enable_testing()

@@ -16,9 +16,8 @@
  * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
  * 
  * $Id$ */
-#define NOMINMAX
 #define BOOST_TEST_MODULE arx_foreach
-#include <boost/test/included/unit_test.hpp>
+#include <arx/ext/boost/Test.h>
 
 #include <vector>
 #include <map>
