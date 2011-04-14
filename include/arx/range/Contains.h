@@ -23,7 +23,7 @@
 #include <algorithm> /* For std::find. */
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
-#include "HasXxx.h"
+#include <arx/HasXxx.h>
 
 namespace arx {
   namespace range_protected {
