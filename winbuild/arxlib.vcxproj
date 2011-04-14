@@ -76,6 +76,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\include\arx\config.h" />
+    <ClInclude Include="..\include\arx\ext\boost\Test.h" />
     <ClInclude Include="..\include\arx\ext\config.h" />
     <ClInclude Include="..\include\arx\ext\Magick.h" />
     <ClInclude Include="..\include\arx\ext\OpenCV.h" />
@@ -145,7 +146,6 @@
     <ClCompile Include="..\test\arxtest.cpp" />
     <ClCompile Include="..\test\arx\Foreach.cpp" />
     <ClCompile Include="..\test\arx\HasXxx.cpp" />
-    <ClCompile Include="..\test\arx\range\Singleton.cpp" />
     <ClCompile Include="..\test\arx\ScopeExit.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -54,8 +54,8 @@
     <Filter Include="include\arx\range">
       <UniqueIdentifier>{29af75de-6729-4d9a-94d1-801b702f35f0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="test\arx\range">
-      <UniqueIdentifier>{37805d02-a22c-48ec-962d-af85a749be03}</UniqueIdentifier>
+    <Filter Include="include\arx\ext\boost">
+      <UniqueIdentifier>{c76ef764-37ff-496c-a4d1-388f17f60dca}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -227,6 +227,9 @@
     <ClInclude Include="..\include\arx\Range.h">
       <Filter>include\arx</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\arx\ext\boost\Test.h">
+      <Filter>include\arx\ext\boost</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\arx\ext\VigraQt.pri">
@@ -263,9 +266,6 @@
     </ClCompile>
     <ClCompile Include="..\test\arx\ScopeExit.cpp">
       <Filter>test\arx</Filter>
-    </ClCompile>
-    <ClCompile Include="..\test\arx\range\Singleton.cpp">
-      <Filter>test\arx\range</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
