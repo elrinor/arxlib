@@ -80,7 +80,12 @@ struct E1 {
   void f(int);
 };
 
-struct E2: E1 {};
+struct E2: E1 {
+  using E1::f;
+
+  void f(float);
+};
+
 
 
 
@@ -107,5 +112,5 @@ BOOST_AUTO_TEST_CASE(arx_has_xxx) {
 
   BOOST_CHECK((D2::has_f<D1, void (D1::*)()>::value)); /* Private member introspection. */
 
-  BOOST_CHECK((has_f<E2, void (E2::*)(int)>::value)); 
+  BOOST_CHECK((has_f<E2, void (E2::*)(int)>::value)); /* Should compile. */
 }
