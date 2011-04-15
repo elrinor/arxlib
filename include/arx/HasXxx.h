@@ -20,10 +20,20 @@
 #define ARX_HAS_XXX_H
 
 #include "config.h"
-#include <boost/preprocessor/cat.hpp>
+#include <boost/function_types/is_member_function_pointer.hpp>
+#include <boost/function_types/function_arity.hpp>
+#include <boost/function_types/result_type.hpp>
+#include <boost/function_types/parameter_types.hpp>
 #include <boost/mpl/has_xxx.hpp>
 #include <boost/mpl/bool.hpp>
+#include <boost/mpl/bool.hpp>
+#include <boost/mpl/pop_front.hpp>
+#include <boost/mpl/front.hpp>
+#include <boost/type_traits/detail/yes_no_type.hpp>
 #include <boost/type_traits/is_class.hpp>
+#include <boost/preprocessor/repetition/repeat.hpp>
+#include <boost/preprocessor/repetition/enum.hpp>
+#include <boost/preprocessor/cat.hpp>
 
 
 // -------------------------------------------------------------------------- //
@@ -48,9 +58,6 @@
 // -------------------------------------------------------------------------- //
 #define ARX_DEFINE_NAMED_HAS_ANY_FUNC_TRAIT_I(trait_name, helper_name, func_name) \
 struct helper_name {                                                            \
-  typedef char true_type;                                                       \
-  struct false_type { true_type dummy[2]; };                                    \
-                                                                                \
   template<class T, T> struct wrapper {};                                       \
                                                                                 \
   struct mixin {                                                                \
@@ -62,15 +69,15 @@ struct helper_name {                                                            
   };                                                                            \
                                                                                 \
   template<class T>                                                             \
-  static false_type has_member(T *, wrapper<void (mixin::*)(), &mixed<T>::type::func_name> * = NULL); \
-  static true_type has_member(...);                                             \
+  static boost::type_traits::no_type has_member(T *, wrapper<void (mixin::*)(), &mixed<T>::type::func_name> * = NULL); \
+  static boost::type_traits::yes_type has_member(...);                          \
 };                                                                              \
                                                                                 \
 template<class T, bool is_class = boost::is_class<T>::value>                    \
 struct trait_name:                                                              \
   boost::mpl::bool_<                                                            \
     sizeof(helper_name::has_member(static_cast<T *>(NULL))) ==                  \
-    sizeof(helper_name::true_type)                                              \
+    sizeof(boost::type_traits::yes_type)                                        \
   >                                                                             \
 {};                                                                             \
                                                                                 \
@@ -96,36 +103,124 @@ struct trait_name<T, false>: public boost::mpl::false_ {};
 // -------------------------------------------------------------------------- //
 // ARX_DEFINE_HAS_EXACT_FUNC_TRAIT
 // -------------------------------------------------------------------------- //
-#define ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_II(trait_name, helper_name, func_name) \
-struct helper_name {                                                            \
-  typedef char true_type;                                                       \
-  struct false_type { true_type dummy[2]; };                                    \
-                                                                                \
-  template<class Signature, Signature> struct member {};                        \
-                                                                                \
-  template<class T, class Signature>                                            \
-  static true_type has_member(T *, Signature *, helper_name::member<Signature, &T::func_name> * = NULL); \
-  static false_type has_member(...);                                            \
-};                                                                              \
-                                                                                \
-template<class T, class Signature, bool is_class = boost::is_class<T>::value>   \
-struct trait_name:                                                              \
-  boost::mpl::bool_<                                                            \
-    sizeof(helper_name::has_member(static_cast<T *>(NULL), static_cast<Signature *>(NULL))) == \
-    sizeof(helper_name::true_type)                                              \
-  >                                                                             \
-{};                                                                             \
-                                                                                \
-template<class T, class Signature>                                              \
-struct trait_name<T, Signature, false>: public boost::mpl::false_ {};
+namespace arx { namespace has_xxx_detail {
+  template<class T> 
+  T make();
 
-#define ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_I(trait_name, func_name)          \
-  ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_II(                                     \
-    trait_name,                                                                 \
-    BOOST_PP_CAT(trait_name, _helper),                                          \
-    func_name                                                                   \
-  )
+  template<class Sig>
+  struct parameter_types: 
+    boost::function_types::parameter_types<Sig, boost::mpl::identity<boost::mpl::placeholders::_> >
+  {};
 
+  template<class Impl, class Sig, bool isStatic = !boost::function_types::is_member_function_pointer<Sig>::value>
+  struct is_callable_base2:
+    Impl::template apply<
+      typename parameter_types<Sig>::type, 
+      true, 
+      boost::function_types::function_arity<Sig>::value
+    >
+  {};
+
+  template<class Impl, class Sig>
+  struct is_callable_base2<Impl, Sig, false>:
+    Impl::template apply<
+      typename boost::mpl::pop_front<
+        typename parameter_types<Sig>::type
+      >::type,
+      false,
+      boost::function_types::function_arity<Sig>::value - 1
+    >
+  {};
+
+
+  template<class T, class Sig, bool isStatic = !boost::function_types::is_member_function_pointer<Sig>::value>
+  struct object_type: 
+    boost::mpl::identity<const T &> 
+  {};
+
+  template<class T, class Sig>
+  struct object_type<T, Sig, false>:
+    boost::mpl::identity<
+    typename boost::mpl::front<
+    typename parameter_types<Sig>::type
+    >::type &
+    >
+  {};
+
+  struct not_found {};
+
+  struct void_return {
+    template<class T>
+    friend T operator,(T, void_return);
+  };
+
+  struct any {
+    template<class T> any(const T &);
+  };
+
+  template<class Impl, class T, class Sig> 
+  struct is_callable_base: is_callable_base2<Impl, Sig> {
+    using is_callable_base2<Impl, Sig>::invoke;
+    static not_found invoke(...);
+
+    typedef typename boost::function_types::result_type<Sig>::type result_type;
+
+    typedef typename boost::mpl::if_<
+      boost::is_same<result_type, void>,
+      any,
+      result_type
+    >::type test_result_type;
+
+    static boost::type_traits::yes_type check(const test_result_type &);
+    static boost::type_traits::no_type check(not_found);
+    static boost::type_traits::no_type check(...);
+  };
+
+}} // namespace arx::has_xxx_detail
+
+#define ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_III(Z, N, D)                      \
+  arx::has_xxx_detail::make<typename boost::mpl::at_c<Params, N>::type>()
+
+#define ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_II(Z, N, func_name)               \
+  template<class Params>                                                        \
+  struct apply<Params, false, N> {                                              \
+    template<class U>                                                           \
+    static decltype(arx::has_xxx_detail::make<U &>().f(BOOST_PP_ENUM(N, ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_III, ~))) invoke(U &); \
+  };                                                                            \
+                                                                                \
+  template<class Params>                                                        \
+  struct apply<Params, true, N> {                                               \
+    template<class U>                                                           \
+    static decltype(U::f(BOOST_PP_ENUM(N, ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_III, ~))) invoke(U &); \
+  };
+
+
+#define ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_I(trait_name, trait_impl_name, func_name) \
+  struct trait_impl_name {                                                      \
+    struct impl {                                                               \
+      template<class Params, bool isStatic, int paramCount>                     \
+      struct apply;                                                             \
+                                                                                \
+      BOOST_PP_REPEAT(ARX_HAS_XXX_MAX_ARITY, ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_II, func_name); \
+    };                                                                          \
+                                                                                \
+    template<class T, class Sig>                                                \
+    struct base: arx::has_xxx_detail::is_callable_base<impl, T, Sig> {          \
+      enum {                                                                    \
+        value = sizeof(                                                         \
+          check((                                                               \
+            invoke(arx::has_xxx_detail::make<typename arx::has_xxx_detail::object_type<T, Sig>::type>()), \
+            arx::has_xxx_detail::void_return()                                  \
+          ))                                                                    \
+        ) == sizeof(boost::type_traits::yes_type)                               \
+      };                                                                        \
+    };                                                                          \
+  };                                                                            \
+                                                                                \
+  template<class T, class Sig>                                                  \
+  struct trait_name:                                                            \
+    boost::mpl::bool_<trait_impl_name::base<T, Sig>::value>                     \
+  {};
 
 /**
  * Generates a traits class that detect if a given type X has a member function
@@ -135,18 +230,18 @@ struct trait_name<T, Signature, false>: public boost::mpl::false_ {};
  * the function being checked is private.
  */
 #define ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT(trait_name, func_name)            \
-  ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_I(trait_name, func_name)
+  ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_I(trait_name, BOOST_PP_CAT(trait_name, _impl), func_name)
+
 
 #define ARX_DEFINE_HAS_EXACT_FUNC_TRAIT(func_name)                              \
-  ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_I(BOOST_PP_CAT(has_exact_, func_name), func_name)
-
+  ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT(BOOST_PP_CAT(has_exact_, func_name), func_name)
 
 
 // -------------------------------------------------------------------------- //
 // ARX_DEFINE_HAS_FUNC_TRAIT
 // -------------------------------------------------------------------------- //
 #define ARX_DEFINE_NAMED_HAS_FUNC_TRAIT_II(trait_name, any_trait_name, exact_trait_name, func_name) \
-  ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_I(exact_trait_name, func_name)          \
+  ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT(exact_trait_name, func_name)          \
   ARX_DEFINE_NAMED_HAS_ANY_FUNC_TRAIT(any_trait_name, func_name)                \
                                                                                 \
   template<class T, class Signature = boost::mpl::na>                           \

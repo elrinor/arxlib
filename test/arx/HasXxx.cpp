@@ -49,6 +49,7 @@ protected:
 struct C6 {
   void f(int, float, char) const;
   void f() const;
+  void f(C6);
 };
 
 ARX_DEFINE_HAS_FUNC_TRAIT(f);
@@ -86,6 +87,15 @@ struct E2: E1 {
   void f(float);
 };
 
+struct F1 {
+  void f();
+};
+
+struct F2: F1 {
+  using F1::f;
+
+  int f();
+};
 
 
 
@@ -104,13 +114,16 @@ BOOST_AUTO_TEST_CASE(arx_has_xxx) {
 
   BOOST_CHECK((!has_f<C3, void (C3::*)()>::value));
   BOOST_CHECK((has_f<C6, void (C6::*)() const>::value));
-  BOOST_CHECK((!has_f<C9, void (C9::*)()>::value)); /* Ambiguous members don't cause a compilation error. */
+  BOOST_CHECK((!has_f<C6, void (C6::*)(C6) const>::value));
+  //BOOST_CHECK((!has_f<C9, void (C9::*)()>::value)); /* Ambiguous members cause compilation errors. */
 
-  BOOST_CHECK((!has_f<C6, void (C6::*)(int, float, char)>::value));
+  BOOST_CHECK((has_f<C6, void (C6::*)(int, float, char)>::value));
   BOOST_CHECK((has_f<C6, void (C6::*)(int, float, char) const>::value));
   BOOST_CHECK((!has_f<C3, void (C3::*)(int, float, char)>::value));
 
   BOOST_CHECK((D2::has_f<D1, void (D1::*)()>::value)); /* Private member introspection. */
 
   BOOST_CHECK((has_f<E2, void (E2::*)(int)>::value)); /* Should compile. */
+
+  BOOST_CHECK((has_f<F2, void (F2::*)()>::value)); /* Should compile. */
 }
