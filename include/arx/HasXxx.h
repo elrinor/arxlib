@@ -185,13 +185,13 @@ namespace arx { namespace has_xxx_detail {
   template<class Params>                                                        \
   struct apply<Params, false, N> {                                              \
     template<class U>                                                           \
-    static decltype(arx::has_xxx_detail::make<U &>().f(BOOST_PP_ENUM(N, ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_III, ~))) invoke(U &); \
+    static decltype(arx::has_xxx_detail::make<U &>().func_name(BOOST_PP_ENUM(N, ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_III, ~))) invoke(U &); \
   };                                                                            \
                                                                                 \
   template<class Params>                                                        \
   struct apply<Params, true, N> {                                               \
     template<class U>                                                           \
-    static decltype(U::f(BOOST_PP_ENUM(N, ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_III, ~))) invoke(U &); \
+    static decltype(U::func_name(BOOST_PP_ENUM(N, ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_III, ~))) invoke(U &); \
   };
 
 

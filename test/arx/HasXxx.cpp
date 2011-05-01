@@ -67,13 +67,14 @@ struct C9: C7, C8 {};
 
 struct D1 {
 private:
-  void f();
+  void g();
+  void g(char *, const int &);
 
   friend struct D2;
 };
 
 struct D2 {
-  ARX_DEFINE_HAS_FUNC_TRAIT(f);
+  ARX_DEFINE_HAS_FUNC_TRAIT(g);
 };
 
 struct E1 {
@@ -99,6 +100,8 @@ struct F2: F1 {
 
 
 
+
+
 BOOST_AUTO_TEST_CASE(arx_has_xxx) {
 
   BOOST_CHECK(has_type<C1>::value);
@@ -121,7 +124,8 @@ BOOST_AUTO_TEST_CASE(arx_has_xxx) {
   BOOST_CHECK((has_f<C6, void (C6::*)(int, float, char) const>::value));
   BOOST_CHECK((!has_f<C3, void (C3::*)(int, float, char)>::value));
 
-  BOOST_CHECK((D2::has_f<D1, void (D1::*)()>::value)); /* Private member introspection. */
+  BOOST_CHECK((D2::has_g<D1, void (D1::*)()>::value)); /* Private member introspection. */
+  BOOST_CHECK((D2::has_g<D1, void (D1::*)(char *, int)>::value));
 
   BOOST_CHECK((has_f<E2, void (E2::*)(int)>::value)); /* Should compile. */
 
