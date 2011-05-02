@@ -100,44 +100,59 @@ struct F2: F1 {
 
 struct G2;
 
-struct G1 {};
+struct G1 {
+  operator int () const;
+};
 
 struct G2 {
   G2(G1 *);
 
   void f(const G2 &);
+  void f(int);
 };
 
 
 
 BOOST_AUTO_TEST_CASE(arx_has_xxx) {
-
+  /* Has-type tests. */
   BOOST_CHECK(has_type<C1>::value);
   BOOST_CHECK(!has_type<C2>::value);
   BOOST_CHECK(!has_type<int>::value);
 
-
+  /* Any-function tests. */
   BOOST_CHECK(has_f<C3>::value);
   BOOST_CHECK(!has_f<C4>::value);
   BOOST_CHECK(!has_f<char *>::value);
+  
+  /* Should detect protected and private functions. */
+  BOOST_CHECK(has_f<C5>::value); 
 
-  BOOST_CHECK(has_f<C5>::value); /* Private members must also be detected. */
-
+  /* Const & non-const conversions. */
   BOOST_CHECK((!has_f<C3, void (C3::*)()>::value));
   BOOST_CHECK((has_f<C6, void (C6::*)() const>::value));
   BOOST_CHECK((!has_f<C6, void (C6::*)(C6) const>::value));
-  //BOOST_CHECK((!has_f<C9, void (C9::*)()>::value)); /* Ambiguous members cause compilation errors. */
-
+  
+  /* Multiple arguments. */
   BOOST_CHECK((has_f<C6, void (C6::*)(int, float, char)>::value));
   BOOST_CHECK((has_f<C6, void (C6::*)(int, float, char) const>::value));
   BOOST_CHECK((!has_f<C3, void (C3::*)(int, float, char)>::value));
 
-  BOOST_CHECK((D2::has_g<D1, void (D1::*)()>::value)); /* Private member introspection. */
+  /* Private member introspection, should compile. */
+  BOOST_CHECK((D2::has_g<D1, void (D1::*)()>::value)); 
   BOOST_CHECK((D2::has_g<D1, void (D1::*)(char *, int)>::value));
 
-  BOOST_CHECK((has_f<E2, void (E2::*)(int)>::value)); /* Should compile. */
+  /* Mixing functions from different classes with using directive, should
+   * compile. */
+  BOOST_CHECK((has_f<E2, void (E2::*)(int)>::value)); 
 
-  BOOST_CHECK((has_f<F2, void (F2::*)()>::value)); /* Should compile. */
+  /* Ambiguous calls, should compile. */
+  BOOST_CHECK((has_f<F2, void (F2::*)()>::value)); 
 
-  BOOST_CHECK((has_f<G2, void (G2::*)(G1 *)>::value)); /* Should work with user-defined conversions. */
+  /* Ambiguous base members should cause compilation error. 
+   * BOOST_CHECK((!has_f<C9, void (C9::*)()>::value)); 
+   */
+
+  /* Should work with user-defined conversions. */
+  BOOST_CHECK((has_f<G2, void (G2::*)(G1 *)>::value));
+  BOOST_CHECK((has_f<G2, void (G2::*)(G1)>::value));
 }
