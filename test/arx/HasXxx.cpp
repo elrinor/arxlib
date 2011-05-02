@@ -98,7 +98,15 @@ struct F2: F1 {
   int f();
 };
 
+struct G2;
 
+struct G1 {};
+
+struct G2 {
+  G2(G1 *);
+
+  void f(const G2 &);
+};
 
 
 
@@ -130,4 +138,6 @@ BOOST_AUTO_TEST_CASE(arx_has_xxx) {
   BOOST_CHECK((has_f<E2, void (E2::*)(int)>::value)); /* Should compile. */
 
   BOOST_CHECK((has_f<F2, void (F2::*)()>::value)); /* Should compile. */
+
+  BOOST_CHECK((has_f<G2, void (G2::*)(G1 *)>::value)); /* Should work with user-defined conversions. */
 }
