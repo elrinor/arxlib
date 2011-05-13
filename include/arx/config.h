@@ -111,5 +111,15 @@
   }
 #endif
 
+// -------------------------------------------------------------------------- //
+// Conditional compilation shortcuts
+// -------------------------------------------------------------------------- //
+#ifdef ARX_MSVC
+#  define ARX_MSVC_CODE(...) __VA_ARGS__
+#  define ARX_NON_MSVC_CODE(...) 
+#else
+#  define ARX_MSVC_CODE(...) 
+#  define ARX_NON_MSVC_CODE(...) __VA_ARGS__
+#endif
 
 #endif // ARX_CONFIG_H
