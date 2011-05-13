@@ -841,7 +841,6 @@ namespace arx { namespace xml {
   }
 
 
-
 /**
  * @param BINDING_NAME                 Name of the class that defines a binding.
  * @param TEMPLATE_BINDING             Binding class is a template?
@@ -859,14 +858,24 @@ namespace arx { namespace xml {
   public:                                                                       \
     template<class Node, class MessageHandler, class Params>                    \
     bool deserialize(const Node &source, MessageHandler &handler, const Params &params, TYPE_SPEC *target) const { \
-      static auto binding = boost::proto::deep_copy((__VA_ARGS__));             \
-      return binding.deserialize(source, handler, params, target);              \
+      ARX_MSVC_CODE(                                                            \
+        return ((__VA_ARGS__)).deserialize(source, handler, params, target);    \
+      )                                                                         \
+      ARX_NON_MSVC_CODE( /* MSVC ICEs here. */                                  \
+        static auto binding = boost::proto::deep_copy((__VA_ARGS__));           \
+        return binding.deserialize(source, handler, params, target);            \
+      )                                                                         \
     }                                                                           \
                                                                                 \
     template<class MessageHandler, class Params, class Node>                    \
     void serialize(const TYPE_SPEC &source, MessageHandler &handler, const Params &params, Node *target) const { \
-      static auto binding = boost::proto::deep_copy((__VA_ARGS__));             \
-      binding.serialize(source, handler, params, target);                       \
+      ARX_MSVC_CODE(                                                            \
+        ((__VA_ARGS__)).serialize(source, handler, params, target);             \
+      )                                                                         \
+      ARX_NON_MSVC_CODE( /* MSVC ICEs here. */                                  \
+        static auto binding = boost::proto::deep_copy((__VA_ARGS__));           \
+        binding.serialize(source, handler, params, target);                     \
+      )                                                                         \
     }                                                                           \
   };                                                                            \
                                                                                 \
