@@ -20,8 +20,10 @@
 #define ARX_UTILITY_H
 
 #include "config.h"
+#include "utility/Fatal.h"
 #include "utility/UnorderedPair.h"
 #include "utility/Unreachable.h"
+#include "utility/Verify.h"
 
 // -------------------------------------------------------------------------- //
 // Some useful defines
