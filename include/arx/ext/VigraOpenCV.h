@@ -22,7 +22,7 @@
 #include "config.h"
 #include <cassert>
 #include <boost/mpl/int.hpp>
-#include <arx/Utility.h>
+#include <arx/utility/Unreachable.h>
 #include "Vigra.h"
 #include "OpenCV.h"
 
@@ -81,21 +81,21 @@ namespace arx {
           switch(targetChannels) {
           case 3: cv::cvtColor(cvImage, cvTmpImage, CV_GRAY2BGR, targetChannels); break;
           case 4: cv::cvtColor(cvImage, cvTmpImage, CV_GRAY2BGRA, targetChannels); break;
-          default: Unreachable();
+          default: unreachable();
           }
         case 3:
           switch(targetChannels) {
           case 1: cv::cvtColor(cvImage, cvTmpImage, CV_RGB2GRAY, targetChannels); break;
           case 4: cv::cvtColor(cvImage, cvTmpImage, CV_BGR2BGRA, targetChannels); break;
-          default: Unreachable();
+          default: unreachable();
           }
         case 4:
           switch(targetChannels) {
           case 1: cv::cvtColor(cvImage, cvTmpImage, CV_RGBA2GRAY, targetChannels); break;
           case 3: cv::cvtColor(cvImage, cvTmpImage, CV_BGRA2BGR, targetChannels); break;
-          default: Unreachable();
+          default: unreachable();
           }
-        default: Unreachable();
+        default: unreachable();
         }
       }
 
