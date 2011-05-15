@@ -48,8 +48,8 @@
 #define ARX_ARRAY_NTH_BINARY_PARAMS_M(z, i, data)                               \
   BOOST_PP_COMMA_IF(BOOST_PP_NOT_EQUAL(i, 0))                                   \
   BOOST_PP_ARRAY_ELEM(                                                          \
-  BOOST_PP_ADD(BOOST_PP_MUL(i, 2), BOOST_PP_TUPLE_ELEM(2, 0, data)),          \
-  BOOST_PP_TUPLE_ELEM(2, 1, data)                                             \
+    BOOST_PP_ADD(BOOST_PP_MUL(i, 2), BOOST_PP_TUPLE_ELEM(2, 0, data)),          \
+    BOOST_PP_TUPLE_ELEM(2, 1, data)                                             \
   )
 
 #define ARX_ARRAY_NTH_BINARY_PARAMS(n, param_array)                             \
