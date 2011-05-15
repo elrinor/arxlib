@@ -123,8 +123,10 @@
     <ClInclude Include="..\include\arx\StaticCounter.h" />
     <ClInclude Include="..\include\arx\TypeTraits.h" />
     <ClInclude Include="..\include\arx\Utility.h" />
+    <ClInclude Include="..\include\arx\utility\Fatal.h" />
     <ClInclude Include="..\include\arx\utility\UnorderedPair.h" />
     <ClInclude Include="..\include\arx\utility\Unreachable.h" />
+    <ClInclude Include="..\include\arx\utility\Verify.h" />
     <ClInclude Include="..\include\arx\xml\Binding.h" />
     <ClInclude Include="..\include\arx\xml\Checkers.h" />
     <ClInclude Include="..\include\arx\xml\Error.h" />

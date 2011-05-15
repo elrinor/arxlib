@@ -239,6 +239,12 @@
     <ClInclude Include="..\include\arx\utility\UnorderedPair.h">
       <Filter>include\arx\utility</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\arx\utility\Verify.h">
+      <Filter>include\arx\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\utility\Fatal.h">
+      <Filter>include\arx\utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\arx\ext\VigraQt.pri">
