@@ -22,10 +22,6 @@
 #include "config.h"
 #include <utility> /* For std::pair. */
 #include <boost/iterator/iterator_adaptor.hpp>
-#include <QHash>
-#include <QMultiHash>
-#include <QMap>
-#include <QMultiMap>
 
 /*
  * Qt associative containers are not compatible with stl associative containers
@@ -108,6 +104,11 @@ inline typename boost::range_const_iterator<CONTAINER<Key, T> >::type           
 range_end(const CONTAINER<Key, T> &x) {                                         \
   return typename boost::range_const_iterator<CONTAINER<Key, T> >::type(x.end()); \
 }
+
+template<class Key, class T> class QHash;
+template<class Key, class T> class QMultiHash;
+template<class Key, class T> class QMap;
+template<class Key, class T> class QMultiMap;
 
 ARX_REGISTER_QT_ITERATOR_WRAPPER(QHash);
 ARX_REGISTER_QT_ITERATOR_WRAPPER(QMultiHash);
