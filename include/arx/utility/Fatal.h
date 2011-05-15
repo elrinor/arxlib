@@ -31,6 +31,7 @@
 #    define fatal() ((void) __assert(__FILE__, __LINE__, "Unreachable code executed"))
 #  else
 #    define fatal() ((void) std::abort())
+#  endif
 #else
 #  define fatal() assert(!"Unreachable code executed")
 #endif
