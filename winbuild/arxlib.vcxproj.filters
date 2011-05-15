@@ -57,6 +57,9 @@
     <Filter Include="include\arx\ext\boost">
       <UniqueIdentifier>{c76ef764-37ff-496c-a4d1-388f17f60dca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\arx\utility">
+      <UniqueIdentifier>{ab7ea71b-e3c0-4f54-84ab-2575d52c2ab4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\arx\config.h">
@@ -229,6 +232,12 @@
     </ClInclude>
     <ClInclude Include="..\include\arx\ext\boost\Test.h">
       <Filter>include\arx\ext\boost</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\utility\Unreachable.h">
+      <Filter>include\arx\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\utility\UnorderedPair.h">
+      <Filter>include\arx\utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
