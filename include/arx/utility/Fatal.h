@@ -26,14 +26,24 @@
 
 #ifdef NDEBUG
 #  if defined(ARX_MSVC)
-#    define fatal() ((void) _wassert(L"Unreachable code executed", BOOST_PP_CAT(L, __FILE__), __LINE__))
+#    define ARX_FATAL_ERROR(msg) _assert(msg, __FILE__, __LINE__)
 #  elif defined(ARX_GCC)
-#    define fatal() ((void) __assert(__FILE__, __LINE__, "Unreachable code executed"))
+#    define ARX_FATAL_ERROR(msg) __assert(__FILE__, __LINE__, msg)
 #  else
-#    define fatal() ((void) std::abort())
+#    define ARX_FATAL_ERROR(msg) std::abort()
 #  endif
 #else
-#  define fatal() assert(!"Unreachable code executed")
+#  define ARX_FATAL_ERROR(msg) assert(msg)
 #endif
+
+#define fatal() {                                                               \
+    ARX_FATAL_ERROR("Unreachable code executed");                               \
+    ARX_UNREACHABLE_CODE();                                                     \
+  }
+
+#define fatal_msg(msg) {                                                        \
+    ARX_FATAL_ERROR(msg);                                                       \
+    ARX_UNREACHABLE_CODE();                                                     \
+  }
 
 #endif // ARX_UTILITY_FATAL_H
