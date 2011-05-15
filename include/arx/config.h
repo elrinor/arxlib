@@ -36,6 +36,11 @@
  * error handling code will revert to assertions instead of exceptions. 
  */
 
+/** @def ARX_NO_DEPRECATE
+ * 
+ * Define to disable deprecation. If not defined, deprecated features will not
+ * be available.
+ */
 
 // -------------------------------------------------------------------------- //
 // Config: Image import & export
