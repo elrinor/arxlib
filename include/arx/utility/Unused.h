@@ -21,46 +21,35 @@
 
 #include <arx/config.h>
 
-namespace arx { 
-  namespace detail {
-    template<class T>
-    void mark_unused(const T &) {}
-  }
+namespace arx { namespace detail {
+  void mark_unused() {}
 
-  /**
-   * Class that can be used to suppress unused parameter warnings without any
-   * macro magic. Just invoke its constructor.
-   */
-  struct Unused {
-    Unused() {}
+  template<class T0>
+  void mark_unused(const T0 &) {}
 
-    template<class T0>
-    Unused(const T0 &) {}
+  template<class T0, class T1>
+  void mark_unused(const T0 &, const T1 &) {}
 
-    template<class T0, class T1>
-    Unused(const T0 &, const T1 &) {}
+  template<class T0, class T1, class T2>
+  void mark_unused(const T0 &, const T1 &, const T2 &) {}
 
-    template<class T0, class T1, class T2>
-    Unused(const T0 &, const T1 &, const T2 &) {}
+  template<class T0, class T1, class T2, class T3>
+  void mark_unused(const T0 &, const T1 &, const T2 &, const T3 &) {}
 
-    template<class T0, class T1, class T2, class T3>
-    Unused(const T0 &, const T1 &, const T2 &, const T3 &) {}
+  template<class T0, class T1, class T2, class T3, class T4>
+  void mark_unused(const T0 &, const T1 &, const T2 &, const T3 &, const T4 &) {}
 
-    template<class T0, class T1, class T2, class T3, class T4>
-    Unused(const T0 &, const T1 &, const T2 &, const T3 &, const T4 &) {}
-  };
-
-} // namespace arx::detail
+}} // namespace arx::detail
 
 /**
  * Macro to suppress unused parameter warnings. Unlike constructions like 
  * <tt>Q_UNUSED(X)</tt> or <tt>(void)x</tt>, does not require the parameter
  * to have a complete type.
  * 
- * @param X                            Name of the parameter to mark as 
- *                                     intentionally unused.
+ * @param ...                          Comma-separated list of parameters to 
+ *                                     mark as intentionally unused.
  */
-#define ARX_UNUSED(X) ::arx::detail::mark_unused(X)
+#define ARX_UNUSED(...) ::arx::detail::mark_unused(__VA_ARGS__)
 
 #ifndef ARX_NO_KEYWORD_UNUSED
 #  define unused ARX_UNUSED
