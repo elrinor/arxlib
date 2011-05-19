@@ -42,6 +42,11 @@
  * be available.
  */
 
+/** @def ARX_NO_KEYWORDS
+ * 
+ * Define to disable keyword-like macros defined by ArX library. 
+ */
+
 // -------------------------------------------------------------------------- //
 // Config: Image import & export
 // -------------------------------------------------------------------------- //
@@ -114,6 +119,24 @@
   if(!(CONDITION)) {                                                            \
     THROW_EXPRESSION;                                                           \
   }
+#endif
+
+#ifdef ARX_NO_KEYWORDS
+#  ifndef ARX_NO_KEYWORD_VERIFY
+#    define ARX_NO_KEYWORD_VERIFY
+#  endif
+#  ifndef ARX_NO_KEYWORD_UNUSED
+#    define ARX_NO_KEYWORD_UNUSED
+#  endif
+#  ifndef ARX_NO_KEYWORD_FATAL
+#    define ARX_NO_KEYWORD_FATAL
+#  endif
+#  ifndef ARX_NO_KEYWORD_FATAL_MSG
+#    define ARX_NO_KEYWORD_FATAL_MSG
+#  endif
+#  ifndef ARX_NO_KEYWORD_UNREACHABLE
+#    define ARX_NO_KEYWORD_UNREACHABLE
+#  endif
 #endif
 
 // -------------------------------------------------------------------------- //

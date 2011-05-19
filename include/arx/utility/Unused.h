@@ -16,20 +16,28 @@
  * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
  * 
  * $Id$ */
-#ifndef ARX_UTILITY_VERIFY_H
-#define ARX_UTILITY_VERIFY_H
+#ifndef ARX_UTILITY_UNUSED_H
+#define ARX_UTILITY_UNUSED_H
 
 #include <arx/config.h>
-#include <cassert>
 
-#ifdef NDEBUG
-#  define ARX_VERIFY(expr) ((void)(expr))
-#else
-#  define ARX_VERIFY(expr) assert(expr)
+namespace arx { namespace detail {
+  template<class T>
+  void use(const T &) {}
+}} // namespace arx::detail
+
+/**
+ * Macro to suppress unused parameter warnings. Unlike constructions like 
+ * <tt>Q_UNUSED(X)</tt> or <tt>(void)x</tt>, does not require the parameter
+ * to have a complete type.
+ * 
+ * @param X                            Name of the parameter to mark as 
+ *                                     intentionally unused.
+ */
+#define ARX_UNUSED(X) ::arx::detail::use(X)
+
+#ifndef ARX_NO_KEYWORD_UNUSED
+#  define unused ARX_UNUSED
 #endif
 
-#ifndef ARX_NO_KEYWORD_VERIFY
-#  define verify ARX_VERIFY
-#endif
-
-#endif // ARX_UTILITY_VERIFY_H
+#endif // ARX_UTILITY_UNUSED_H

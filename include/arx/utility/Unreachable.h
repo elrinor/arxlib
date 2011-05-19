@@ -38,18 +38,21 @@
  * Produces assertion in debug builds and emits compiler-specific optimization
  * hints.
  */
-#define unreachable() {                                                         \
+#define ARX_UNREACHABLE() {                                                     \
     assert(!"Unreachable code executed.");                                      \
     ARX_UNREACHABLE_CODE();                                                     \
   }
 
-#ifdef ARX_NO_DEPRECATE
+#ifndef ARX_NO_KEYWORD_UNREACHABLE
+#  define unreachable ARX_UNREACHABLE
+#  ifdef ARX_NO_DEPRECATE
 /**
- * Compatibility definition.
- * 
- * @see unreachable
- */
-#  define Unreachable unreachable
+  * Compatibility definition.
+  * 
+  * @see unreachable
+  */
+#    define Unreachable ARX_UNREACHABLE
+#  endif
 #endif
 
 #endif // ARX_UTILITY_UNREACHABLE_H
