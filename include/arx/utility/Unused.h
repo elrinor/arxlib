@@ -21,10 +21,36 @@
 
 #include <arx/config.h>
 
-namespace arx { namespace detail {
-  template<class T>
-  void use(const T &) {}
-}} // namespace arx::detail
+namespace arx { 
+  namespace detail {
+    template<class T>
+    void mark_unused(const T &) {}
+  }
+
+  /**
+   * Class that can be used to suppress unused parameter warnings without any
+   * macro magic. Just invoke its constructor.
+   */
+  struct Unused {
+    Unused() {}
+
+    template<class T0>
+    Unused(const T0 &) {}
+
+    template<class T0, class T1>
+    Unused(const T0 &, const T1 &) {}
+
+    template<class T0, class T1, class T2>
+    Unused(const T0 &, const T1 &, const T2 &) {}
+
+    template<class T0, class T1, class T2, class T3>
+    Unused(const T0 &, const T1 &, const T2 &, const T3 &) {}
+
+    template<class T0, class T1, class T2, class T3, class T4>
+    Unused(const T0 &, const T1 &, const T2 &, const T3 &, const T4 &) {}
+  };
+
+} // namespace arx::detail
 
 /**
  * Macro to suppress unused parameter warnings. Unlike constructions like 
@@ -34,7 +60,7 @@ namespace arx { namespace detail {
  * @param X                            Name of the parameter to mark as 
  *                                     intentionally unused.
  */
-#define ARX_UNUSED(X) ::arx::detail::use(X)
+#define ARX_UNUSED(X) ::arx::detail::mark_unused(X)
 
 #ifndef ARX_NO_KEYWORD_UNUSED
 #  define unused ARX_UNUSED
