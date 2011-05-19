@@ -126,6 +126,7 @@
     <ClInclude Include="..\include\arx\utility\Fatal.h" />
     <ClInclude Include="..\include\arx\utility\UnorderedPair.h" />
     <ClInclude Include="..\include\arx\utility\Unreachable.h" />
+    <ClInclude Include="..\include\arx\utility\Unused.h" />
     <ClInclude Include="..\include\arx\utility\Verify.h" />
     <ClInclude Include="..\include\arx\xml\Binding.h" />
     <ClInclude Include="..\include\arx\xml\Checkers.h" />

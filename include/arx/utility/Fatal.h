@@ -36,14 +36,22 @@
 #  define ARX_FATAL_ERROR(msg) assert(msg)
 #endif
 
-#define fatal() {                                                               \
+#define ARX_FATAL() {                                                           \
     ARX_FATAL_ERROR("Unreachable code executed");                               \
     ARX_UNREACHABLE_CODE();                                                     \
   }
 
-#define fatal_msg(msg) {                                                        \
+#define ARX_FATAL_MSG(msg) {                                                    \
     ARX_FATAL_ERROR(msg);                                                       \
     ARX_UNREACHABLE_CODE();                                                     \
   }
+
+#ifndef ARX_NO_KEYWORD_FATAL
+#  define fatal ARX_FATAL
+#endif
+
+#ifndef ARX_NO_KEYWORD_FATAL_MSG
+#  define fatal_msg ARX_FATAL_MSG
+#endif
 
 #endif // ARX_UTILITY_FATAL_H

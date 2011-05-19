@@ -23,6 +23,7 @@
 #include "utility/Fatal.h"
 #include "utility/UnorderedPair.h"
 #include "utility/Unreachable.h"
+#include "utility/Unused.h"
 #include "utility/Verify.h"
 
 // -------------------------------------------------------------------------- //
