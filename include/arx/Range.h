@@ -21,5 +21,6 @@
 
 #include "config.h"
 #include "range/Contains.h"
+#include "range/Insert.h"
 
 #endif // ARX_RANGE_H

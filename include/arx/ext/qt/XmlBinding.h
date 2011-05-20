@@ -1,6 +1,6 @@
 /* This file is part of ArXLib, a C++ ArX Primitives Library.
  *
- * Copyright (C) 2008-2010 Alexander Fokin <apfokin@gmail.com>
+ * Copyright (C) 2008-2011 Alexander Fokin <apfokin@gmail.com>
  *
  * ArXLib is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,9 +22,12 @@
 #include "config.h"
 #include <cassert>
 #include <limits>
+#include <boost/range/value_type.hpp>
+#include <boost/range/end.hpp>
 #include <QString>
 #include <QDomNode>
-#include <QList>
+#include <arx/range/Insert.h>
+#include <arx/ext/qt/Range.h>
 #include <arx/xml/Binding.h>
 #include <arx/Foreach.h>
 #include "XmlQDomNodeInspector.h"
@@ -35,6 +38,9 @@
 #  error Include XmlBinding.pri into your qmake project file before including this file
 #endif
 
+template<class T> class QList;
+template<class T> class QVector;
+template<class T> class QLinkedList;
 
 namespace arx { namespace xml {
   namespace qt_xml_binding_detail {
@@ -102,11 +108,15 @@ namespace arx { namespace xml {
       ARX_SERIALIZATION_FUNC(float,                        QString::number(static_cast<float>(x), 'g', 9));
       ARX_SERIALIZATION_FUNC(double,                       QString::number(x, 'g', 18));
 #undef ARX_SERIALIZATION_FUNC
+    };
     
-      template<class T, class MessageTranslator, class Params>
-      void operator()(const QList<T> &source, MessageTranslator &translator, const Params &params, QDomNode *target) const {
+    struct CollectionSerializer {
+      template<class Collection, class MessageTranslator, class Params>
+      void operator()(const Collection &source, MessageTranslator &translator, const Params &params, QDomNode *target) const {
+        typedef typename boost::range_value<Collection>::type value_type;
+
         QString elementName = QString(params.template get<element_name_tag>(static_cast<const char *>("elem"))); /* TODO: handle this in a normal way. */
-        foreach(const T &value, source) {
+        foreach(const value_type &value, source) {
           QDomNode element = target->appendChild(target->ownerDocument().createElement(elementName));
           arx::xml::serialize(value, translator, params, &element);
         }
@@ -161,17 +171,21 @@ namespace arx { namespace xml {
       ARX_DESERIALIZATION_FUNC(float,                      s.toFloat(&ok),      true);
       ARX_DESERIALIZATION_FUNC(double,                     s.toDouble(&ok),     true);
 #undef ARX_DESERIALIZATION_FUNC
-    
-      template<class T, class MessageTranslator, class Params>
-      void operator()(QDomNode &source, MessageTranslator &translator, const Params &params, QList<T> *target) const {
+    };
+
+    struct CollectionDeserializer {
+      template<class Collection, class MessageTranslator, class Params>
+      void operator()(QDomNode &source, MessageTranslator &translator, const Params &params, Collection *target) const {
+        typedef typename boost::range_value<Collection>::type value_type;
+
         QString elementName = QString(params.template get<element_name_tag>(static_cast<const char *>("elem")));
         for(QDomNode child = source.firstChildElement(); !child.isNull(); child = child.nextSiblingElement()) {
           if(child.nodeName() != elementName) {
             translator(ERROR, create_invalid_desired_name(child.nodeName(), elementName), child);
           } else {
-            T value;
+            value_type value;
             if(arx::xml::deserialize(child, translator, params, &value))
-              target->push_back(value);
+              arx::insert(*target, boost::end(*target), std::move(value));
           }
         }
       }
@@ -181,7 +195,7 @@ namespace arx { namespace xml {
   } // namespace qt_xml_binding_detail
 
 
-#define ARX_STANDARD_BINDING(TYPE)                                              \
+#define ARX_DEFINE_STANDARD_BINDING(TYPE)                                       \
   ARX_XML_DEFINE_BINDING(                                                       \
     TYPE,                                                                       \
     ARX_XML_FUNCTIONAL(                                                         \
@@ -191,33 +205,39 @@ namespace arx { namespace xml {
     )                                                                           \
   ) 
 
-  ARX_STANDARD_BINDING(QString);
-  ARX_STANDARD_BINDING(bool);
-  ARX_STANDARD_BINDING(char);
-  ARX_STANDARD_BINDING(unsigned char);
-  ARX_STANDARD_BINDING(short);
-  ARX_STANDARD_BINDING(unsigned short);
-  ARX_STANDARD_BINDING(int);
-  ARX_STANDARD_BINDING(unsigned int);
-  ARX_STANDARD_BINDING(long);
-  ARX_STANDARD_BINDING(unsigned long);
-  ARX_STANDARD_BINDING(long long);
-  ARX_STANDARD_BINDING(unsigned long long);
-  ARX_STANDARD_BINDING(float);
-  ARX_STANDARD_BINDING(double);
-#undef ARX_STANDARD_BINDING
+  ARX_DEFINE_STANDARD_BINDING(QString);
+  ARX_DEFINE_STANDARD_BINDING(bool);
+  ARX_DEFINE_STANDARD_BINDING(char);
+  ARX_DEFINE_STANDARD_BINDING(unsigned char);
+  ARX_DEFINE_STANDARD_BINDING(short);
+  ARX_DEFINE_STANDARD_BINDING(unsigned short);
+  ARX_DEFINE_STANDARD_BINDING(int);
+  ARX_DEFINE_STANDARD_BINDING(unsigned int);
+  ARX_DEFINE_STANDARD_BINDING(long);
+  ARX_DEFINE_STANDARD_BINDING(unsigned long);
+  ARX_DEFINE_STANDARD_BINDING(long long);
+  ARX_DEFINE_STANDARD_BINDING(unsigned long long);
+  ARX_DEFINE_STANDARD_BINDING(float);
+  ARX_DEFINE_STANDARD_BINDING(double);
+#undef ARX_DEFINE_STANDARD_BINDING
 
-  ARX_XML_DEFINE_NAMED_TPL_BINDING(
-    QList_xml_binding, 
-    QList, 
-    (class)(T), 
-    (T), 
-    ARX_XML_FUNCTIONAL(
-      self, 
-      qt_xml_binding_detail::Serializer(), 
-      qt_xml_binding_detail::Deserializer()
-    )
-  );
+#define ARX_DEFINE_STANDARD_COLLECTION_NAMED_TPL_BINDING(NAME, TYPE, TYPE_TPL_SEQ, TYPE_SPEC_SEQ) \
+  ARX_XML_DEFINE_NAMED_TPL_BINDING(                                             \
+    NAME,                                                                       \
+    TYPE,                                                                       \
+    TYPE_TPL_SEQ,                                                               \
+    TYPE_SPEC_SEQ,                                                              \
+    ARX_XML_FUNCTIONAL(                                                         \
+      self,                                                                     \
+      qt_xml_binding_detail::CollectionSerializer(),                            \
+      qt_xml_binding_detail::CollectionDeserializer()                           \
+    )                                                                           \
+  ) 
+
+  ARX_DEFINE_STANDARD_COLLECTION_NAMED_TPL_BINDING(QList_xml_binding,       QList,       (class)(T), (T));
+  ARX_DEFINE_STANDARD_COLLECTION_NAMED_TPL_BINDING(QVector_xml_binding,     QVector,     (class)(T), (T));
+  ARX_DEFINE_STANDARD_COLLECTION_NAMED_TPL_BINDING(QLinkedList_xml_binding, QLinkedList, (class)(T), (T));
+#undef ARX_DEFINE_STANDARD_NAMED_TPL_BINDING
 
   using qt_xml_binding_detail::element_name;
 
