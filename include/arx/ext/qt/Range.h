@@ -1,6 +1,6 @@
 /* This file is part of ArXLib, a C++ ArX Primitives Library.
  *
- * Copyright (C) 2008-2010 Alexander Fokin <apfokin@gmail.com>
+ * Copyright (C) 2008-2011 Alexander Fokin <apfokin@gmail.com>
  *
  * ArXLib is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,7 @@
 #define ARX_EXT_QT_RANGE_H
 
 #include "config.h"
-#include <utility> /* For std::pair. */
+#include <utility> /* For std::pair & std::forward. */
 #include <boost/iterator/iterator_adaptor.hpp>
 
 /*
@@ -116,5 +116,39 @@ ARX_REGISTER_QT_ITERATOR_WRAPPER(QMap);
 ARX_REGISTER_QT_ITERATOR_WRAPPER(QMultiMap);
 
 #undef ARX_REGISTER_QT_ITERATOR_WRAPPER
+
+/**
+ * Qt containers are also notorious for their lack of a unified insertion 
+ * operation. 
+ * 
+ * This problem is solved by introducing proper arx::range bindings.
+ */
+
+template<class T> class QSet;
+
+namespace arx { namespace detail {
+  /* Note that this is the namespace where original range_insert function was
+   * introduced. */
+
+  /* QList, QVector and QLinkedList support STL-style insertion out of the box. */
+
+  template<class T, class Element>
+  void range_insert(QSet<T> &range, const typename boost::range_iterator<QSet<T> >::type &, Element &&element) {
+    range.insert(std::forward<Element>(element));
+  }
+
+#define ARX_REGISTER_QT_RANGE_INSERT(CONTAINER)                                 \
+  template<class Key, class T, class Element>                                   \
+  void range_insert(CONTAINER<Key, T> &range, const typename boost::range_iterator<CONTAINER<Key, T> >::type &, Element &&element) { \
+    range.insert(element.first, element.second);                                \
+  }
+
+  ARX_REGISTER_QT_RANGE_INSERT(QHash);
+  ARX_REGISTER_QT_RANGE_INSERT(QMultiHash);
+  ARX_REGISTER_QT_RANGE_INSERT(QMap);
+  ARX_REGISTER_QT_RANGE_INSERT(QMultiMap);
+#undef ARX_REGISTER_QT_RANGE_INSERT
+
+}} // namespace arx::detail
 
 #endif // ARX_EXT_QT_RANGE_H
