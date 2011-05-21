@@ -16,20 +16,33 @@
  * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
  * 
  * $Id$ */
-#ifndef ARX_RANGE_CONTAINS_H
-#define ARX_RANGE_CONTAINS_H
+#ifndef ARX_RANGE_MAPPED_VALUE_H
+#define ARX_RANGE_MAPPED_VALUE_H
 
 #include <arx/config.h>
+#include <boost/range/value_type.hpp>
+#include <boost/range/iterator.hpp>
 #include <boost/range/end.hpp>
 #include "Find.h"
 
 namespace arx {
 
-  template<class Range, class T>
-  bool contains(const Range &range, const T &value) {
-    return find(range, value) != boost::end(range);
+  template<class Range, class Key, class Value>
+  typename boost::range_value<const Range>::type::second_type
+  mapped_value(const Range &range, const Key &key, const Value &defaultValue) {
+    typename boost::range_iterator<const Range>::type pos = arx::find(range, key);
+
+    return pos == boost::end(range) ? defaultValue : pos->second;
+  }
+
+  template<class Range, class Key>
+  typename boost::range_value<const Range>::type::second_type
+  mapped_value(const Range &range, const Key &key) {
+    typename boost::range_iterator<const Range>::type pos = arx::find(range, key);
+
+    return pos == boost::end(range) ? typename boost::range_value<const Range>::type::second_type() : pos->second;
   }
 
 } // namespace arx
 
-#endif // ARX_RANGE_CONTAINS_H
+#endif // ARX_RANGE_MAPPED_VALUE_H

@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_QT_RANGE_H
 #define ARX_EXT_QT_RANGE_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <utility> /* For std::pair & std::forward. */
 #include <boost/iterator/iterator_adaptor.hpp>
 
