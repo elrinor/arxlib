@@ -251,6 +251,12 @@
     <ClInclude Include="..\include\arx\range\Insert.h">
       <Filter>include\arx\range</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\arx\range\Find.h">
+      <Filter>include\arx\range</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\range\MappedValue.h">
+      <Filter>include\arx\range</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\arx\ext\VigraQt.pri">
