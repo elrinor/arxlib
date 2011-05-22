@@ -23,6 +23,14 @@
 #include <utility> /* For std::pair & std::forward. */
 #include <boost/iterator/iterator_adaptor.hpp>
 
+QT_BEGIN_NAMESPACE
+  template<class Key, class T> class QHash;
+  template<class Key, class T> class QMultiHash;
+  template<class Key, class T> class QMap;
+  template<class Key, class T> class QMultiMap;
+  template<class T> class QSet;
+QT_END_NAMESPACE
+
 /*
  * Qt associative containers are not compatible with stl associative containers
  * as they provide iterators over a set of mapped values, not over a set of 
@@ -105,15 +113,10 @@ range_end(const CONTAINER<Key, T> &x) {                                         
   return typename boost::range_const_iterator<CONTAINER<Key, T> >::type(x.end()); \
 }
 
-template<class Key, class T> class QHash;
-template<class Key, class T> class QMultiHash;
-template<class Key, class T> class QMap;
-template<class Key, class T> class QMultiMap;
-
-ARX_REGISTER_QT_ITERATOR_WRAPPER(QHash);
-ARX_REGISTER_QT_ITERATOR_WRAPPER(QMultiHash);
-ARX_REGISTER_QT_ITERATOR_WRAPPER(QMap);
-ARX_REGISTER_QT_ITERATOR_WRAPPER(QMultiMap);
+ARX_REGISTER_QT_ITERATOR_WRAPPER(QT_PREPEND_NAMESPACE(QHash));
+ARX_REGISTER_QT_ITERATOR_WRAPPER(QT_PREPEND_NAMESPACE(QMultiHash));
+ARX_REGISTER_QT_ITERATOR_WRAPPER(QT_PREPEND_NAMESPACE(QMap));
+ARX_REGISTER_QT_ITERATOR_WRAPPER(QT_PREPEND_NAMESPACE(QMultiMap));
 
 #undef ARX_REGISTER_QT_ITERATOR_WRAPPER
 
@@ -124,12 +127,7 @@ ARX_REGISTER_QT_ITERATOR_WRAPPER(QMultiMap);
  * This problem is solved by introducing proper arx::range bindings.
  */
 
-template<class T> class QSet;
-
-namespace arx { namespace detail {
-  /* Note that this is the namespace where original range_insert function was
-   * introduced. */
-
+QT_BEGIN_NAMESPACE
   /* QList, QVector and QLinkedList support STL-style insertion out of the box. */
 
   template<class T, class Element>
@@ -143,12 +141,14 @@ namespace arx { namespace detail {
     range.insert(element.first, element.second);                                \
   }
 
+  /* Note that QT_PREPEND_NAMESPACE is not needed here as we're already inside 
+   * Qt namespace. */
   ARX_REGISTER_QT_RANGE_INSERT(QHash);
   ARX_REGISTER_QT_RANGE_INSERT(QMultiHash);
   ARX_REGISTER_QT_RANGE_INSERT(QMap);
   ARX_REGISTER_QT_RANGE_INSERT(QMultiMap);
 #undef ARX_REGISTER_QT_RANGE_INSERT
 
-}} // namespace arx::detail
+QT_END_NAMESPACE
 
 #endif // ARX_EXT_QT_RANGE_H
