@@ -27,7 +27,7 @@ namespace arx {
 
   template<class Range, class T>
   bool contains(const Range &range, const T &value) {
-    return find(range, value) != boost::end(range);
+    return arx::find(range, value) != boost::end(range);
   }
 
 } // namespace arx
