@@ -161,7 +161,9 @@ namespace arx { namespace has_xxx_detail {
   template<class Impl, class T, class Sig> 
   struct is_callable_base: is_callable_base2<Impl, Sig> {
     using is_callable_base2<Impl, Sig>::invoke;
-    static not_found invoke(...);
+    
+    template<class U>
+    static not_found invoke(U &, ...);
 
     typedef typename boost::function_types::result_type<Sig>::type result_type;
 
@@ -185,13 +187,13 @@ namespace arx { namespace has_xxx_detail {
   template<class Params>                                                        \
   struct apply<Params, false, N> {                                              \
     template<class U>                                                           \
-    static decltype(arx::has_xxx_detail::make<U &>().func_name(BOOST_PP_ENUM(N, ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_III, ~))) invoke(U &); \
+    static decltype(arx::has_xxx_detail::make<U &>().func_name(BOOST_PP_ENUM(N, ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_III, ~))) invoke(U &, int); \
   };                                                                            \
                                                                                 \
   template<class Params>                                                        \
   struct apply<Params, true, N> {                                               \
     template<class U>                                                           \
-    static decltype(U::func_name(BOOST_PP_ENUM(N, ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_III, ~))) invoke(U &); \
+    static decltype(U::func_name(BOOST_PP_ENUM(N, ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT_III, ~))) invoke(U &, int); \
   };
 
 
@@ -209,7 +211,7 @@ namespace arx { namespace has_xxx_detail {
       enum {                                                                    \
         value = sizeof(                                                         \
           check((                                                               \
-            invoke(arx::has_xxx_detail::make<typename arx::has_xxx_detail::object_type<T, Sig>::type>()), \
+            invoke(arx::has_xxx_detail::make<typename arx::has_xxx_detail::object_type<T, Sig>::type>(), 0), \
             arx::has_xxx_detail::void_return()                                  \
           ))                                                                    \
         ) == sizeof(boost::type_traits::yes_type)                               \
