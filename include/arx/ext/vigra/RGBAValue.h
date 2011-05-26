@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_VIGRA_RGBA_VALUE_H
 #define ARX_EXT_VIGRA_RGBA_VALUE_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <vigra/metaprogramming.hxx>
 #include <vigra/static_assert.hxx>
 #include <vigra/tinyvector.hxx>

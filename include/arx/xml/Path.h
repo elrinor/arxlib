@@ -19,7 +19,7 @@
 #ifndef ARX_XML_PATH_H
 #define ARX_XML_PATH_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/or.hpp>
 #include <boost/type_traits/remove_cv.hpp>

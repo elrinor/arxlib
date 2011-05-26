@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_MAGICK_H
 #define ARX_EXT_MAGICK_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <Magick++.h>
 
 // -------------------------------------------------------------------------- //

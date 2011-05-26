@@ -19,7 +19,7 @@
 #ifndef ARX_XML_NODE_INSPECTOR_H
 #define ARX_XML_NODE_INSPECTOR_H
 
-#include "config.h"
+#include <arx/config.h>
 #include "ErrorLocation.h"
 
 namespace arx { namespace xml {

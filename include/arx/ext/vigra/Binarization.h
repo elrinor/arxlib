@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_VIGRA_BINARIZATION_H
 #define ARX_EXT_VIGRA_BINARIZATION_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <cassert>
 #include <vector>
 #include <boost/type_traits/is_same.hpp>

@@ -19,7 +19,7 @@
 #ifndef ARX_UTILITY_H
 #define ARX_UTILITY_H
 
-#include "config.h"
+#include <arx/config.h>
 #include "utility/Fatal.h"
 #include "utility/UnorderedPair.h"
 #include "utility/Unreachable.h"

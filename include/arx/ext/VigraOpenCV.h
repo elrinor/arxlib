@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_VIGRA_OPENCV_H
 #define ARX_EXT_VIGRA_OPENCV_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <cassert>
 #include <boost/mpl/int.hpp>
 #include <arx/utility/Unreachable.h>

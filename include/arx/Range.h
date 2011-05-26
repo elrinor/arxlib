@@ -19,7 +19,7 @@
 #ifndef ARX_RANGE_H
 #define ARX_RANGE_H
 
-#include "config.h"
+#include <arx/config.h>
 #include "range/Contains.h"
 #include "range/Find.h"
 #include "range/Insert.h"

@@ -19,7 +19,7 @@
 #ifndef ARX_XML_ERROR_H
 #define ARX_XML_ERROR_H
 
-#include "config.h"
+#include <arx/config.h>
 
 namespace arx { namespace xml {
   /**

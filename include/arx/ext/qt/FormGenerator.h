@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_QT_FORM_GENERATOR_H
 #define ARX_EXT_QT_FORM_GENERATOR_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <algorithm> /* for std::swap(). */
 #include "FormPrinter.h"
 

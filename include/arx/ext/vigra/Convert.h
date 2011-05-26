@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_VIGRA_CONVERT_H
 #define ARX_EXT_VIGRA_CONVERT_H
 
-#include "config.h"
+#include <arx/config.h>
 #include "Converter.h"
 #include "Accessors.h"
 

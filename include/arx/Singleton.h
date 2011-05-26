@@ -19,7 +19,7 @@
 #ifndef ARX_SINGLETON_H
 #define ARX_SINGLETON_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <cassert>
 #include <boost/noncopyable.hpp>
 #include <boost/mpl/map.hpp>

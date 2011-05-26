@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_QT_XML_Q_DOM_NODE_WALKER_H
 #define ARX_EXT_QT_XML_Q_DOM_NODE_WALKER_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <cassert>
 #include <QString>
 #include <QDomNode>

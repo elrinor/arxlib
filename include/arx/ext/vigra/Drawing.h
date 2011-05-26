@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_VIGRA_DRAWING_H
 #define ARX_EXT_VIGRA_DRAWING_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <algorithm> /* for std::swap() */
 
 namespace vigra {

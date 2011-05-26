@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_QT_H
 #define ARX_EXT_QT_H
 
-#include "config.h"
+#include <arx/config.h>
 
 // -------------------------------------------------------------------------- //
 // Inter-lib defines

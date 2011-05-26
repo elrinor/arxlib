@@ -19,7 +19,7 @@
 #ifndef ARX_HAS_XXX_H
 #define ARX_HAS_XXX_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <boost/function_types/is_member_function_pointer.hpp>
 #include <boost/function_types/function_arity.hpp>
 #include <boost/function_types/result_type.hpp>

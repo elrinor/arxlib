@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_QT_XML_USER_DATA_H
 #define ARX_EXT_QT_XML_USER_DATA_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <arx/Properties.h>
 
 namespace arx { namespace xml {

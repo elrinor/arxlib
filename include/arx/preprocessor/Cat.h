@@ -19,7 +19,7 @@
 #ifndef ARX_PREPROCESSOR_CAT_H
 #define ARX_PREPROCESSOR_CAT_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <boost/preprocessor/cat.hpp>
 
 #define ARX_CAT BOOST_PP_CAT
