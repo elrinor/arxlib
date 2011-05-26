@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_VIGRA_STD_IMAGE_H
 #define ARX_EXT_VIGRA_STD_IMAGE_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <vigra/stdimage.hxx>
 #include <vigra/rgbvalue.hxx>
 #include "RGBAValue.h"

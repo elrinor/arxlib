@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_QT_XML_BINDING_H
 #define ARX_EXT_QT_XML_BINDING_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <cassert>
 #include <limits>
 #include <boost/range/value_type.hpp>

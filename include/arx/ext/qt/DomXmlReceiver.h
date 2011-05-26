@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_QT_DOM_XML_RECEIVER_H
 #define ARX_EXT_QT_DOM_XML_RECEIVER_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <QAbstractXmlReceiver>
 #include <QDomNode>
 #include <QXmlQuery>

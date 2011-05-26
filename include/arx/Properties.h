@@ -19,7 +19,7 @@
 #ifndef ARX_PROPERTIES_H
 #define ARX_PROPERTIES_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/identity.hpp>
 #include <boost/mpl/and.hpp>

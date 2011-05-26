@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_VIGRA_ACCESSORS_H
 #define ARX_EXT_VIGRA_ACCESSORS_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <boost/type_traits/is_same.hpp>
 #include <arx/Utility.h> /* for STATIC_ASSERT() */
 #include "MetaFunctions.h"

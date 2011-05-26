@@ -19,7 +19,7 @@
 #ifndef ARX_PREPROCESSOR_H
 #define ARX_PREPROCESSOR_H
 
-#include "config.h"
+#include <arx/config.h>
 #include "preprocessor/Cat.h"
 #include "preprocessor/Strip.h"
 #include "preprocessor/ArrayParams.h"

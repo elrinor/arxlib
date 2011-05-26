@@ -19,7 +19,7 @@
 #ifndef ARX_XML_CHECKERS_H
 #define ARX_XML_CHECKERS_H
 
-#include "config.h"
+#include <arx/config.h>
 
 #include <map>
 

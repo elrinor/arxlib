@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_OPENCV_H
 #define ARX_EXT_OPENCV_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <exception>
 #include <boost/lexical_cast.hpp>
 #include <opencv/cv.h>

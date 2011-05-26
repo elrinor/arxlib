@@ -122,9 +122,6 @@
     <ClInclude Include="..\include\arx\xml\UserData.h">
       <Filter>include\arx\xml</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\arx\ext\config.h">
-      <Filter>include\arx\ext</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\arx\ext\Magick.h">
       <Filter>include\arx\ext</Filter>
     </ClInclude>
@@ -155,9 +152,6 @@
     <ClInclude Include="..\include\arx\ext\vigra\Colors.h">
       <Filter>include\arx\ext\vigra</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\arx\ext\vigra\config.h">
-      <Filter>include\arx\ext\vigra</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\arx\ext\vigra\Convert.h">
       <Filter>include\arx\ext\vigra</Filter>
     </ClInclude>
@@ -178,9 +172,6 @@
     </ClInclude>
     <ClInclude Include="..\include\arx\ext\vigra\Validation.h">
       <Filter>include\arx\ext\vigra</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\arx\ext\qt\config.h">
-      <Filter>include\arx\ext\qt</Filter>
     </ClInclude>
     <ClInclude Include="..\include\arx\ext\qt\FormGenerator.h">
       <Filter>include\arx\ext\qt\form_printer</Filter>

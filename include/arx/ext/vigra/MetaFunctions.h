@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_VIGRA_META_FUNCTIONS_H
 #define ARX_EXT_VIGRA_META_FUNCTIONS_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/identity.hpp>
 #include <vigra/rgbvalue.hxx>

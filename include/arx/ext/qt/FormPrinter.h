@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_QT_FORM_PRINTER_H
 #define ARX_EXT_QT_FORM_PRINTER_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <cassert>
 #include <QObject>
 #include <QPrinter>

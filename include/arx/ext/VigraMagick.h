@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_VIGRA_MAGICK_H
 #define ARX_EXT_VIGRA_MAGICK_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <boost/mpl/integral_c.hpp>
 #include <cassert>
 #include <fstream>

@@ -19,7 +19,7 @@
 #ifndef ARX_XML_STRING_PROCESSOR_H
 #define ARX_XML_STRING_PROCESSOR_H
 
-#include "config.h"
+#include <arx/config.h>
 
 namespace arx { namespace xml {
   namespace string_processor_detail {

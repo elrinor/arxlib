@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_VIGRA_VALIDATION_H
 #define ARX_EXT_VIGRA_VALIDATION_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <boost/program_options.hpp>
 #include <boost/spirit/include/qi.hpp>
 

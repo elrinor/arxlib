@@ -19,7 +19,7 @@
 #ifndef ARX_SCOPE_EXIT_H
 #define ARX_SCOPE_EXIT_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <utility> /* For std::move. */
 #include <boost/preprocessor/cat.hpp>
 

@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_VIGRA_H
 #define ARX_EXT_VIGRA_H
 
-#include "config.h"
+#include <arx/config.h>
 #include "vigra/Accessors.h"
 #include "vigra/Binarization.h"
 #include "vigra/Colors.h"

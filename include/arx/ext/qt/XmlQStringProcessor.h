@@ -19,7 +19,7 @@
 #ifndef ARX_EXT_QT_XML_Q_STRING_PROCESSOR_H
 #define ARX_EXT_QT_XML_Q_STRING_PROCESSOR_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <QString>
 #include <arx/xml/StringProcessor.h>
 

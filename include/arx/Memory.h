@@ -19,7 +19,7 @@
 #ifndef ARX_MEMORY_H
 #define ARX_MEMORY_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <cstdlib>
 #include <cstddef>
 #include <malloc.h>

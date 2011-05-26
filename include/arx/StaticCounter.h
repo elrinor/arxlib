@@ -19,7 +19,7 @@
 #ifndef ARX_STATIC_COUNTER_H
 #define ARX_STATIC_COUNTER_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <boost/preprocessor/cat.hpp>
 
 /**

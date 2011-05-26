@@ -19,7 +19,7 @@
 #ifndef ARX_XML_BINDING_H
 #define ARX_XML_BINDING_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <cassert>
 #include <utility> /* For std::forward. */
 #include <boost/mpl/bool.hpp>

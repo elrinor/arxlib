@@ -19,7 +19,7 @@
 #ifndef ARX_PREPROCESSOR_STRIP_H
 #define ARX_PREPROCESSOR_STRIP_H
 
-#include "config.h"
+#include <arx/config.h>
 
 #define ARX_STRIP_I(...) __VA_ARGS__
 #define ARX_STRIP(ARG) ARX_STRIP_I ARG

@@ -19,7 +19,7 @@
 #ifndef ARX_PREPROCESSOR_ARRAY_PARAMS_H
 #define ARX_PREPROCESSOR_ARRAY_PARAMS_H
 
-#include "config.h"
+#include <arx/config.h>
 #include <boost/preprocessor/array/elem.hpp>
 #include <boost/preprocessor/array/size.hpp>
 #include <boost/preprocessor/tuple/elem.hpp>

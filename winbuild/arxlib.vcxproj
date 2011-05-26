@@ -77,11 +77,9 @@
   <ItemGroup>
     <ClInclude Include="..\include\arx\config.h" />
     <ClInclude Include="..\include\arx\ext\boost\Test.h" />
-    <ClInclude Include="..\include\arx\ext\config.h" />
     <ClInclude Include="..\include\arx\ext\Magick.h" />
     <ClInclude Include="..\include\arx\ext\OpenCV.h" />
     <ClInclude Include="..\include\arx\ext\Qt.h" />
-    <ClInclude Include="..\include\arx\ext\qt\config.h" />
     <ClInclude Include="..\include\arx\ext\qt\DomXmlReceiver.h" />
     <ClInclude Include="..\include\arx\ext\qt\FormGenerator.h" />
     <ClInclude Include="..\include\arx\ext\qt\FormPrinter.h" />
@@ -97,7 +95,6 @@
     <ClInclude Include="..\include\arx\ext\vigra\Accessors.h" />
     <ClInclude Include="..\include\arx\ext\vigra\Binarization.h" />
     <ClInclude Include="..\include\arx\ext\vigra\Colors.h" />
-    <ClInclude Include="..\include\arx\ext\vigra\config.h" />
     <ClInclude Include="..\include\arx\ext\vigra\Convert.h" />
     <ClInclude Include="..\include\arx\ext\vigra\Converter.h" />
     <ClInclude Include="..\include\arx\ext\vigra\Drawing.h" />
