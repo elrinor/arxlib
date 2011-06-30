@@ -60,6 +60,9 @@
     <Filter Include="include\arx\utility">
       <UniqueIdentifier>{ab7ea71b-e3c0-4f54-84ab-2575d52c2ab4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\arx\ext\qt\xml_mapping">
+      <UniqueIdentifier>{7219bce5-b109-47fe-b912-95a2ddf5b71a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\arx\config.h">
@@ -247,6 +250,9 @@
     </ClInclude>
     <ClInclude Include="..\include\arx\range\MappedValue.h">
       <Filter>include\arx\range</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\arx\ext\qt\XmlMapping.h">
+      <Filter>include\arx\ext\qt\xml_mapping</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
