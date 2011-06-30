@@ -22,7 +22,6 @@
 #include <arx/config.h>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
-#include <arx/ScopeExit.h>
 
 namespace arx { namespace xml {
   namespace detail {
@@ -41,6 +40,20 @@ namespace arx { namespace xml {
         derived().startAttribute(name);
         derived().map(std::forward<T>(value));
         derived().endAttribute();
+      }
+
+      template<class Function>
+      void attribute(const QString &name, const Function &function) {
+        derived().startAttribute(name);
+        function();
+        derived().endAttribute();
+      }
+
+      template<class Function>
+      void element(const QString &name, const Function &function) {
+        derived().startElement(name);
+        function();
+        derived().endElement();
       }
 
     private:
@@ -78,14 +91,6 @@ namespace arx { namespace xml {
       mAfterText = false;
     }
 
-    template<class Function>
-    void element(const QString &name, const Function &function) {
-      startElement(name);
-      ARX_SCOPE_EXIT(&) { this->endElement(); };
-
-      function();
-    }
-
     void startAttribute(const QString &name) {
 #ifndef NDEBUG
       if(mAfterText) {
@@ -100,14 +105,6 @@ namespace arx { namespace xml {
     void endAttribute() {
       mAttribute = QString();
       mAfterText = false;
-    }
-
-    template<class Function>
-    void attribute(const QString &name, const Function &function) {
-      startAttribute(name);
-      ARX_SCOPE_EXIT(&) { this->endAttribute(); };
-
-      function();
     }
 
     void text(const QString &text) {
@@ -192,28 +189,12 @@ namespace arx { namespace xml {
       return mReader.tokenType() == QXmlStreamReader::StartElement;
     }
 
-    template<class Function>
-    void element(const QString &name, const Function &function) {
-      startElement(name);
-      ARX_SCOPE_EXIT(&) { this->endElement(); };
-
-      function();
-    }
-
     void startAttribute(const QString &name) {
       mAttribute = name;
     }
 
     void endAttribute() {
       mAttribute = QString();
-    }
-
-    template<class Function>
-    void attribute(const QString &name, const Function &function) {
-      startAttribute(name);
-      ARX_SCOPE_EXIT(&) { this->endAttribute(); };
-
-      function();
     }
 
     void text(QString &text) {
