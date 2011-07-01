@@ -22,6 +22,7 @@
 #include <arx/config.h>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
+#include <QCoreApplication> /* For Q_DECLARE_TR_FUNCTIONS. */
 
 namespace arx { namespace xml {
   namespace detail {
@@ -158,6 +159,7 @@ namespace arx { namespace xml {
   public:
     Deserializer(QXmlStreamReader &reader, ErrorHandler &errorHandler): 
       mHasErrors(false), 
+      mSkipToken(false),
       mReader(reader),
       mErrorHandler(errorHandler) 
     {}
@@ -170,7 +172,7 @@ namespace arx { namespace xml {
         handleError(mReader, tr("Expected \"%1\" xml element, got \"%2\"").arg(name).arg(mReader.name().toString()));
 
       /* Skip start element token. */
-      mReader.readNext();
+      mSkipToken = true;
     }
 
     void endElement() {
@@ -180,7 +182,7 @@ namespace arx { namespace xml {
         return;
 
       /* Skip end element token. */
-      mReader.readNext(); 
+      readNext(); 
     }
 
     bool hasElement() {
@@ -198,6 +200,11 @@ namespace arx { namespace xml {
     }
 
     void text(QString &text) {
+#ifndef NDEBUG
+      if(mReader.tokenType() != QXmlStreamReader::StartElement)
+        qWarning("Deserializer::text: must be at element start to request attribute text");
+#endif
+
       if(!mAttribute.isNull()) {
         QStringRef result = mReader.attributes().value(mAttribute);
         if(result.isNull())
@@ -205,7 +212,7 @@ namespace arx { namespace xml {
         text = result.toString();
       } else {
         if(mText.isNull())
-          mText = readElementText();
+          mText = mReader.readElementText(QXmlStreamReader::IncludeChildElements);
         text = mText;
       }
     }
@@ -238,7 +245,7 @@ namespace arx { namespace xml {
     }
 
     bool atWhiteSpace() {
-      switch(mReader.tokenType()) {
+      switch(tokenType()) {
       case QXmlStreamReader::NoToken:
       case QXmlStreamReader::StartDocument:
       case QXmlStreamReader::EndDocument:
@@ -254,14 +261,14 @@ namespace arx { namespace xml {
 
     void skipWhitespace() {
       while(atWhiteSpace())
-        mReader.readNext();
+        readNext();
     }
 
-    bool expect(QXmlStreamReader::TokenType tokenType, const char *errorString) {
+    bool expect(QXmlStreamReader::TokenType token, const char *errorString) {
       while(true) {
         skipWhitespace();
 
-        if(mReader.tokenType() == tokenType)
+        if(tokenType() == token)
           return true;
 
         if(mReader.hasError()) {
@@ -270,38 +277,31 @@ namespace arx { namespace xml {
         } 
 
         handleError(mReader, tr(errorString).arg(mReader.tokenString()));
-        mReader.readNext();
+        readNext();
       }
     }
-    
-    QString readElementText() {
-      QString result;
 
-      while(true) {
-        switch (mReader.tokenType()) {
-        case QXmlStreamReader::Characters:
-        case QXmlStreamReader::EntityReference:
-          result += mReader.text();
-          break;
-        case QXmlStreamReader::EndElement:
-          return result;
-        case QXmlStreamReader::ProcessingInstruction:
-        case QXmlStreamReader::Comment:
-          break;
-        case QXmlStreamReader::StartElement:
-          result += readElementText();
-          break;
-        default:
-          handleError(mReader, tr("Expected element end, got \"%1\"").arg(mReader.tokenString()));
-          return result;
-        }
-
+    QXmlStreamReader::TokenType tokenType() {
+      if(mSkipToken) {
         mReader.readNext();
+        mSkipToken = false;
       }
+
+      return mReader.tokenType();
+    }
+
+    void readNext() {
+      if(mSkipToken) {
+        mReader.readNext();
+        mSkipToken = false;
+      }
+
+      mReader.readNext();
     }
 
   private:
     bool mHasErrors;
+    bool mSkipToken;
     QString mText;
     QString mAttribute;
     QXmlStreamReader &mReader;
@@ -342,11 +342,11 @@ namespace arx { namespace xml {
 
 }} // namespace arx::xml
 
-#define ARX_DECLARE_XML_MAPPING_FUNCTIONS(... /* TYPE */)                       \
+#define ARX_XML_DECLARE_MAPPING_FUNCTIONS(... /* TYPE */)                       \
   void xml_serialize(arx::xml::Serializer &serializer, const __VA_ARGS__ &value); \
   bool xml_deserialize(arx::xml::Deserializer &deserializer, __VA_ARGS__ &value); \
 
-#define ARX_DEFINE_XML_MAPPING_FUNCTIONS(MAPPING_FUNCTION, ... /* TYPE */)      \
+#define ARX_XML_DEFINE_MAPPING_FUNCTIONS(MAPPING_FUNCTION, ... /* TYPE */)      \
   void xml_serialize(arx::xml::Serializer &serializer, const __VA_ARGS__ &value) { \
     MAPPING_FUNCTION(serializer, const_cast<__VA_ARGS__ &>(value));             \
   }                                                                             \
