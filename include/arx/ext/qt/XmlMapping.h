@@ -169,7 +169,7 @@ namespace arx { namespace xml {
         return;
 
       if(mReader.name() != name)
-        handleError(mReader, tr("Expected \"%1\" xml element, got \"%2\"").arg(name).arg(mReader.name().toString()));
+        handleError(tr("Expected \"%1\" xml element, got \"%2\"").arg(name).arg(mReader.name().toString()));
 
       /* Skip start element token. */
       mSkipToken = true;
@@ -208,13 +208,19 @@ namespace arx { namespace xml {
       if(!mAttribute.isNull()) {
         QStringRef result = mReader.attributes().value(mAttribute);
         if(result.isNull())
-          handleError(mReader, tr("Attribute \"%1\" not found").arg(mAttribute));
+          handleError(tr("Attribute \"%1\" not found").arg(mAttribute));
         text = result.toString();
       } else {
         if(mText.isNull())
           mText = mReader.readElementText(QXmlStreamReader::IncludeChildElements);
         text = mText;
       }
+    }
+
+    QString text() {
+      QString result;
+      text(result);
+      return result;
     }
 
     template<class T>
@@ -226,21 +232,21 @@ namespace arx { namespace xml {
       return mHasErrors;
     }
 
-  protected:
-    void handleError(const QXmlStreamReader &reader, const QString &message) {
+    void handleError(const QString &message) {
       mHasErrors = true;
 
-      mErrorHandler.handleError(reader, message);
+      mErrorHandler.handleError(mReader, message);
     }
 
+  protected:
     void handleReaderError() {
       switch(mReader.error()) {
       case QXmlStreamReader::NotWellFormedError:
-        handleError(mReader, tr("Xml document is not well-formatted"));
+        handleError(tr("Xml document is not well-formatted"));
       case QXmlStreamReader::PrematureEndOfDocumentError:
-        handleError(mReader, tr("Xml document ended prematurely"));
+        handleError(tr("Xml document ended prematurely"));
       default:
-        handleError(mReader, mReader.errorString());
+        handleError(mReader.errorString());
       }
     }
 
@@ -276,7 +282,7 @@ namespace arx { namespace xml {
           return false;
         } 
 
-        handleError(mReader, tr(errorString).arg(mReader.tokenString()));
+        handleError(tr(errorString).arg(mReader.tokenString()));
         readNext();
       }
     }
@@ -324,20 +330,23 @@ namespace arx { namespace xml {
 
   template<class T>
   bool deserialize(Deserializer &deserializer, T &value) {
-    return xml_deserialize(deserializer, value);
+    xml_deserialize(deserializer, value);
+    return deserializer.hasErrors();
   }
 
   template<class T>
   bool deserialize(QXmlStreamReader &reader, T &value) {
     DefaultErrorHandler errorHandler;
     Deserializer deserializer(reader, errorHandler);
-    return xml_deserialize(deserializer, value);
+    xml_deserialize(deserializer, value);
+    return deserializer.hasErrors();
   }
 
   template<class T>
   bool deserialize(QXmlStreamReader &reader, ErrorHandler &errorHandler, T &value) {
     Deserializer deserializer(reader, errorHandler);
-    return xml_deserialize(deserializer, value);
+    xml_deserialize(deserializer, value);
+    return deserializer.hasErrors();
   }
 
 }} // namespace arx::xml
