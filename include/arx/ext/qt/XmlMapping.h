@@ -382,16 +382,15 @@ namespace arx { namespace xml {
 
 #define ARX_XML_DECLARE_MAPPING_FUNCTIONS(... /* TYPE */)                       \
   void xml_serialize(arx::xml::Serializer &serializer, const __VA_ARGS__ &value); \
-  bool xml_deserialize(arx::xml::Deserializer &deserializer, __VA_ARGS__ &value); \
+  void xml_deserialize(arx::xml::Deserializer &deserializer, __VA_ARGS__ &value); \
 
 #define ARX_XML_DEFINE_MAPPING_FUNCTIONS(MAPPING_FUNCTION, ... /* TYPE */)      \
   void xml_serialize(arx::xml::Serializer &serializer, const __VA_ARGS__ &value) { \
     MAPPING_FUNCTION(serializer, const_cast<__VA_ARGS__ &>(value));             \
   }                                                                             \
                                                                                 \
-  bool xml_deserialize(arx::xml::Deserializer &deserializer, __VA_ARGS__ &value) { \
+  void xml_deserialize(arx::xml::Deserializer &deserializer, __VA_ARGS__ &value) { \
     MAPPING_FUNCTION(deserializer, value);                                      \
-    return deserializer.hasErrors();                                            \
   }                                                                             \
 
 #endif // ARX_EXT_QT_XML_MAPPING_H
