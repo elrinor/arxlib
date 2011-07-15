@@ -212,7 +212,7 @@ namespace arx { namespace xml {
         text = result.toString();
       } else {
         if(mText.isNull())
-          mText = mReader.readElementText(QXmlStreamReader::IncludeChildElements);
+          mText = readElementText();
         text = mText;
       }
     }
@@ -287,6 +287,35 @@ namespace arx { namespace xml {
       }
     }
 
+    QString readElementText() {
+      QString result;
+
+      while(true) {
+        switch (tokenType()) {
+        case QXmlStreamReader::Characters:
+        case QXmlStreamReader::EntityReference:
+          result += mReader.text();
+          break;
+        case QXmlStreamReader::EndElement:
+          return result;
+        case QXmlStreamReader::ProcessingInstruction:
+        case QXmlStreamReader::Comment:
+          break;
+        case QXmlStreamReader::StartElement:
+          result += readElementText();
+
+          /* Skip element end. */
+          readNext(); 
+          break;
+        default:
+          handleReaderError();
+          return result;
+        }
+
+        readNext();
+      }
+    }
+
     QXmlStreamReader::TokenType tokenType() {
       if(mSkipToken) {
         mReader.readNext();
@@ -331,7 +360,7 @@ namespace arx { namespace xml {
   template<class T>
   bool deserialize(Deserializer &deserializer, T &value) {
     xml_deserialize(deserializer, value);
-    return deserializer.hasErrors();
+    return !deserializer.hasErrors();
   }
 
   template<class T>
@@ -339,14 +368,14 @@ namespace arx { namespace xml {
     DefaultErrorHandler errorHandler;
     Deserializer deserializer(reader, errorHandler);
     xml_deserialize(deserializer, value);
-    return deserializer.hasErrors();
+    return !deserializer.hasErrors();
   }
 
   template<class T>
   bool deserialize(QXmlStreamReader &reader, ErrorHandler &errorHandler, T &value) {
     Deserializer deserializer(reader, errorHandler);
     xml_deserialize(deserializer, value);
-    return deserializer.hasErrors();
+    return !deserializer.hasErrors();
   }
 
 }} // namespace arx::xml
