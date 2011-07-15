@@ -1,8 +1,27 @@
+/* This file is part of ArXLib, a C++ ArX Primitives Library.
+ *
+ * Copyright (C) 2008-2011 Alexander Fokin <apfokin@gmail.com>
+ *
+ * ArXLib is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * ArXLib is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License 
+ * for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with ArXLib. If not, see <http://www.gnu.org/licenses/>. 
+ * 
+ * $Id$ */
 #ifndef ARX_EXT_QT_XML_MAPPINGS_H
 #define ARX_EXT_QT_XML_MAPPINGS_H
 
 #include <arx/config.h>
 #include <QApplication>
+#include <arx/range/Insert.h>
 #include "XmlMapping.h"
 
 namespace arx { namespace xml {
@@ -85,9 +104,38 @@ namespace arx { namespace xml {
 
 
 // -------------------------------------------------------------------------- //
-// List types mapping
+// Collection types mapping
 // -------------------------------------------------------------------------- //
+  template<class Collection>
+  QString xml_collection_element_name(Collection *) {
+    return QString("elem");
+  }
+  
+  template<class Collection>
+  void xml_serialize(Serializer &serializer, const Collection &x) {
+    typedef typename boost::range_value<Collection>::type value_type;
 
+    QString elementName = xml_collection_element_name(static_cast<Collection *>(NULL));
+    foreach(const value_type &value, x) {
+      serializer.element(elementName, [&] {
+        arx::xml::serialize(serializer, value);
+      });
+    }
+  }
+
+  template<class Collection>
+  void xml_deserialize(Deserializer &deserializer, Collection &x) {
+    typedef typename boost::range_value<Collection>::type value_type;
+
+    QString elementName = xml_collection_element_name(static_cast<Collection *>(NULL));
+    while(deserializer.hasElement()) {
+      deserializer.element(elementName, [&] {
+        value_type value;
+        if(arx::xml::deserialize(deserializer, value))
+          arx::insert(x, boost::end(x), std::move(value));
+      });
+    }
+  }
 
 
 }} // namespace arx::xml
