@@ -20,9 +20,12 @@
 #define ARX_EXT_QT_XML_MAPPINGS_H
 
 #include <arx/config.h>
-#include <QApplication>
+#include <boost/range/value_type.hpp>
+#include <QApplication> /* For QCoreApplication::translate. */
 #include <arx/range/Insert.h>
+#include <arx/Foreach.h>
 #include "XmlMapping.h"
+
 
 namespace arx { namespace xml {
 // -------------------------------------------------------------------------- //
