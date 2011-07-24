@@ -110,11 +110,6 @@ namespace arx { namespace xml {
 // Collection types mapping
 // -------------------------------------------------------------------------- //
   template<class Collection>
-  QString xml_collection_element_name(Collection *) {
-    return QString("elem");
-  }
-  
-  template<class Collection>
   void xml_collection_serialize(Serializer &serializer, const Collection &x) {
     typedef typename boost::range_value<Collection>::type value_type;
 
@@ -140,8 +135,10 @@ namespace arx { namespace xml {
     }
   }
 
+
+
   /* TODO: template support. */
-#define ARX_XML_DEFINE_COLLECTION_MAPPING_FUNCTIONS(... /* TYPE */)             \
+#define ARX_XML_DEFINE_COLLECTION_MAPPING_FUNCTIONS_EXT(ELEMENT_NAME, ... /* TYPE */) \
   void xml_serialize(arx::xml::Serializer &serializer, const __VA_ARGS__ &value) { \
     arx::xml::xml_collection_serialize(serializer, const_cast<__VA_ARGS__ &>(value)); \
   }                                                                             \
@@ -149,6 +146,14 @@ namespace arx { namespace xml {
   void xml_deserialize(arx::xml::Deserializer &deserializer, __VA_ARGS__ &value) { \
     arx::xml::xml_collection_deserialize(deserializer, value);                  \
   }                                                                             \
+                                                                                \
+  QString xml_collection_element_name(__VA_ARGS__ *) {                          \
+    return QString(ELEMENT_NAME);                                               \
+  }
+
+#define ARX_XML_DEFINE_COLLECTION_MAPPING_FUNCTIONS(... /* TYPE */)             \
+  ARX_XML_DEFINE_COLLECTION_MAPPING_FUNCTIONS_EXT("elem", __VA_ARGS__)
+
 
 }} // namespace arx::xml
 

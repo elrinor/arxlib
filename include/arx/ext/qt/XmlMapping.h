@@ -126,9 +126,31 @@ namespace arx { namespace xml {
       mAfterText = true;
     }
 
+    QString text() {
+      qWarning("Serializer::text(): is expected never to be called");
+      
+      return QString();
+    }
+
     template<class T>
     void map(const T &value) {
       serialize(*this, value);
+    }
+
+    void handleError(const QString &) const {
+      qWarning("Serializer::handleError: is expected never to be called");
+    }
+
+    bool hasErrors() const {
+      return false;
+    }
+
+    bool isSerializing() const {
+      return true;
+    }
+
+    bool isDeserializing() const {
+      return false;
     }
 
   private:
@@ -165,15 +187,19 @@ namespace arx { namespace xml {
       mErrorHandler(errorHandler) 
     {}
 
-    void startElement(const QString &name) {
+    QStringRef startElement() {
       if(!expect(QXmlStreamReader::StartElement, QT_TR_NOOP("Expected element start, got \"%1\"")))
-        return;
-
-      if(mReader.name() != name)
-        handleError(tr("Expected \"%1\" xml element, got \"%2\"").arg(name).arg(mReader.name().toString()));
+        return QStringRef();
 
       /* Skip start element token. */
       mSkipToken = true;
+
+      return mReader.name();
+    }
+
+    void startElement(const QString &name) {
+      if(startElement() != name)
+        handleError(tr("Expected \"%1\" xml element, got \"%2\"").arg(name).arg(mReader.name().toString()));
     }
 
     void endElement() {
@@ -229,6 +255,11 @@ namespace arx { namespace xml {
       deserialize(*this, value);
     }
 
+    template<class T>
+    void map(const T &) {
+      qWarning("Deserializer::map(const T &): is expected never to be called");
+    }
+
     bool hasErrors() const {
       return mHasErrors;
     }
@@ -237,6 +268,14 @@ namespace arx { namespace xml {
       mHasErrors = true;
 
       mErrorHandler.handleError(mReader, message);
+    }
+
+    bool isSerializing() const {
+      return false;
+    }
+
+    bool isDeserializing() const {
+      return true;
     }
 
   protected:
