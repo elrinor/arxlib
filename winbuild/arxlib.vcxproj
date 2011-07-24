@@ -87,6 +87,7 @@
     <ClInclude Include="..\include\arx\ext\qt\XmlMapping.h" />
     <ClInclude Include="..\include\arx\ext\qt\Range.h" />
     <ClInclude Include="..\include\arx\ext\qt\XmlBinding.h" />
+    <ClInclude Include="..\include\arx\ext\qt\XmlMappingFwd.h" />
     <ClInclude Include="..\include\arx\ext\qt\XmlQDomNodeInspector.h" />
     <ClInclude Include="..\include\arx\ext\qt\XmlQDomNodeWalker.h" />
     <ClInclude Include="..\include\arx\ext\qt\XmlQStringProcessor.h" />
