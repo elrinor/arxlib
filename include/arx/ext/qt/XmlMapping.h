@@ -23,6 +23,7 @@
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include <QCoreApplication> /* For Q_DECLARE_TR_FUNCTIONS. */
+#include "XmlMappingFwd.h"
 
 namespace arx { namespace xml {
   namespace detail {
@@ -379,10 +380,6 @@ namespace arx { namespace xml {
   }
 
 }} // namespace arx::xml
-
-#define ARX_XML_DECLARE_MAPPING_FUNCTIONS(... /* TYPE */)                       \
-  void xml_serialize(arx::xml::Serializer &serializer, const __VA_ARGS__ &value); \
-  void xml_deserialize(arx::xml::Deserializer &deserializer, __VA_ARGS__ &value); \
 
 #define ARX_XML_DEFINE_MAPPING_FUNCTIONS(MAPPING_FUNCTION, ... /* TYPE */)      \
   void xml_serialize(arx::xml::Serializer &serializer, const __VA_ARGS__ &value) { \
