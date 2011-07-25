@@ -244,6 +244,10 @@ namespace arx { namespace xml {
       }
     }
 
+    void text(const QString &) {
+      qWarning("Deserializer::text(const QString &): is expected never to be called");
+    }
+
     QString text() {
       QString result;
       text(result);
