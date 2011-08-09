@@ -19,6 +19,7 @@
 #ifndef ARX_FOREACH_H
 #define ARX_FOREACH_H
 
+#include <arx/config.h>
 #include <boost/config.hpp> /* For BOOST_NO_AUTO_DECLARATIONS. */
 #include <boost/foreach.hpp>
 #include <boost/preprocessor/cat.hpp>
