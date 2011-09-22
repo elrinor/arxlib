@@ -26,8 +26,8 @@
 #include <memory>
 #include <boost/static_assert.hpp>
 #include <boost/mpl/and.hpp>
+#include <boost/type_traits/has_new_operator.hpp>
 #include "Utility.h"
-#include "HasXxx.h"
 
 
 /**
@@ -136,14 +136,6 @@ namespace arx {
   };
 
 
-  namespace detail {
-    namespace has_new_delete_ns {
-      ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT(has_operator_new, operator new)
-      ARX_DEFINE_NAMED_HAS_EXACT_FUNC_TRAIT(has_operator_delete, operator delete)
-    }
-  }
-
-
 // -------------------------------------------------------------------------- //
 // classnew_allocator
 // -------------------------------------------------------------------------- //
@@ -210,13 +202,7 @@ namespace arx {
     }
 
   private:
-    template<
-      class U, 
-      bool has_new_delete = boost::mpl::and_<
-        detail::has_new_delete_ns::has_operator_new<T, void *(std::size_t)>,
-        detail::has_new_delete_ns::has_operator_delete<T, void(void *)> 
-      >::value
-    > 
+    template<class U, bool has_new = boost::has_new_operator<U>::value> 
     struct allocator_impl {
       enum { HAS_NEW = true };
 
