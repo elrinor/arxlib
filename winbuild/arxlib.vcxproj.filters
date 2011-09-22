@@ -260,6 +260,9 @@
     <ClInclude Include="..\include\arx\ext\qt\XmlMappings.h">
       <Filter>include\arx\ext\qt\xml_mapping</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\arx\ext\qt\BuildInformation.h">
+      <Filter>include\arx\ext\qt</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\include\arx\ext\VigraQt.pri">
