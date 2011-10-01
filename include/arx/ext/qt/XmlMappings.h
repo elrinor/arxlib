@@ -20,6 +20,8 @@
 #define ARX_EXT_QT_XML_MAPPINGS_H
 
 #include <arx/config.h>
+#include <typeinfo>
+#include <limits>
 #include <boost/range/value_type.hpp>
 #include <QApplication> /* For QCoreApplication::translate. */
 #include <arx/range/Insert.h>
