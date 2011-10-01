@@ -1,0 +1,163 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{32709868-6211-426F-A78B-E9D62D0BE494}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>arxlib</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\arx\config.h" />
+    <ClInclude Include="..\include\arx\ext\boost\Test.h" />
+    <ClInclude Include="..\include\arx\ext\Magick.h" />
+    <ClInclude Include="..\include\arx\ext\OpenCV.h" />
+    <ClInclude Include="..\include\arx\ext\Qt.h" />
+    <ClInclude Include="..\include\arx\ext\qt\BuildInformation.h" />
+    <ClInclude Include="..\include\arx\ext\qt\DomXmlReceiver.h" />
+    <ClInclude Include="..\include\arx\ext\qt\FormGenerator.h" />
+    <ClInclude Include="..\include\arx\ext\qt\FormPrinter.h" />
+    <ClInclude Include="..\include\arx\ext\qt\XmlMappings.h" />
+    <ClInclude Include="..\include\arx\ext\qt\XmlMapping.h" />
+    <ClInclude Include="..\include\arx\ext\qt\Range.h" />
+    <ClInclude Include="..\include\arx\ext\qt\XmlBinding.h" />
+    <ClInclude Include="..\include\arx\ext\qt\XmlMappingFwd.h" />
+    <ClInclude Include="..\include\arx\ext\qt\XmlQDomNodeInspector.h" />
+    <ClInclude Include="..\include\arx\ext\qt\XmlQDomNodeWalker.h" />
+    <ClInclude Include="..\include\arx\ext\qt\XmlQStringProcessor.h" />
+    <ClInclude Include="..\include\arx\ext\Vigra.h" />
+    <ClInclude Include="..\include\arx\ext\VigraMagick.h" />
+    <ClInclude Include="..\include\arx\ext\VigraOpenCV.h" />
+    <ClInclude Include="..\include\arx\ext\VigraQt.h" />
+    <ClInclude Include="..\include\arx\ext\vigra\Accessors.h" />
+    <ClInclude Include="..\include\arx\ext\vigra\Binarization.h" />
+    <ClInclude Include="..\include\arx\ext\vigra\Colors.h" />
+    <ClInclude Include="..\include\arx\ext\vigra\Convert.h" />
+    <ClInclude Include="..\include\arx\ext\vigra\Converter.h" />
+    <ClInclude Include="..\include\arx\ext\vigra\Drawing.h" />
+    <ClInclude Include="..\include\arx\ext\vigra\MetaFunctions.h" />
+    <ClInclude Include="..\include\arx\ext\vigra\RGBAValue.h" />
+    <ClInclude Include="..\include\arx\ext\vigra\StdImage.h" />
+    <ClInclude Include="..\include\arx\ext\vigra\Validation.h" />
+    <ClInclude Include="..\include\arx\Foreach.h" />
+    <ClInclude Include="..\include\arx\HasXxx.h" />
+    <ClInclude Include="..\include\arx\LambdaHack.h" />
+    <ClInclude Include="..\include\arx\Memory.h" />
+    <ClInclude Include="..\include\arx\ObjectPool.h" />
+    <ClInclude Include="..\include\arx\Preprocessor.h" />
+    <ClInclude Include="..\include\arx\preprocessor\ArrayParams.h" />
+    <ClInclude Include="..\include\arx\preprocessor\Cat.h" />
+    <ClInclude Include="..\include\arx\preprocessor\Strip.h" />
+    <ClInclude Include="..\include\arx\Properties.h" />
+    <ClInclude Include="..\include\arx\Range.h" />
+    <ClInclude Include="..\include\arx\range\Contains.h" />
+    <ClInclude Include="..\include\arx\range\Find.h" />
+    <ClInclude Include="..\include\arx\range\Insert.h" />
+    <ClInclude Include="..\include\arx\range\MappedValue.h" />
+    <ClInclude Include="..\include\arx\ScopeExit.h" />
+    <ClInclude Include="..\include\arx\Singleton.h" />
+    <ClInclude Include="..\include\arx\StaticBlock.h" />
+    <ClInclude Include="..\include\arx\StaticCounter.h" />
+    <ClInclude Include="..\include\arx\TypeTraits.h" />
+    <ClInclude Include="..\include\arx\Utility.h" />
+    <ClInclude Include="..\include\arx\utility\Fatal.h" />
+    <ClInclude Include="..\include\arx\utility\UnorderedPair.h" />
+    <ClInclude Include="..\include\arx\utility\Unreachable.h" />
+    <ClInclude Include="..\include\arx\utility\Unused.h" />
+    <ClInclude Include="..\include\arx\utility\Verify.h" />
+    <ClInclude Include="..\include\arx\xml\Binding.h" />
+    <ClInclude Include="..\include\arx\xml\Checkers.h" />
+    <ClInclude Include="..\include\arx\xml\Error.h" />
+    <ClInclude Include="..\include\arx\xml\ErrorLocation.h" />
+    <ClInclude Include="..\include\arx\xml\NodeInspector.h" />
+    <ClInclude Include="..\include\arx\xml\NodeWalker.h" />
+    <ClInclude Include="..\include\arx\xml\Path.h" />
+    <ClInclude Include="..\include\arx\xml\StringProcessor.h" />
+    <ClInclude Include="..\include\arx\xml\UserData.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\include\arx\Arx.pri" />
+    <None Include="..\include\arx\ext\qt\DomXmlReceiver.pri" />
+    <None Include="..\include\arx\ext\qt\FormPrinter.pri" />
+    <None Include="..\include\arx\ext\qt\XmlBinding.pri" />
+    <None Include="..\include\arx\ext\VigraQt.pri" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\arx\ext\qt\DomXmlReceiver.cpp" />
+    <ClCompile Include="..\src\arx\ext\qt\VigraQtStaticPlugins.cpp" />
+    <ClCompile Include="..\test\arxtest.cpp" />
+    <ClCompile Include="..\test\arx\Foreach.cpp" />
+    <ClCompile Include="..\test\arx\HasXxx.cpp" />
+    <ClCompile Include="..\test\arx\ScopeExit.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
