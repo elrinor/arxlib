@@ -32,7 +32,7 @@
 #ifdef ARX_MSVC
 #  define ALWAYS_INLINE __forceinline
 #elif defined(ARX_GCC)
-#  define ALWAYS_INLINE inline __attribute__((__always_inline__))
+#  define ALWAYS_INLINE inline __attribute__((always_inline))
 #else
 #  define ALWAYS_INLINE inline
 #endif
@@ -40,7 +40,7 @@
 #ifdef ARX_MSVC
 #  define NEVER_INLINE __declspec(noinline)
 #elif defined(ARX_GCC)
-#  define NEVER_INLINE __attribute__((__noinline__))
+#  define NEVER_INLINE __attribute__((noinline))
 #else
 #  define NEVER_INLINE
 #endif
@@ -48,7 +48,7 @@
 #ifdef ARX_MSVC
 #  define NORETURN __declspec(noreturn)
 #elif defined(ARX_GCC)
-#  define NORETURN __attribute((__noreturn__))
+#  define NORETURN __attribute__((noreturn))
 #else
 #  define NORETURN
 #endif
